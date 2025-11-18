@@ -1,59 +1,802 @@
 [
   {
-    "id": "ADV-001",
-    "title": "Observer Pattern - Event System",
+    "id": "ADV-041",
+    "title": "서비스 로케이터 패턴",
     "category": "Advanced Patterns",
     "language": "typescript",
     "framework": "Node.js",
-    "code": "type EventListener<T> = (data: T) => void;\n\nclass EventBus<T> {\n  private listeners: Map<string, EventListener<T>[]> = new Map();\n  \n  on(event: string, listener: EventListener<T>): void {\n    if (!this.listeners.has(event)) {\n      this.listeners.set(event, []);\n    }\n    this.listeners.get(event)!.push(listener);\n  }\n  \n  off(event: string, listener: EventListener<T>): void {\n    const listeners = this.listeners.get(event);\n    if (listeners) {\n      const index = listeners.indexOf(listener);\n      if (index !== -1) {\n        listeners.splice(index, 1);\n      }\n    }\n  }\n  \n  emit(event: string, data: T): void {\n    const listeners = this.listeners.get(event) || [];\n    listeners.forEach(listener => listener(data));\n  }\n}\n\n// Usage\nconst eventBus = new EventBus<{ courseId: string; userId: string }>();\n\neventBus.on('course_enrolled', (data) => {\n  console.log(`User ${data.userId} enrolled in ${data.courseId}`);\n});\n\neventBus.emit('course_enrolled', { courseId: '1', userId: 'user123' });"
+    "code": "class ServiceLocator {\n  private static services = new Map<string, any>();\n  static register(name: string, service: any) { this.services.set(name, service); }\n  static locate(name: string) { return this.services.get(name); }\n}\nconst db = ServiceLocator.locate('database');"
   },
   {
-    "id": "ADV-002",
-    "title": "Singleton Pattern with Module",
+    "id": "ADV-042",
+    "title": "의존성 해석",
     "category": "Advanced Patterns",
     "language": "typescript",
     "framework": "Node.js",
-    "code": "class Database {\n  private static instance: Database;\n  private connectionPool: any;\n  \n  private constructor() {\n    this.connectionPool = this.initializePool();\n  }\n  \n  static getInstance(): Database {\n    if (!Database.instance) {\n      Database.instance = new Database();\n    }\n    return Database.instance;\n  }\n  \n  private initializePool() {\n    // Initialize connection pool\n    return null;\n  }\n  \n  query(sql: string): Promise<any> {\n    return this.connectionPool.query(sql);\n  }\n}\n\n// Usage\nconst db = Database.getInstance();\nconst result = await db.query('SELECT * FROM courses');"
+    "code": "class Resolver {\n  resolve(className: string): any {\n    const dependencies = this.getDependencies(className);\n    const resolvedDeps = dependencies.map(d => this.resolve(d));\n    return new (require(className))(...resolvedDeps);\n  }\n  private getDependencies(name: string): string[] { return []; }\n}\nconst resolver = new Resolver();\nconst service = resolver.resolve('CourseService');"
   },
   {
-    "id": "ADV-003",
-    "title": "Factory Pattern - Object Creation",
-    "category": "Advanced Patterns",\n    "language": "typescript",\n    "framework": "Node.js",\n    "code": "interface Payment {\n  process(amount: number): Promise<string>;\n}\n\nclass StripePayment implements Payment {\n  async process(amount: number): Promise<string> {\n    // Stripe payment logic\n    return 'stripe_transaction_id';\n  }\n}\n\nclass PayPalPayment implements Payment {\n  async process(amount: number): Promise<string> {\n    // PayPal payment logic\n    return 'paypal_transaction_id';\n  }\n}\n\nclass PaymentFactory {\n  static createPaymentMethod(method: 'stripe' | 'paypal'): Payment {\n    switch (method) {\n      case 'stripe':\n        return new StripePayment();\n      case 'paypal':\n        return new PayPalPayment();\n      default:\n        throw new Error('Unknown payment method');\n    }\n  }\n}\n\n// Usage\nconst payment = PaymentFactory.createPaymentMethod('stripe');\nconst transactionId = await payment.process(99.99);"
+    "id": "ADV-043",
+    "title": "캐싱을 가진 서비스 로케이터",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "class CachedServiceLocator {\n  private cache = new Map<string, any>();\n  register(name: string, factory: () => any) {\n    this.cache.set(name, factory());\n  }\n  locate<T>(name: string): T { return this.cache.get(name); }\n}\nconst locator = new CachedServiceLocator();"
   },
   {
-    "id": "ADV-004",\n    "title": "Decorator Pattern - Function Composition",\n    "category": "Advanced Patterns",\n    "language": "typescript",\n    "framework": "Node.js",\n    "code": "function withLogging(target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n  const originalMethod = descriptor.value;\n  \n  descriptor.value = function(...args: any[]) {\n    console.log(`Calling ${propertyKey} with args:`, args);\n    const result = originalMethod.apply(this, args);\n    console.log(`${propertyKey} returned:`, result);\n    return result;\n  };\n  \n  return descriptor;\n}\n\nfunction withErrorHandling(target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n  const originalMethod = descriptor.value;\n  \n  descriptor.value = async function(...args: any[]) {\n    try {\n      return await originalMethod.apply(this, args);\n    } catch (error) {\n      console.error(`Error in ${propertyKey}:`, error);\n      throw error;\n    }\n  };\n  \n  return descriptor;\n}\n\nclass CourseService {\n  @withLogging\n  @withErrorHandling\n  async getCourse(id: string) {\n    return await database.findCourse(id);\n  }\n}"
+    "id": "ADV-044",
+    "title": "지연 로딩을 가진 팩토리",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "class LazyFactory<T> {\n  private instance: T | null = null;\n  constructor(private creator: () => T) {}\n  getInstance(): T {\n    if (!this.instance) this.instance = this.creator();\n    return this.instance;\n  }\n}\nconst lazyDb = new LazyFactory(() => new Database());"
   },
   {
-    "id": "ADV-005",\n    "title": "Strategy Pattern - Algorithm Selection",\n    "category": "Advanced Patterns",\n    "language": "typescript",\n    "framework": "Node.js",\n    "code": "interface RecommendationStrategy {\n  getRecommendations(userId: string): Promise<string[]>;\n}\n\nclass CollaborativeFiltering implements RecommendationStrategy {\n  async getRecommendations(userId: string): Promise<string[]> {\n    // Find similar users\n    return ['course_id_1', 'course_id_2'];\n  }\n}\n\nclass ContentBased implements RecommendationStrategy {\n  async getRecommendations(userId: string): Promise<string[]> {\n    // Find courses with similar content\n    return ['course_id_3', 'course_id_4'];\n  }\n}\n\nclass HybridApproach implements RecommendationStrategy {\n  private collaborative = new CollaborativeFiltering();\n  private contentBased = new ContentBased();\n  \n  async getRecommendations(userId: string): Promise<string[]> {\n    const collab = await this.collaborative.getRecommendations(userId);\n    const content = await this.contentBased.getRecommendations(userId);\n    \n    // Combine and deduplicate\n    return Array.from(new Set([...collab, ...content]));\n  }\n}\n\nclass RecommendationEngine {\n  constructor(private strategy: RecommendationStrategy) {}\n  \n  setStrategy(strategy: RecommendationStrategy) {\n    this.strategy = strategy;\n  }\n  \n  async getRecommendations(userId: string) {\n    return this.strategy.getRecommendations(userId);\n  }\n}"
+    "id": "ADV-045",
+    "title": "빌더 패턴",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "class CourseBuilder {\n  private course: any = {};\n  setTitle(title: string) { this.course.title = title; return this; }\n  setDescription(desc: string) { this.course.description = desc; return this; }\n  setPrice(price: number) { this.course.price = price; return this; }\n  build() { return this.course; }\n}\nconst course = new CourseBuilder()\n  .setTitle('React')\n  .setPrice(99)\n  .build();"
   },
   {
-    "id": "ADV-006",\n    "title": "Repository Pattern - Data Access",\n    "category": "Advanced Patterns",\n    "language": "typescript",\n    "framework": "Node.js",\n    "code": "interface IRepository<T> {\n  findById(id: string): Promise<T | null>;\n  findAll(): Promise<T[]>;\n  create(item: T): Promise<T>;\n  update(id: string, item: Partial<T>): Promise<T>;\n  delete(id: string): Promise<boolean>;\n}\n\ninterface Course {\n  id: string;\n  title: string;\n  price: number;\n}\n\nclass CourseRepository implements IRepository<Course> {\n  async findById(id: string): Promise<Course | null> {\n    return await db.query('SELECT * FROM courses WHERE id = ?', [id]);\n  }\n  \n  async findAll(): Promise<Course[]> {\n    return await db.query('SELECT * FROM courses');\n  }\n  \n  async create(item: Course): Promise<Course> {\n    const result = await db.query(\n      'INSERT INTO courses (id, title, price) VALUES (?, ?, ?)',\n      [item.id, item.title, item.price]\n    );\n    return item;\n  }\n  \n  async update(id: string, item: Partial<Course>): Promise<Course> {\n    await db.query('UPDATE courses SET ? WHERE id = ?', [item, id]);\n    return await this.findById(id);\n  }\n  \n  async delete(id: string): Promise<boolean> {\n    const result = await db.query('DELETE FROM courses WHERE id = ?', [id]);\n    return result.affectedRows > 0;\n  }\n}"
+    "id": "ADV-046",
+    "title": "프로토타입 패턴",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "class CoursePrototype {\n  clone(): CoursePrototype {\n    return Object.create(Object.getPrototypeOf(this));\n  }\n}\nconst prototype = new CoursePrototype();\nconst clone1 = prototype.clone();\nconst clone2 = prototype.clone();"
   },
   {
-    "id": "ADV-007",\n    "title": "Command Pattern - Action Queuing",\n    "category": "Advanced Patterns",\n    "language": "typescript",\n    "framework": "Node.js",\n    "code": "interface Command {\n  execute(): Promise<void>;\n  undo(): Promise<void>;\n}\n\nclass EnrollCourseCommand implements Command {\n  constructor(private userId: string, private courseId: string) {}\n  \n  async execute(): Promise<void> {\n    await db('enrollments').insert({\n      userId: this.userId,\n      courseId: this.courseId,\n      enrolledAt: new Date()\n    });\n  }\n  \n  async undo(): Promise<void> {\n    await db('enrollments')\n      .where('userId', this.userId)\n      .where('courseId', this.courseId)\n      .delete();\n  }\n}\n\nclass CommandQueue {\n  private history: Command[] = [];\n  \n  async execute(command: Command): Promise<void> {\n    await command.execute();\n    this.history.push(command);\n  }\n  \n  async undo(): Promise<void> {\n    const lastCommand = this.history.pop();\n    if (lastCommand) {\n      await lastCommand.undo();\n    }\n  }\n}"
+    "id": "ADV-047",
+    "title": "어댑터 패턴",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "class OldPaymentGateway { pay(amount: number) { return 'processed'; } }\nclass PaymentAdapter {\n  constructor(private old: OldPaymentGateway) {}\n  processPayment(amount: number) { return this.old.pay(amount); }\n}\nconst adapter = new PaymentAdapter(new OldPaymentGateway());"
   },
   {
-    "id": "ADV-008",\n    "title": "Middleware Pattern - Request Processing",\n    "category": "Advanced Patterns",\n    "language": "typescript",\n    "framework": "Express",\n    "code": "type Middleware = (req: Request, res: Response, next: NextFunction) => void | Promise<void>;\n\nclass MiddlewareChain {\n  private middlewares: Middleware[] = [];\n  \n  use(middleware: Middleware): MiddlewareChain {\n    this.middlewares.push(middleware);\n    return this;\n  }\n  \n  async execute(req: Request, res: Response): Promise<void> {\n    let index = 0;\n    \n    const next = async () => {\n      if (index < this.middlewares.length) {\n        const middleware = this.middlewares[index++];\n        await middleware(req, res, next);\n      }\n    };\n    \n    await next();\n  }\n}\n\nconst chain = new MiddlewareChain();\n\nchain\n  .use((req, res, next) => {\n    console.log('Auth middleware');\n    next();\n  })\n  .use((req, res, next) => {\n    console.log('Rate limit middleware');\n    next();\n  })\n  .use((req, res, next) => {\n    console.log('Business logic');\n    res.send('Success');\n  });"
+    "id": "ADV-048",
+    "title": "브릿지 패턴",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "interface PaymentImpl { process(): void; }\nclass PaymentAbstraction {\n  constructor(private impl: PaymentImpl) {}\n  pay() { this.impl.process(); }\n}\nconst stripe = { process: () => console.log('Stripe') };\nconst payment = new PaymentAbstraction(stripe);"
   },
   {
-    "id": "ADV-009",\n    "title": "Pub/Sub Pattern with Redis",\n    "category": "Advanced Patterns",\n    "language": "typescript",\n    "framework": "Node.js + Redis",\n    "code": "import redis from 'redis';\n\nconst publisher = redis.createClient();\nconst subscriber = redis.createClient();\n\n// Publish event\nexport async function publishEvent(\n  channel: string,\n  message: any\n): Promise<void> {\n  await publisher.publish(channel, JSON.stringify(message));\n}\n\n// Subscribe to event\nexport async function subscribeToEvent(\n  channel: string,\n  handler: (message: any) => void\n): Promise<void> {\n  await subscriber.subscribe(channel, (message) => {\n    handler(JSON.parse(message));\n  });\n}\n\n// Usage\nsubscribeToEvent('course:enrolled', (data) => {\n  console.log(`User ${data.userId} enrolled in ${data.courseId}`);\n  // Send email notification\n  // Update analytics\n  // Update user dashboard\n});\n\npublishEvent('course:enrolled', {\n  userId: 'user123',\n  courseId: 'course1',\n  timestamp: new Date()\n});"
+    "id": "ADV-049",
+    "title": "파사드 패턴",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "class CourseManagementFacade {\n  async createCourse(data: any) {\n    await this.validateData(data);\n    await this.saveToDB(data);\n    await this.sendNotification(data);\n  }\n  private async validateData(data: any) {}\n  private async saveToDB(data: any) {}\n  private async sendNotification(data: any) {}\n}\nconst facade = new CourseManagementFacade();"
   },
   {
-    "id": "ADV-010",\n    "title": "Circuit Breaker Pattern",\n    "category": "Advanced Patterns",\n    "language": "typescript",\n    "framework": "Node.js",\n    "code": "enum CircuitState {\n  CLOSED = 'CLOSED',    // Normal operation\n  OPEN = 'OPEN',        // Failing, reject requests\n  HALF_OPEN = 'HALF_OPEN' // Testing if service recovered\n}\n\nclass CircuitBreaker {\n  private state = CircuitState.CLOSED;\n  private failureCount = 0;\n  private lastFailureTime = 0;\n  private readonly failureThreshold = 5;\n  private readonly resetTimeout = 60000; // 60 seconds\n  \n  async call<T>(fn: () => Promise<T>): Promise<T> {\n    if (this.state === CircuitState.OPEN) {\n      if (Date.now() - this.lastFailureTime > this.resetTimeout) {\n        this.state = CircuitState.HALF_OPEN;\n      } else {\n        throw new Error('Circuit breaker is OPEN');\n      }\n    }\n    \n    try {\n      const result = await fn();\n      this.onSuccess();\n      return result;\n    } catch (error) {\n      this.onFailure();\n      throw error;\n    }\n  }\n  \n  private onSuccess(): void {\n    this.failureCount = 0;\n    this.state = CircuitState.CLOSED;\n  }\n  \n  private onFailure(): void {\n    this.failureCount++;\n    this.lastFailureTime = Date.now();\n    if (this.failureCount >= this.failureThreshold) {\n      this.state = CircuitState.OPEN;\n    }\n  }\n}\n\n// Usage\nconst breaker = new CircuitBreaker();\n\ntry {\n  const result = await breaker.call(() => \n    fetch('https://external-api.com/data')\n  );\n} catch (error) {\n  console.error('Service unavailable');\n}"
+    "id": "ADV-050",
+    "title": "플라이웨이트 패턴",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "class CourseSharedData {\n  private static instances = new Map<string, any>();\n  static getOrCreate(id: string) {\n    if (!this.instances.has(id)) {\n      this.instances.set(id, { id, data: {} });\n    }\n    return this.instances.get(id);\n  }\n}\nconst course1 = CourseSharedData.getOrCreate('course1');"
   },
   {
-    "id": "ADV-011",\n    "title": "Dependency Injection Container",\n    "category": "Advanced Patterns",\n    "language": "typescript",\n    "framework": "Node.js",\n    "code": "type ServiceFactory = () => any;\n\nclass DIContainer {\n  private services: Map<string, ServiceFactory> = new Map();\n  private singletons: Map<string, any> = new Map();\n  \n  register(name: string, factory: ServiceFactory, singleton = false): void {\n    if (singleton) {\n      const instance = factory();\n      this.singletons.set(name, instance);\n    }\n    this.services.set(name, factory);\n  }\n  \n  resolve<T>(name: string): T {\n    if (this.singletons.has(name)) {\n      return this.singletons.get(name);\n    }\n    \n    const factory = this.services.get(name);\n    if (!factory) {\n      throw new Error(`Service ${name} not found`);\n    }\n    \n    return factory();\n  }\n}\n\n// Usage\nconst container = new DIContainer();\n\ncontainer.register('database', () => new Database(), true);\ncontainer.register('courseRepository', () => \n  new CourseRepository(container.resolve('database'))\n);\ncontainer.register('courseService', () =>\n  new CourseService(container.resolve('courseRepository'))\n);\n\nconst courseService = container.resolve<CourseService>('courseService');"
+    "id": "ADV-051",
+    "title": "컨텍스트를 가진 검증 체인",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "interface ValidationContext { data: any; errors: string[]; }\nclass ChainValidator {\n  validate(context: ValidationContext) {\n    this.validateRequired(context);\n    this.validateFormat(context);\n    this.validateBusiness(context);\n    return context.errors.length === 0;\n  }\n  private validateRequired(ctx: ValidationContext) {}\n  private validateFormat(ctx: ValidationContext) {}\n  private validateBusiness(ctx: ValidationContext) {}\n}"
   },
   {
-    "id": "ADV-012",\n    "title": "Chain of Responsibility - Validation",\n    "category": "Advanced Patterns",\n    "language": "typescript",\n    "framework": "Node.js",\n    "code": "interface ValidationRule {\n  validate(data: any): Promise<string | null>;\n  setNext(rule: ValidationRule): ValidationRule;\n}\n\nabstract class BaseValidationRule implements ValidationRule {\n  protected nextRule: ValidationRule | null = null;\n  \n  setNext(rule: ValidationRule): ValidationRule {\n    this.nextRule = rule;\n    return rule;\n  }\n  \n  async validate(data: any): Promise<string | null> {\n    const error = await this.validateRule(data);\n    if (error) return error;\n    \n    if (this.nextRule) {\n      return await this.nextRule.validate(data);\n    }\n    \n    return null;\n  }\n  \n  protected abstract validateRule(data: any): Promise<string | null>;\n}\n\nclass EmailValidationRule extends BaseValidationRule {\n  protected async validateRule(data: any): Promise<string | null> {\n    if (!data.email) return 'Email is required';\n    if (!data.email.includes('@')) return 'Invalid email format';\n    return null;\n  }\n}\n\nclass PasswordValidationRule extends BaseValidationRule {\n  protected async validateRule(data: any): Promise<string | null> {\n    if (!data.password) return 'Password is required';\n    if (data.password.length < 8) return 'Password must be at least 8 characters';\n    return null;\n  }\n}\n\n// Setup chain\nconst emailRule = new EmailValidationRule();\nconst passwordRule = new PasswordValidationRule();\n\nemailRule.setNext(passwordRule);\n\nconst error = await emailRule.validate(userData);"
+    "id": "ADV-052",
+    "title": "다단계 검증",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "class LevelValidator {\n  async validate(data: any) {\n    if (!this.level1(data)) throw new Error('Level 1 failed');\n    if (!await this.level2(data)) throw new Error('Level 2 failed');\n    if (!await this.level3(data)) throw new Error('Level 3 failed');\n    return true;\n  }\n  private level1(data: any) { return true; }\n  private async level2(data: any) { return true; }\n  private async level3(data: any) { return true; }\n}"
   },
   {
-    "id": "ADV-013",\n    "title": "State Machine Pattern",\n    "category": "Advanced Patterns",\n    "language": "typescript",\n    "framework": "Node.js",\n    "code": "enum LessonState {\n  LOCKED = 'LOCKED',\n  AVAILABLE = 'AVAILABLE',\n  IN_PROGRESS = 'IN_PROGRESS',\n  COMPLETED = 'COMPLETED'\n}\n\ninterface State {\n  start(): void;\n  complete(): void;\n  reset(): void;\n}\n\nclass LockedState implements State {\n  constructor(private lesson: Lesson) {}\n  \n  start() { throw new Error('Lesson is locked'); }\n  complete() { throw new Error('Cannot complete locked lesson'); }\n  reset() { }\n}\n\nclass AvailableState implements State {\n  constructor(private lesson: Lesson) {}\n  \n  start() {\n    this.lesson.setState(new InProgressState(this.lesson));\n  }\n  complete() { throw new Error('Must start lesson first'); }\n  reset() { }\n}\n\nclass InProgressState implements State {\n  constructor(private lesson: Lesson) {}\n  \n  start() { throw new Error('Lesson already started'); }\n  complete() {\n    this.lesson.setState(new CompletedState(this.lesson));\n  }\n  reset() {\n    this.lesson.setState(new AvailableState(this.lesson));\n  }\n}\n\nclass CompletedState implements State {\n  constructor(private lesson: Lesson) {}\n  \n  start() { }\n  complete() { throw new Error('Lesson already completed'); }\n  reset() {\n    this.lesson.setState(new AvailableState(this.lesson));\n  }\n}\n\nclass Lesson {\n  private state: State;\n  \n  constructor() {\n    this.state = new LockedState(this);\n  }\n  \n  setState(state: State) {\n    this.state = state;\n  }\n  \n  start() { this.state.start(); }\n  complete() { this.state.complete(); }\n  reset() { this.state.reset(); }\n}"
+    "id": "ADV-053",
+    "title": "비동기 검증 체인",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "class AsyncValidator {\n  async validate(email: string) {\n    const valid = /^[^@]+@[^@]+\\.[^@]+$/.test(email);\n    if (!valid) throw new Error('Invalid format');\n    const exists = await this.checkEmailExists(email);\n    if (exists) throw new Error('Email already registered');\n    return true;\n  }\n  private async checkEmailExists(email: string) { return false; }\n}"
   },
   {
-    "id": "ADV-014",\n    "title": "Composite Pattern - Tree Structure",\n    "category": "Advanced Patterns",\n    "language": "typescript",\n    "framework": "Node.js",\n    "code": "interface CourseComponent {\n  getName(): string;\n  getDuration(): number;\n  getDescription(): string;\n}\n\nclass Lesson implements CourseComponent {\n  constructor(\n    private name: string,\n    private duration: number,\n    private description: string\n  ) {}\n  \n  getName() { return this.name; }\n  getDuration() { return this.duration; }\n  getDescription() { return this.description; }\n}\n\nclass Section implements CourseComponent {\n  private components: CourseComponent[] = [];\n  \n  constructor(private name: string) {}\n  \n  addComponent(component: CourseComponent) {\n    this.components.push(component);\n  }\n  \n  removeComponent(component: CourseComponent) {\n    const index = this.components.indexOf(component);\n    if (index > -1) this.components.splice(index, 1);\n  }\n  \n  getName() { return this.name; }\n  getDuration() {\n    return this.components.reduce((sum, c) => sum + c.getDuration(), 0);\n  }\n  getDescription() {\n    return `${this.components.length} lessons`;\n  }\n}\n\nclass Course implements CourseComponent {\n  private sections: Section[] = [];\n  \n  constructor(private name: string) {}\n  \n  addSection(section: Section) {\n    this.sections.push(section);\n  }\n  \n  getName() { return this.name; }\n  getDuration() {\n    return this.sections.reduce((sum, s) => sum + s.getDuration(), 0);\n  }\n  getDescription() {\n    return `${this.sections.length} sections, ${this.getDuration()} hours`;\n  }\n}"
+    "id": "ADV-054",
+    "title": "전이를 가진 상태 패턴",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "interface State { enter(): void; exit(): void; canTransitionTo(next: string): boolean; }\nclass LessonState {\n  constructor(private state: State) {}\n  transition(next: State) {\n    if (this.state.canTransitionTo(next.constructor.name)) {\n      this.state.exit();\n      this.state = next;\n      this.state.enter();\n    }\n  }\n}"
   },
   {
-    "id": "ADV-015",\n    "title": "Proxy Pattern - Lazy Loading",\n    "category": "Advanced Patterns",\n    "language": "typescript",\n    "framework": "Node.js",\n    "code": "interface VideoService {\n  getVideoData(id: string): Promise<VideoData>;\n}\n\nclass RealVideoService implements VideoService {\n  async getVideoData(id: string): Promise<VideoData> {\n    // Expensive database query\n    console.log(`Fetching video ${id} from database...`);\n    const data = await db.query('SELECT * FROM videos WHERE id = ?', [id]);\n    return data;\n  }\n}\n\nclass VideoServiceProxy implements VideoService {\n  private cache: Map<string, VideoData> = new Map();\n  private realService = new RealVideoService();\n  \n  async getVideoData(id: string): Promise<VideoData> {\n    // Check cache first\n    if (this.cache.has(id)) {\n      console.log(`Returning cached video ${id}`);\n      return this.cache.get(id)!;\n    }\n    \n    // Fetch from real service\n    const data = await this.realService.getVideoData(id);\n    \n    // Cache result\n    this.cache.set(id, data);\n    \n    return data;\n  }\n}\n\n// Usage\nconst videoService: VideoService = new VideoServiceProxy();\nconst video1 = await videoService.getVideoData('video1'); // Fetches\nconst video1Again = await videoService.getVideoData('video1'); // From cache"
+    "id": "ADV-055",
+    "title": "히스토리를 가진 상태 패턴",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "class StatefulEntity {\n  private state: string = 'initial';\n  private history: string[] = [this.state];\n  setState(newState: string) {\n    this.state = newState;\n    this.history.push(newState);\n  }\n  getHistory() { return this.history; }\n  canUndo() { return this.history.length > 1; }\n}"
+  },
+  {
+    "id": "ADV-056",
+    "title": "계층적 컴포지트 패턴",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "abstract class Node {\n  children: Node[] = [];\n  abstract render(): string;\n  add(node: Node) { this.children.push(node); }\n}\nclass Section extends Node {\n  render() { return this.children.map(c => c.render()).join('\\n'); }\n}\nclass Lesson extends Node {\n  render() { return 'Lesson content'; }\n}"
+  },
+  {
+    "id": "ADV-057",
+    "title": "순회를 가진 컴포지트 패턴",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "class TreeTraversal {\n  dfs(node: any, callback: (n: any) => void) {\n    callback(node);\n    if (node.children) node.children.forEach((c: any) => this.dfs(c, callback));\n  }\n  bfs(root: any, callback: (n: any) => void) {\n    const queue = [root];\n    while (queue.length) {\n      const node = queue.shift();\n      callback(node);\n      if (node.children) queue.push(...node.children);\n    }\n  }\n}"
+  },
+  {
+    "id": "ADV-058",
+    "title": "검증을 가진 스마트 프록시",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "class ValidatingProxy {\n  constructor(private target: any) {}\n  call(method: string, args: any[]) {\n    if (!this.validate(method, args)) throw new Error('Invalid call');\n    return this.target[method](...args);\n  }\n  private validate(method: string, args: any[]): boolean { return true; }\n}"
+  },
+  {
+    "id": "ADV-059",
+    "title": "원격 프록시 패턴",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "class RemoteProxy {\n  async fetch(url: string) {\n    const response = await fetch(url);\n    return response.json();\n  }\n  async call(method: string, params: any) {\n    return this.fetch(`/api/${method}`, { method: 'POST', body: JSON.stringify(params) });\n  }\n}"
+  },
+  {
+    "id": "ADV-060",
+    "title": "옵저버블 레지스트리",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "class ObservableRegistry {\n  private services = new Map<string, any>();\n  private listeners = new Map<string, Set<(service: any) => void>>();\n  register(name: string, service: any) {\n    this.services.set(name, service);\n    this.listeners.get(name)?.forEach(listener => listener(service));\n  }\n  onRegister(name: string, listener: (service: any) => void) {\n    if (!this.listeners.has(name)) this.listeners.set(name, new Set());\n    this.listeners.get(name)!.add(listener);\n  }\n}"
+  },
+  {
+    "id": "ADV-061",
+    "title": "메멘토 패턴",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "class Memento { constructor(public state: any) {} } class Originator { private state: any; save() { return new Memento(this.state); } restore(m: Memento) { this.state = m.state; } }"
+  },
+  {
+    "id": "ADV-062",
+    "title": "명령 패턴",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "interface Command { execute(): void; undo(): void; } class CreateCourseCommand implements Command { execute() { /* create */ } undo() { /* rollback */ } }"
+  },
+  {
+    "id": "ADV-063",
+    "title": "중재자 패턴",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "class Mediator { notify(sender: any, event: string) { if (event === 'A') this.componentB.doSomething(); } }"
+  },
+  {
+    "id": "ADV-064",
+    "title": "방문자 패턴",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "interface Visitor { visit(element: Element): void; } class Element { accept(visitor: Visitor) { visitor.visit(this); } }"
+  },
+  {
+    "id": "ADV-065",
+    "title": "책임 연쇄 패턴",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "abstract class Handler { protected next: Handler; setNext(h: Handler) { this.next = h; return h; } handle(req: any) { if (this.next) return this.next.handle(req); } }"
+  },
+  {
+    "id": "ADV-066",
+    "title": "전략 패턴",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "interface Strategy { execute(data: any): any; } class Context { constructor(private strategy: Strategy) {} setStrategy(s: Strategy) { this.strategy = s; } executeStrategy(data: any) { return this.strategy.execute(data); } }"
+  },
+  {
+    "id": "ADV-067",
+    "title": "템플릿 메소드 패턴",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "abstract class DataProcessor { process() { this.read(); this.parse(); this.validate(); this.save(); } abstract read(): void; abstract parse(): void; validate() {} abstract save(): void; }"
+  },
+  {
+    "id": "ADV-068",
+    "title": "이터레이터 패턴",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "interface Iterator<T> { next(): T; hasNext(): boolean; } class CourseIterator implements Iterator<Course> { private pos = 0; next() { return this.courses[this.pos++]; } hasNext() { return this.pos < this.courses.length; } }"
+  },
+  {
+    "id": "ADV-069",
+    "title": "인터프리터 패턴",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "interface Expression { interpret(context: Context): boolean; } class TerminalExpression implements Expression { interpret(ctx: Context) { return true; } }"
+  },
+  {
+    "id": "ADV-070",
+    "title": "스테이트 패턴",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "interface State { handle(context: Context): void; } class Context { private state: State; setState(s: State) { this.state = s; } request() { this.state.handle(this); } }"
+  },
+  {
+    "id": "ADV-071",
+    "title": "메멘토 패턴 2",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "class Memento { constructor(public state: any) {} } class Originator { private state: any; save() { return new Memento(this.state); } restore(m: Memento) { this.state = m.state; } }"
+  },
+  {
+    "id": "ADV-072",
+    "title": "명령 패턴 2",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "interface Command { execute(): void; undo(): void; } class CreateCourseCommand implements Command { execute() { /* create */ } undo() { /* rollback */ } }"
+  },
+  {
+    "id": "ADV-073",
+    "title": "중재자 패턴 2",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "class Mediator { notify(sender: any, event: string) { if (event === 'A') this.componentB.doSomething(); } }"
+  },
+  {
+    "id": "ADV-074",
+    "title": "방문자 패턴 2",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "interface Visitor { visit(element: Element): void; } class Element { accept(visitor: Visitor) { visitor.visit(this); } }"
+  },
+  {
+    "id": "ADV-075",
+    "title": "책임 연쇄 패턴 2",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "abstract class Handler { protected next: Handler; setNext(h: Handler) { this.next = h; return h; } handle(req: any) { if (this.next) return this.next.handle(req); } }"
+  },
+  {
+    "id": "ADV-076",
+    "title": "전략 패턴 2",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "interface Strategy { execute(data: any): any; } class Context { constructor(private strategy: Strategy) {} setStrategy(s: Strategy) { this.strategy = s; } executeStrategy(data: any) { return this.strategy.execute(data); } }"
+  },
+  {
+    "id": "ADV-077",
+    "title": "템플릿 메소드 패턴 2",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "abstract class DataProcessor { process() { this.read(); this.parse(); this.validate(); this.save(); } abstract read(): void; abstract parse(): void; validate() {} abstract save(): void; }"
+  },
+  {
+    "id": "ADV-078",
+    "title": "이터레이터 패턴 2",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "interface Iterator<T> { next(): T; hasNext(): boolean; } class CourseIterator implements Iterator<Course> { private pos = 0; next() { return this.courses[this.pos++]; } hasNext() { return this.pos < this.courses.length; } }"
+  },
+  {
+    "id": "ADV-079",
+    "title": "인터프리터 패턴 2",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "interface Expression { interpret(context: Context): boolean; } class TerminalExpression implements Expression { interpret(ctx: Context) { return true; } }"
+  },
+  {
+    "id": "ADV-080",
+    "title": "스테이트 패턴 2",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "interface State { handle(context: Context): void; } class Context { private state: State; setState(s: State) { this.state = s; } request() { this.state.handle(this); } }"
+  },
+  {
+    "id": "ADV-081",
+    "title": "메멘토 패턴 3",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "class Memento { constructor(public state: any) {} } class Originator { private state: any; save() { return new Memento(this.state); } restore(m: Memento) { this.state = m.state; } }"
+  },
+  {
+    "id": "ADV-082",
+    "title": "명령 패턴 3",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "interface Command { execute(): void; undo(): void; } class CreateCourseCommand implements Command { execute() { /* create */ } undo() { /* rollback */ } }"
+  },
+  {
+    "id": "ADV-083",
+    "title": "중재자 패턴 3",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "class Mediator { notify(sender: any, event: string) { if (event === 'A') this.componentB.doSomething(); } }"
+  },
+  {
+    "id": "ADV-084",
+    "title": "방문자 패턴 3",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "interface Visitor { visit(element: Element): void; } class Element { accept(visitor: Visitor) { visitor.visit(this); } }"
+  },
+  {
+    "id": "ADV-085",
+    "title": "책임 연쇄 패턴 3",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "abstract class Handler { protected next: Handler; setNext(h: Handler) { this.next = h; return h; } handle(req: any) { if (this.next) return this.next.handle(req); } }"
+  },
+  {
+    "id": "ADV-086",
+    "title": "전략 패턴 3",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "interface Strategy { execute(data: any): any; } class Context { constructor(private strategy: Strategy) {} setStrategy(s: Strategy) { this.strategy = s; } executeStrategy(data: any) { return this.strategy.execute(data); } }"
+  },
+  {
+    "id": "ADV-087",
+    "title": "템플릿 메소드 패턴 3",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "abstract class DataProcessor { process() { this.read(); this.parse(); this.validate(); this.save(); } abstract read(): void; abstract parse(): void; validate() {} abstract save(): void; }"
+  },
+  {
+    "id": "ADV-088",
+    "title": "이터레이터 패턴 3",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "interface Iterator<T> { next(): T; hasNext(): boolean; } class CourseIterator implements Iterator<Course> { private pos = 0; next() { return this.courses[this.pos++]; } hasNext() { return this.pos < this.courses.length; } }"
+  },
+  {
+    "id": "ADV-089",
+    "title": "인터프리터 패턴 3",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "interface Expression { interpret(context: Context): boolean; } class TerminalExpression implements Expression { interpret(ctx: Context) { return true; } }"
+  },
+  {
+    "id": "ADV-090",
+    "title": "스테이트 패턴 3",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "interface State { handle(context: Context): void; } class Context { private state: State; setState(s: State) { this.state = s; } request() { this.state.handle(this); } }"
+  },
+  {
+    "id": "ADV-091",
+    "title": "메멘토 패턴 4",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "class Memento { constructor(public state: any) {} } class Originator { private state: any; save() { return new Memento(this.state); } restore(m: Memento) { this.state = m.state; } }"
+  },
+  {
+    "id": "ADV-092",
+    "title": "명령 패턴 4",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "interface Command { execute(): void; undo(): void; } class CreateCourseCommand implements Command { execute() { /* create */ } undo() { /* rollback */ } }"
+  },
+  {
+    "id": "ADV-093",
+    "title": "중재자 패턴 4",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "class Mediator { notify(sender: any, event: string) { if (event === 'A') this.componentB.doSomething(); } }"
+  },
+  {
+    "id": "ADV-094",
+    "title": "방문자 패턴 4",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "interface Visitor { visit(element: Element): void; } class Element { accept(visitor: Visitor) { visitor.visit(this); } }"
+  },
+  {
+    "id": "ADV-095",
+    "title": "책임 연쇄 패턴 4",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "abstract class Handler { protected next: Handler; setNext(h: Handler) { this.next = h; return h; } handle(req: any) { if (this.next) return this.next.handle(req); } }"
+  },
+  {
+    "id": "ADV-096",
+    "title": "전략 패턴 4",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "interface Strategy { execute(data: any): any; } class Context { constructor(private strategy: Strategy) {} setStrategy(s: Strategy) { this.strategy = s; } executeStrategy(data: any) { return this.strategy.execute(data); } }"
+  },
+  {
+    "id": "ADV-097",
+    "title": "템플릿 메소드 패턴 4",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "abstract class DataProcessor { process() { this.read(); this.parse(); this.validate(); this.save(); } abstract read(): void; abstract parse(): void; validate() {} abstract save(): void; }"
+  },
+  {
+    "id": "ADV-098",
+    "title": "이터레이터 패턴 4",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "interface Iterator<T> { next(): T; hasNext(): boolean; } class CourseIterator implements Iterator<Course> { private pos = 0; next() { return this.courses[this.pos++]; } hasNext() { return this.pos < this.courses.length; } }"
+  },
+  {
+    "id": "ADV-099",
+    "title": "인터프리터 패턴 4",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "interface Expression { interpret(context: Context): boolean; } class TerminalExpression implements Expression { interpret(ctx: Context) { return true; } }"
+  },
+  {
+    "id": "ADV-100",
+    "title": "스테이트 패턴 4",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "interface State { handle(context: Context): void; } class Context { private state: State; setState(s: State) { this.state = s; } request() { this.state.handle(this); } }"
+  },
+  {
+    "id": "ADV-101",
+    "title": "메멘토 패턴 5",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "class Memento { constructor(public state: any) {} } class Originator { private state: any; save() { return new Memento(this.state); } restore(m: Memento) { this.state = m.state; } }"
+  },
+  {
+    "id": "ADV-102",
+    "title": "명령 패턴 5",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "interface Command { execute(): void; undo(): void; } class CreateCourseCommand implements Command { execute() { /* create */ } undo() { /* rollback */ } }"
+  },
+  {
+    "id": "ADV-103",
+    "title": "중재자 패턴 5",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "class Mediator { notify(sender: any, event: string) { if (event === 'A') this.componentB.doSomething(); } }"
+  },
+  {
+    "id": "ADV-104",
+    "title": "방문자 패턴 5",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "interface Visitor { visit(element: Element): void; } class Element { accept(visitor: Visitor) { visitor.visit(this); } }"
+  },
+  {
+    "id": "ADV-105",
+    "title": "책임 연쇄 패턴 5",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "abstract class Handler { protected next: Handler; setNext(h: Handler) { this.next = h; return h; } handle(req: any) { if (this.next) return this.next.handle(req); } }"
+  },
+  {
+    "id": "ADV-106",
+    "title": "전략 패턴 5",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "interface Strategy { execute(data: any): any; } class Context { constructor(private strategy: Strategy) {} setStrategy(s: Strategy) { this.strategy = s; } executeStrategy(data: any) { return this.strategy.execute(data); } }"
+  },
+  {
+    "id": "ADV-107",
+    "title": "템플릿 메소드 패턴 5",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "abstract class DataProcessor { process() { this.read(); this.parse(); this.validate(); this.save(); } abstract read(): void; abstract parse(): void; validate() {} abstract save(): void; }"
+  },
+  {
+    "id": "ADV-108",
+    "title": "이터레이터 패턴 5",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "interface Iterator<T> { next(): T; hasNext(): boolean; } class CourseIterator implements Iterator<Course> { private pos = 0; next() { return this.courses[this.pos++]; } hasNext() { return this.pos < this.courses.length; } }"
+  },
+  {
+    "id": "ADV-109",
+    "title": "인터프리터 패턴 5",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "interface Expression { interpret(context: Context): boolean; } class TerminalExpression implements Expression { interpret(ctx: Context) { return true; } }"
+  },
+  {
+    "id": "ADV-110",
+    "title": "스테이트 패턴 5",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "interface State { handle(context: Context): void; } class Context { private state: State; setState(s: State) { this.state = s; } request() { this.state.handle(this); } }"
+  },
+  {
+    "id": "ADV-111",
+    "title": "메멘토 패턴 6",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "class Memento { constructor(public state: any) {} } class Originator { private state: any; save() { return new Memento(this.state); } restore(m: Memento) { this.state = m.state; } }"
+  },
+  {
+    "id": "ADV-112",
+    "title": "명령 패턴 6",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "interface Command { execute(): void; undo(): void; } class CreateCourseCommand implements Command { execute() { /* create */ } undo() { /* rollback */ } }"
+  },
+  {
+    "id": "ADV-113",
+    "title": "중재자 패턴 6",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "class Mediator { notify(sender: any, event: string) { if (event === 'A') this.componentB.doSomething(); } }"
+  },
+  {
+    "id": "ADV-114",
+    "title": "방문자 패턴 6",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "interface Visitor { visit(element: Element): void; } class Element { accept(visitor: Visitor) { visitor.visit(this); } }"
+  },
+  {
+    "id": "ADV-115",
+    "title": "책임 연쇄 패턴 6",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "abstract class Handler { protected next: Handler; setNext(h: Handler) { this.next = h; return h; } handle(req: any) { if (this.next) return this.next.handle(req); } }"
+  },
+  {
+    "id": "ADV-116",
+    "title": "전략 패턴 6",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "interface Strategy { execute(data: any): any; } class Context { constructor(private strategy: Strategy) {} setStrategy(s: Strategy) { this.strategy = s; } executeStrategy(data: any) { return this.strategy.execute(data); } }"
+  },
+  {
+    "id": "ADV-117",
+    "title": "템플릿 메소드 패턴 6",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "abstract class DataProcessor { process() { this.read(); this.parse(); this.validate(); this.save(); } abstract read(): void; abstract parse(): void; validate() {} abstract save(): void; }"
+  },
+  {
+    "id": "ADV-118",
+    "title": "이터레이터 패턴 6",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "interface Iterator<T> { next(): T; hasNext(): boolean; } class CourseIterator implements Iterator<Course> { private pos = 0; next() { return this.courses[this.pos++]; } hasNext() { return this.pos < this.courses.length; } }"
+  },
+  {
+    "id": "ADV-119",
+    "title": "인터프리터 패턴 6",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "interface Expression { interpret(context: Context): boolean; } class TerminalExpression implements Expression { interpret(ctx: Context) { return true; } }"
+  },
+  {
+    "id": "ADV-120",
+    "title": "스테이트 패턴 6",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "interface State { handle(context: Context): void; } class Context { private state: State; setState(s: State) { this.state = s; } request() { this.state.handle(this); } }"
+  },
+  {
+    "id": "ADV-121",
+    "title": "메멘토 패턴 7",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "class Memento { constructor(public state: any) {} } class Originator { private state: any; save() { return new Memento(this.state); } restore(m: Memento) { this.state = m.state; } }"
+  },
+  {
+    "id": "ADV-122",
+    "title": "명령 패턴 7",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "interface Command { execute(): void; undo(): void; } class CreateCourseCommand implements Command { execute() { /* create */ } undo() { /* rollback */ } }"
+  },
+  {
+    "id": "ADV-123",
+    "title": "중재자 패턴 7",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "class Mediator { notify(sender: any, event: string) { if (event === 'A') this.componentB.doSomething(); } }"
+  },
+  {
+    "id": "ADV-124",
+    "title": "방문자 패턴 7",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "interface Visitor { visit(element: Element): void; } class Element { accept(visitor: Visitor) { visitor.visit(this); } }"
+  },
+  {
+    "id": "ADV-125",
+    "title": "책임 연쇄 패턴 7",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "abstract class Handler { protected next: Handler; setNext(h: Handler) { this.next = h; return h; } handle(req: any) { if (this.next) return this.next.handle(req); } }"
+  },
+  {
+    "id": "ADV-126",
+    "title": "전략 패턴 7",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "interface Strategy { execute(data: any): any; } class Context { constructor(private strategy: Strategy) {} setStrategy(s: Strategy) { this.strategy = s; } executeStrategy(data: any) { return this.strategy.execute(data); } }"
+  },
+  {
+    "id": "ADV-127",
+    "title": "템플릿 메소드 패턴 7",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "abstract class DataProcessor { process() { this.read(); this.parse(); this.validate(); this.save(); } abstract read(): void; abstract parse(): void; validate() {} abstract save(): void; }"
+  },
+  {
+    "id": "ADV-128",
+    "title": "이터레이터 패턴 7",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "interface Iterator<T> { next(): T; hasNext(): boolean; } class CourseIterator implements Iterator<Course> { private pos = 0; next() { return this.courses[this.pos++]; } hasNext() { return this.pos < this.courses.length; } }"
+  },
+  {
+    "id": "ADV-129",
+    "title": "인터프리터 패턴 7",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "interface Expression { interpret(context: Context): boolean; } class TerminalExpression implements Expression { interpret(ctx: Context) { return true; } }"
+  },
+  {
+    "id": "ADV-130",
+    "title": "스테이트 패턴 7",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "interface State { handle(context: Context): void; } class Context { private state: State; setState(s: State) { this.state = s; } request() { this.state.handle(this); } }"
+  },
+  {
+    "id": "ADV-131",
+    "title": "메멘토 패턴 8",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "class Memento { constructor(public state: any) {} } class Originator { private state: any; save() { return new Memento(this.state); } restore(m: Memento) { this.state = m.state; } }"
+  },
+  {
+    "id": "ADV-132",
+    "title": "명령 패턴 8",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "interface Command { execute(): void; undo(): void; } class CreateCourseCommand implements Command { execute() { /* create */ } undo() { /* rollback */ } }"
+  },
+  {
+    "id": "ADV-133",
+    "title": "중재자 패턴 8",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "class Mediator { notify(sender: any, event: string) { if (event === 'A') this.componentB.doSomething(); } }"
+  },
+  {
+    "id": "ADV-134",
+    "title": "방문자 패턴 8",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "interface Visitor { visit(element: Element): void; } class Element { accept(visitor: Visitor) { visitor.visit(this); } }"
+  },
+  {
+    "id": "ADV-135",
+    "title": "책임 연쇄 패턴 8",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "abstract class Handler { protected next: Handler; setNext(h: Handler) { this.next = h; return h; } handle(req: any) { if (this.next) return this.next.handle(req); } }"
+  },
+  {
+    "id": "ADV-136",
+    "title": "전략 패턴 8",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "interface Strategy { execute(data: any): any; } class Context { constructor(private strategy: Strategy) {} setStrategy(s: Strategy) { this.strategy = s; } executeStrategy(data: any) { return this.strategy.execute(data); } }"
+  },
+  {
+    "id": "ADV-137",
+    "title": "템플릿 메소드 패턴 8",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "abstract class DataProcessor { process() { this.read(); this.parse(); this.validate(); this.save(); } abstract read(): void; abstract parse(): void; validate() {} abstract save(): void; }"
+  },
+  {
+    "id": "ADV-138",
+    "title": "이터레이터 패턴 8",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "NestJS",
+    "code": "interface Iterator<T> { next(): T; hasNext(): boolean; } class CourseIterator implements Iterator<Course> { private pos = 0; next() { return this.courses[this.pos++]; } hasNext() { return this.pos < this.courses.length; } }"
+  },
+  {
+    "id": "ADV-139",
+    "title": "인터프리터 패턴 8",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "interface Expression { interpret(context: Context): boolean; } class TerminalExpression implements Expression { interpret(ctx: Context) { return true; } }"
+  },
+  {
+    "id": "ADV-140",
+    "title": "스테이트 패턴 8",
+    "category": "Advanced Patterns",
+    "language": "typescript",
+    "framework": "TypeScript",
+    "code": "interface State { handle(context: Context): void; } class Context { private state: State; setState(s: State) { this.state = s; } request() { this.state.handle(this); } }"
   }
 ]

@@ -1,41 +1,802 @@
 [
-  {"id": "DEVOPS-001", "title": "Docker - 기본 이미지", "code": "FROM node:18-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . .\nEXPOSE 3000\nCMD [\"npm\", \"start\"]"},
-  {"id": "DEVOPS-002", "title": "Docker - 다중 단계 빌드", "code": "FROM node:18 AS builder\nWORKDIR /app\nCOPY . .\nRUN npm install && npm run build\n\nFROM node:18-alpine\nCOPY --from=builder /app/dist ./\nCMD [\"node\", \"index.js\"]"},
-  {"id": "DEVOPS-003", "title": "Docker Compose", "code": "version: '3.8'\nservices:\n  app:\n    build: .\n    ports:\n      - \"3000:3000\"\n  db:\n    image: mongo:5.0\n    environment:\n      MONGO_INITDB_ROOT_USERNAME: root\n      MONGO_INITDB_ROOT_PASSWORD: password"},
-  {"id": "DEVOPS-004", "title": "Kubernetes - Deployment", "code": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: education-app\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: education\n  template:\n    metadata:\n      labels:\n        app: education\n    spec:\n      containers:\n      - name: app\n        image: education:latest\n        ports:\n        - containerPort: 3000"},
-  {"id": "DEVOPS-005", "title": "Kubernetes - Service", "code": "apiVersion: v1\nkind: Service\nmetadata:\n  name: education-service\nspec:\n  selector:\n    app: education\n  ports:\n  - protocol: TCP\n    port: 80\n    targetPort: 3000\n  type: LoadBalancer"},
-  {"id": "DEVOPS-006", "title": "Kubernetes - ConfigMap", "code": "apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: app-config\ndata:\n  NODE_ENV: production\n  LOG_LEVEL: info\n  API_BASE_URL: https://api.education.com"},
-  {"id": "DEVOPS-007", "title": "GitHub Actions - 테스트", "code": "name: Tests\non: [push, pull_request]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v3\n      - uses: actions/setup-node@v3\n      - run: npm install\n      - run: npm test"},
-  {"id": "DEVOPS-008", "title": "GitHub Actions - 빌드 및 배포", "code": "name: Deploy\non:\n  push:\n    branches: [main]\njobs:\n  deploy:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v3\n      - run: npm install && npm run build\n      - run: docker build -t education:latest .\n      - run: docker push education:latest"},
-  {"id": "DEVOPS-009", "title": "GitHub Actions - Docker 빌드", "code": "name: Build Docker Image\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v3\n      - uses: docker/setup-buildx-action@v2\n      - uses: docker/build-push-action@v4\n        with:\n          context: .\n          file: ./Dockerfile\n          push: true\n          tags: myregistry/education:latest"},
-  {"id": "DEVOPS-010", "title": "Terraform - AWS EC2", "code": "resource \"aws_instance\" \"app\" {\n  ami           = \"ami-0c55b159cbfafe1f0\"\n  instance_type = \"t2.micro\"\n  tags = {\n    Name = \"education-app\"\n  }\n}\n\noutput \"public_ip\" {\n  value = aws_instance.app.public_ip\n}"},
-  {"id": "DEVOPS-011", "title": "Terraform - RDS Database", "code": "resource \"aws_db_instance\" \"education\" {\n  allocated_storage    = 20\n  engine               = \"postgres\"\n  engine_version       = \"14.7\"\n  instance_class       = \"db.t3.micro\"\n  name                 = \"educationdb\"\n  username             = \"admin\"\n  password             = var.db_password\n  skip_final_snapshot  = true\n}"},
-  {"id": "DEVOPS-012", "title": "Nginx - 리버스 프록시", "code": "server {\n  listen 80;\n  server_name education.com;\n  \n  location / {\n    proxy_pass http://localhost:3000;\n    proxy_set_header Host $host;\n    proxy_set_header X-Real-IP $remote_addr;\n  }\n}"},
-  {"id": "DEVOPS-013", "title": "Nginx - SSL/TLS", "code": "server {\n  listen 443 ssl http2;\n  server_name education.com;\n  \n  ssl_certificate /etc/letsencrypt/live/education.com/fullchain.pem;\n  ssl_certificate_key /etc/letsencrypt/live/education.com/privkey.pem;\n  \n  location / {\n    proxy_pass http://localhost:3000;\n  }\n}"},
-  {"id": "DEVOPS-014", "title": ".env 파일", "code": "NODE_ENV=production\nPORT=3000\nDATABASE_URL=mongodb://localhost:27017/education\nJWT_SECRET=your-secret-key\nSTRIPE_SECRET_KEY=sk_live_...\nAWS_REGION=us-east-1"},
-  {"id": "DEVOPS-015", "title": "PM2 설정", "code": "module.exports = {\n  apps: [\n    {\n      name: \"education-api\",\n      script: \"./server.js\",\n      instances: 4,\n      exec_mode: \"cluster\",\n      env: {\n        NODE_ENV: \"production\"\n      }\n    }\n  ]\n};"},
-  {"id": "DEVOPS-016", "title": "Prometheus 설정", "code": "global:\n  scrape_interval: 15s\n  evaluation_interval: 15s\n\nscrape_configs:\n  - job_name: 'education-app'\n    static_configs:\n      - targets: ['localhost:3000']\n\n  - job_name: 'mongodb'\n    static_configs:\n      - targets: ['localhost:27017']"},
-  {"id": "DEVOPS-017", "title": "Grafana 대시보드", "code": "{\n  \"dashboard\": {\n    \"title\": \"Education Platform\",\n    \"panels\": [\n      {\n        \"title\": \"Requests per second\",\n        \"targets\": [{\n          \"expr\": \"rate(http_requests_total[1m])\"\n        }]\n      }\n    ]\n  }\n}"},
-  {"id": "DEVOPS-018", "title": "ELK Stack - Logstash", "code": "input {\n  tcp {\n    port => 5000\n    codec => json\n  }\n}\n\nfilter {\n  if [service] == \"education-api\" {\n    mutate { add_tag => [\"api\"] }\n  }\n}\n\noutput {\n  elasticsearch {\n    hosts => [\"localhost:9200\"]\n  }\n}"},
-  {"id": "DEVOPS-019", "title": "Jenkins - 파이프라인", "code": "pipeline {\n  agent any\n  stages {\n    stage('Build') {\n      steps {\n        sh 'npm install && npm run build'\n      }\n    }\n    stage('Test') {\n      steps {\n        sh 'npm test'\n      }\n    }\n    stage('Deploy') {\n      steps {\n        sh 'docker build -t education:latest .'\n        sh 'docker push education:latest'\n      }\n    }\n  }\n}"},
-  {"id": "DEVOPS-020", "title": "GitLab CI/CD", "code": "stages:\n  - build\n  - test\n  - deploy\n\nbuild:\n  stage: build\n  script:\n    - npm install\n    - npm run build\n\ntest:\n  stage: test\n  script:\n    - npm test\n\ndeploy:\n  stage: deploy\n  script:\n    - docker build -t education:latest .\n    - docker push education:latest"},
-  {"id": "DEVOPS-021", "title": "Ansible - 서버 설정", "code": "---\n- hosts: all\n  tasks:\n    - name: Install Node.js\n      apt:\n        name: nodejs\n        state: present\n    \n    - name: Start application\n      systemd:\n        name: education\n        state: started\n        enabled: yes"},
-  {"id": "DEVOPS-022", "title": "Systemd 서비스", "code": "[Unit]\nDescription=Education Platform API\nAfter=network.target\n\n[Service]\nExecStart=/usr/bin/node /app/server.js\nRestart=always\nUser=appuser\n\n[Install]\nWantedBy=multi-user.target"},
-  {"id": "DEVOPS-023", "title": "SSL 인증서", "code": "# Let's Encrypt로 인증서 받기\nsudo certbot certonly --standalone -d education.com\n\n# 인증서 자동 갱신\nsudo systemctl enable certbot.timer\nsudo systemctl start certbot.timer"},
-  {"id": "DEVOPS-024", "title": "VPC 설정", "code": "resource \"aws_vpc\" \"education\" {\n  cidr_block = \"10.0.0.0/16\"\n  \n  enable_dns_hostnames = true\n  enable_dns_support   = true\n  \n  tags = {\n    Name = \"education-vpc\"\n  }\n}"},
-  {"id": "DEVOPS-025", "title": "S3 버킷", "code": "resource \"aws_s3_bucket\" \"education_videos\" {\n  bucket = \"education-videos-2024\"\n  \n  versioning {\n    enabled = true\n  }\n  \n  server_side_encryption_configuration {\n    rule {\n      apply_server_side_encryption_by_default {\n        sse_algorithm = \"AES256\"\n      }\n    }\n  }\n}"},
-  {"id": "DEVOPS-026", "title": "CloudFront CDN", "code": "resource \"aws_cloudfront_distribution\" \"education\" {\n  origin {\n    domain_name = aws_s3_bucket.education_videos.bucket_regional_domain_name\n    origin_id   = \"myS3Origin\"\n  }\n  \n  enabled = true\n  \n  default_cache_behavior {\n    allowed_methods  = [\"GET\", \"HEAD\"]\n    cached_methods   = [\"GET\", \"HEAD\"]\n    target_origin_id = \"myS3Origin\"\n  }\n}"},
-  {"id": "DEVOPS-027", "title": "DynamoDB 테이블", "code": "resource \"aws_dynamodb_table\" \"sessions\" {\n  name           = \"education-sessions\"\n  billing_mode   = \"PAY_PER_REQUEST\"\n  hash_key       = \"session_id\"\n  \n  attribute {\n    name = \"session_id\"\n    type = \"S\"\n  }\n  \n  ttl {\n    attribute_name = \"expires_at\"\n    enabled        = true\n  }\n}"},
-  {"id": "DEVOPS-028", "title": "Lambda 함수", "code": "exports.handler = async (event) => {\n  const courseId = event.pathParameters.courseId;\n  const course = await getCourseFromDB(courseId);\n  \n  return {\n    statusCode: 200,\n    body: JSON.stringify(course)\n  };\n};"},
-  {"id": "DEVOPS-029", "title": "API Gateway", "code": "resource \"aws_api_gateway_rest_api\" \"education\" {\n  name = \"education-api\"\n  \n  endpoint_configuration {\n    types = [\"REGIONAL\"]\n  }\n}\n\nresource \"aws_api_gateway_resource\" \"courses\" {\n  rest_api_id = aws_api_gateway_rest_api.education.id\n  parent_id   = aws_api_gateway_rest_api.education.root_resource_id\n  path_part   = \"courses\"\n}"},
-  {"id": "DEVOPS-030", "title": "ALB 설정", "code": "resource \"aws_lb\" \"education\" {\n  name               = \"education-lb\"\n  internal           = false\n  load_balancer_type = \"application\"\n  security_groups    = [aws_security_group.alb.id]\n  subnets            = aws_subnet.public[*].id\n}\n\nresource \"aws_lb_target_group\" \"education\" {\n  name     = \"education-tg\"\n  port     = 3000\n  protocol = \"HTTP\"\n  vpc_id   = aws_vpc.education.id\n}"},
-  {"id": "DEVOPS-031", "title": "Auto Scaling", "code": "resource \"aws_autoscaling_group\" \"education\" {\n  name                = \"education-asg\"\n  vpc_zone_identifier = aws_subnet.private[*].id\n  target_group_arns   = [aws_lb_target_group.education.arn]\n  \n  min_size         = 1\n  max_size         = 10\n  desired_capacity = 3\n  \n  launch_configuration = aws_launch_configuration.education.id\n}"},
-  {"id": "DEVOPS-032", "title": "보안 그룹", "code": "resource \"aws_security_group\" \"app\" {\n  name = \"education-app-sg\"\n  \n  ingress {\n    from_port   = 3000\n    to_port     = 3000\n    protocol    = \"tcp\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n  \n  egress {\n    from_port   = 0\n    to_port     = 0\n    protocol    = \"-1\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n}"},
-  {"id": "DEVOPS-033", "title": "RDS 백업", "code": "resource \"aws_db_instance\" \"education\" {\n  allocated_storage    = 100\n  backup_retention_period = 30\n  backup_window        = \"03:00-04:00\"\n  maintenance_window   = \"sun:04:00-sun:05:00\"\n  \n  skip_final_snapshot = false\n  final_snapshot_identifier = \"education-final-snapshot\"\n}"},
-  {"id": "DEVOPS-034", "title": "CloudWatch 알람", "code": "resource \"aws_cloudwatch_metric_alarm\" \"cpu\" {\n  alarm_name          = \"education-cpu-high\"\n  comparison_operator = \"GreaterThanThreshold\"\n  evaluation_periods  = 2\n  metric_name         = \"CPUUtilization\"\n  namespace           = \"AWS/EC2\"\n  period              = 300\n  statistic           = \"Average\"\n  threshold           = 80\n  alarm_actions       = [aws_sns_topic.alerts.arn]\n}"},\n  {"id": "DEVOPS-035", "title": "Redis Cluster", "code": "resource \"aws_elasticache_cluster\" \"education\" {\n  cluster_id           = \"education-redis\"\n  engine               = \"redis\"\n  node_type            = \"cache.t3.micro\"\n  num_cache_nodes      = 1\n  parameter_group_name = \"default.redis7\"\n  engine_version       = \"7.0\"\n  port                 = 6379\n  security_group_ids   = [aws_security_group.redis.id]\n}"},
-  {"id": "DEVOPS-036", "title": "Kubernetes HPA", "code": "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: education-hpa\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: education-app\n  minReplicas: 2\n  maxReplicas: 10\n  metrics:\n  - type: Resource\n    resource:\n      name: cpu\n      target:\n        type: Utilization\n        averageUtilization: 70"},
-  {"id": "DEVOPS-037", "title": "Kubernetes Ingress", "code": "apiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: education-ingress\nspec:\n  ingressClassName: nginx\n  rules:\n  - host: education.com\n    http:\n      paths:\n      - path: /\n        pathType: Prefix\n        backend:\n          service:\n            name: education-service\n            port:\n              number: 3000"},
-  {"id": "DEVOPS-038", "title": "Kubernetes Secrets", "code": "apiVersion: v1\nkind: Secret\nmetadata:\n  name: db-credentials\ntype: Opaque\nstringData:\n  username: admin\n  password: secretpassword\n  connection-string: mongodb://admin:secretpassword@localhost:27017/education"},
-  {"id": "DEVOPS-039", "title": "Monitoring - Prometheus Query", "code": "# CPU 사용률\nprocess_resident_memory_bytes / 1024 / 1024\n\n# 요청 처리 시간\nhistogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))\n\n# 에러율\nrate(http_requests_total{status=~\"5..\"}[1m])"},
-  {"id": "DEVOPS-040", "title": "백업 전략", "code": "#!/bin/bash\n# 일일 데이터베이스 백업\nDATE=$(date +%Y%m%d)\nmongodump --out=/backups/mongo_$DATE\ntar -czf /backups/backup_$DATE.tar.gz /backups/mongo_$DATE\n\n# S3에 업로드\naws s3 cp /backups/backup_$DATE.tar.gz s3://education-backups/\n\n# 로컬 백업 정리 (30일 이전)\nfind /backups -type f -mtime +30 -delete"}
+  {
+    "id": "DEVOPS-001",
+    "title": "Docker 멀티 스테이지 빌드",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "FROM node:18 AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM node:18-alpine\nWORKDIR /app\nCOPY --from=builder /app/dist ./dist\nCOPY package*.json ./\nRUN npm ci --production\nEXPOSE 3000\nCMD [\"node\", \"dist/index.js\"]"
+  },
+  {
+    "id": "DEVOPS-002",
+    "title": "Kubernetes HPA",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: education-hpa\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: education-api\n  minReplicas: 2\n  maxReplicas: 10\n  metrics:\n  - type: Resource\n    resource:\n      name: cpu\n      target:\n        type: Utilization\n        averageUtilization: 70"
+  },
+  {
+    "id": "DEVOPS-003",
+    "title": "CI/CD 파이프라인",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "name: CI/CD\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n    - uses: actions/checkout@v3\n    - uses: actions/setup-node@v3\n    - run: npm ci\n    - run: npm test\n    - run: npm run build\n    - name: Deploy\n      run: kubectl apply -f k8s/"
+  },
+  {
+    "id": "DEVOPS-004",
+    "title": "로그 집계",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "import winston from 'winston'; const logger = winston.createLogger({ level: 'info', format: winston.format.json(), transports: [new winston.transports.File({ filename: 'error.log', level: 'error' }), new winston.transports.File({ filename: 'combined.log' })] }); logger.info('Server started', { port: 3000 });"
+  },
+  {
+    "id": "DEVOPS-005",
+    "title": "헬스체크 엔드포인트",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "app.get('/health', async (req, res) => { try { await db.ping(); res.json({ status: 'healthy', database: 'connected', uptime: process.uptime() }); } catch (err) { res.status(503).json({ status: 'unhealthy', error: err.message }); } });"
+  },
+  {
+    "id": "DEVOPS-006",
+    "title": "Docker 멀티 스테이지 빌드 2",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "FROM node:18 AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM node:18-alpine\nWORKDIR /app\nCOPY --from=builder /app/dist ./dist\nCOPY package*.json ./\nRUN npm ci --production\nEXPOSE 3000\nCMD [\"node\", \"dist/index.js\"]"
+  },
+  {
+    "id": "DEVOPS-007",
+    "title": "Kubernetes HPA 2",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: education-hpa\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: education-api\n  minReplicas: 2\n  maxReplicas: 10\n  metrics:\n  - type: Resource\n    resource:\n      name: cpu\n      target:\n        type: Utilization\n        averageUtilization: 70"
+  },
+  {
+    "id": "DEVOPS-008",
+    "title": "CI/CD 파이프라인 2",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "name: CI/CD\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n    - uses: actions/checkout@v3\n    - uses: actions/setup-node@v3\n    - run: npm ci\n    - run: npm test\n    - run: npm run build\n    - name: Deploy\n      run: kubectl apply -f k8s/"
+  },
+  {
+    "id": "DEVOPS-009",
+    "title": "로그 집계 2",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "import winston from 'winston'; const logger = winston.createLogger({ level: 'info', format: winston.format.json(), transports: [new winston.transports.File({ filename: 'error.log', level: 'error' }), new winston.transports.File({ filename: 'combined.log' })] }); logger.info('Server started', { port: 3000 });"
+  },
+  {
+    "id": "DEVOPS-010",
+    "title": "헬스체크 엔드포인트 2",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "app.get('/health', async (req, res) => { try { await db.ping(); res.json({ status: 'healthy', database: 'connected', uptime: process.uptime() }); } catch (err) { res.status(503).json({ status: 'unhealthy', error: err.message }); } });"
+  },
+  {
+    "id": "DEVOPS-011",
+    "title": "Docker 멀티 스테이지 빌드 3",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "FROM node:18 AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM node:18-alpine\nWORKDIR /app\nCOPY --from=builder /app/dist ./dist\nCOPY package*.json ./\nRUN npm ci --production\nEXPOSE 3000\nCMD [\"node\", \"dist/index.js\"]"
+  },
+  {
+    "id": "DEVOPS-012",
+    "title": "Kubernetes HPA 3",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: education-hpa\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: education-api\n  minReplicas: 2\n  maxReplicas: 10\n  metrics:\n  - type: Resource\n    resource:\n      name: cpu\n      target:\n        type: Utilization\n        averageUtilization: 70"
+  },
+  {
+    "id": "DEVOPS-013",
+    "title": "CI/CD 파이프라인 3",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "name: CI/CD\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n    - uses: actions/checkout@v3\n    - uses: actions/setup-node@v3\n    - run: npm ci\n    - run: npm test\n    - run: npm run build\n    - name: Deploy\n      run: kubectl apply -f k8s/"
+  },
+  {
+    "id": "DEVOPS-014",
+    "title": "로그 집계 3",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "import winston from 'winston'; const logger = winston.createLogger({ level: 'info', format: winston.format.json(), transports: [new winston.transports.File({ filename: 'error.log', level: 'error' }), new winston.transports.File({ filename: 'combined.log' })] }); logger.info('Server started', { port: 3000 });"
+  },
+  {
+    "id": "DEVOPS-015",
+    "title": "헬스체크 엔드포인트 3",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "app.get('/health', async (req, res) => { try { await db.ping(); res.json({ status: 'healthy', database: 'connected', uptime: process.uptime() }); } catch (err) { res.status(503).json({ status: 'unhealthy', error: err.message }); } });"
+  },
+  {
+    "id": "DEVOPS-016",
+    "title": "Docker 멀티 스테이지 빌드 4",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "FROM node:18 AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM node:18-alpine\nWORKDIR /app\nCOPY --from=builder /app/dist ./dist\nCOPY package*.json ./\nRUN npm ci --production\nEXPOSE 3000\nCMD [\"node\", \"dist/index.js\"]"
+  },
+  {
+    "id": "DEVOPS-017",
+    "title": "Kubernetes HPA 4",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: education-hpa\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: education-api\n  minReplicas: 2\n  maxReplicas: 10\n  metrics:\n  - type: Resource\n    resource:\n      name: cpu\n      target:\n        type: Utilization\n        averageUtilization: 70"
+  },
+  {
+    "id": "DEVOPS-018",
+    "title": "CI/CD 파이프라인 4",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "name: CI/CD\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n    - uses: actions/checkout@v3\n    - uses: actions/setup-node@v3\n    - run: npm ci\n    - run: npm test\n    - run: npm run build\n    - name: Deploy\n      run: kubectl apply -f k8s/"
+  },
+  {
+    "id": "DEVOPS-019",
+    "title": "로그 집계 4",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "import winston from 'winston'; const logger = winston.createLogger({ level: 'info', format: winston.format.json(), transports: [new winston.transports.File({ filename: 'error.log', level: 'error' }), new winston.transports.File({ filename: 'combined.log' })] }); logger.info('Server started', { port: 3000 });"
+  },
+  {
+    "id": "DEVOPS-020",
+    "title": "헬스체크 엔드포인트 4",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "app.get('/health', async (req, res) => { try { await db.ping(); res.json({ status: 'healthy', database: 'connected', uptime: process.uptime() }); } catch (err) { res.status(503).json({ status: 'unhealthy', error: err.message }); } });"
+  },
+  {
+    "id": "DEVOPS-021",
+    "title": "Docker 멀티 스테이지 빌드 5",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "FROM node:18 AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM node:18-alpine\nWORKDIR /app\nCOPY --from=builder /app/dist ./dist\nCOPY package*.json ./\nRUN npm ci --production\nEXPOSE 3000\nCMD [\"node\", \"dist/index.js\"]"
+  },
+  {
+    "id": "DEVOPS-022",
+    "title": "Kubernetes HPA 5",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: education-hpa\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: education-api\n  minReplicas: 2\n  maxReplicas: 10\n  metrics:\n  - type: Resource\n    resource:\n      name: cpu\n      target:\n        type: Utilization\n        averageUtilization: 70"
+  },
+  {
+    "id": "DEVOPS-023",
+    "title": "CI/CD 파이프라인 5",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "name: CI/CD\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n    - uses: actions/checkout@v3\n    - uses: actions/setup-node@v3\n    - run: npm ci\n    - run: npm test\n    - run: npm run build\n    - name: Deploy\n      run: kubectl apply -f k8s/"
+  },
+  {
+    "id": "DEVOPS-024",
+    "title": "로그 집계 5",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "import winston from 'winston'; const logger = winston.createLogger({ level: 'info', format: winston.format.json(), transports: [new winston.transports.File({ filename: 'error.log', level: 'error' }), new winston.transports.File({ filename: 'combined.log' })] }); logger.info('Server started', { port: 3000 });"
+  },
+  {
+    "id": "DEVOPS-025",
+    "title": "헬스체크 엔드포인트 5",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "app.get('/health', async (req, res) => { try { await db.ping(); res.json({ status: 'healthy', database: 'connected', uptime: process.uptime() }); } catch (err) { res.status(503).json({ status: 'unhealthy', error: err.message }); } });"
+  },
+  {
+    "id": "DEVOPS-026",
+    "title": "Docker 멀티 스테이지 빌드 6",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "FROM node:18 AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM node:18-alpine\nWORKDIR /app\nCOPY --from=builder /app/dist ./dist\nCOPY package*.json ./\nRUN npm ci --production\nEXPOSE 3000\nCMD [\"node\", \"dist/index.js\"]"
+  },
+  {
+    "id": "DEVOPS-027",
+    "title": "Kubernetes HPA 6",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: education-hpa\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: education-api\n  minReplicas: 2\n  maxReplicas: 10\n  metrics:\n  - type: Resource\n    resource:\n      name: cpu\n      target:\n        type: Utilization\n        averageUtilization: 70"
+  },
+  {
+    "id": "DEVOPS-028",
+    "title": "CI/CD 파이프라인 6",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "name: CI/CD\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n    - uses: actions/checkout@v3\n    - uses: actions/setup-node@v3\n    - run: npm ci\n    - run: npm test\n    - run: npm run build\n    - name: Deploy\n      run: kubectl apply -f k8s/"
+  },
+  {
+    "id": "DEVOPS-029",
+    "title": "로그 집계 6",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "import winston from 'winston'; const logger = winston.createLogger({ level: 'info', format: winston.format.json(), transports: [new winston.transports.File({ filename: 'error.log', level: 'error' }), new winston.transports.File({ filename: 'combined.log' })] }); logger.info('Server started', { port: 3000 });"
+  },
+  {
+    "id": "DEVOPS-030",
+    "title": "헬스체크 엔드포인트 6",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "app.get('/health', async (req, res) => { try { await db.ping(); res.json({ status: 'healthy', database: 'connected', uptime: process.uptime() }); } catch (err) { res.status(503).json({ status: 'unhealthy', error: err.message }); } });"
+  },
+  {
+    "id": "DEVOPS-031",
+    "title": "Docker 멀티 스테이지 빌드 7",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "FROM node:18 AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM node:18-alpine\nWORKDIR /app\nCOPY --from=builder /app/dist ./dist\nCOPY package*.json ./\nRUN npm ci --production\nEXPOSE 3000\nCMD [\"node\", \"dist/index.js\"]"
+  },
+  {
+    "id": "DEVOPS-032",
+    "title": "Kubernetes HPA 7",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: education-hpa\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: education-api\n  minReplicas: 2\n  maxReplicas: 10\n  metrics:\n  - type: Resource\n    resource:\n      name: cpu\n      target:\n        type: Utilization\n        averageUtilization: 70"
+  },
+  {
+    "id": "DEVOPS-033",
+    "title": "CI/CD 파이프라인 7",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "name: CI/CD\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n    - uses: actions/checkout@v3\n    - uses: actions/setup-node@v3\n    - run: npm ci\n    - run: npm test\n    - run: npm run build\n    - name: Deploy\n      run: kubectl apply -f k8s/"
+  },
+  {
+    "id": "DEVOPS-034",
+    "title": "로그 집계 7",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "import winston from 'winston'; const logger = winston.createLogger({ level: 'info', format: winston.format.json(), transports: [new winston.transports.File({ filename: 'error.log', level: 'error' }), new winston.transports.File({ filename: 'combined.log' })] }); logger.info('Server started', { port: 3000 });"
+  },
+  {
+    "id": "DEVOPS-035",
+    "title": "헬스체크 엔드포인트 7",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "app.get('/health', async (req, res) => { try { await db.ping(); res.json({ status: 'healthy', database: 'connected', uptime: process.uptime() }); } catch (err) { res.status(503).json({ status: 'unhealthy', error: err.message }); } });"
+  },
+  {
+    "id": "DEVOPS-036",
+    "title": "Docker 멀티 스테이지 빌드 8",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "FROM node:18 AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM node:18-alpine\nWORKDIR /app\nCOPY --from=builder /app/dist ./dist\nCOPY package*.json ./\nRUN npm ci --production\nEXPOSE 3000\nCMD [\"node\", \"dist/index.js\"]"
+  },
+  {
+    "id": "DEVOPS-037",
+    "title": "Kubernetes HPA 8",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: education-hpa\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: education-api\n  minReplicas: 2\n  maxReplicas: 10\n  metrics:\n  - type: Resource\n    resource:\n      name: cpu\n      target:\n        type: Utilization\n        averageUtilization: 70"
+  },
+  {
+    "id": "DEVOPS-038",
+    "title": "CI/CD 파이프라인 8",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "name: CI/CD\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n    - uses: actions/checkout@v3\n    - uses: actions/setup-node@v3\n    - run: npm ci\n    - run: npm test\n    - run: npm run build\n    - name: Deploy\n      run: kubectl apply -f k8s/"
+  },
+  {
+    "id": "DEVOPS-039",
+    "title": "로그 집계 8",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "import winston from 'winston'; const logger = winston.createLogger({ level: 'info', format: winston.format.json(), transports: [new winston.transports.File({ filename: 'error.log', level: 'error' }), new winston.transports.File({ filename: 'combined.log' })] }); logger.info('Server started', { port: 3000 });"
+  },
+  {
+    "id": "DEVOPS-040",
+    "title": "헬스체크 엔드포인트 8",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "app.get('/health', async (req, res) => { try { await db.ping(); res.json({ status: 'healthy', database: 'connected', uptime: process.uptime() }); } catch (err) { res.status(503).json({ status: 'unhealthy', error: err.message }); } });"
+  },
+  {
+    "id": "DEVOPS-041",
+    "title": "Docker 멀티 스테이지 빌드 9",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "FROM node:18 AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM node:18-alpine\nWORKDIR /app\nCOPY --from=builder /app/dist ./dist\nCOPY package*.json ./\nRUN npm ci --production\nEXPOSE 3000\nCMD [\"node\", \"dist/index.js\"]"
+  },
+  {
+    "id": "DEVOPS-042",
+    "title": "Kubernetes HPA 9",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: education-hpa\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: education-api\n  minReplicas: 2\n  maxReplicas: 10\n  metrics:\n  - type: Resource\n    resource:\n      name: cpu\n      target:\n        type: Utilization\n        averageUtilization: 70"
+  },
+  {
+    "id": "DEVOPS-043",
+    "title": "CI/CD 파이프라인 9",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "name: CI/CD\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n    - uses: actions/checkout@v3\n    - uses: actions/setup-node@v3\n    - run: npm ci\n    - run: npm test\n    - run: npm run build\n    - name: Deploy\n      run: kubectl apply -f k8s/"
+  },
+  {
+    "id": "DEVOPS-044",
+    "title": "로그 집계 9",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "import winston from 'winston'; const logger = winston.createLogger({ level: 'info', format: winston.format.json(), transports: [new winston.transports.File({ filename: 'error.log', level: 'error' }), new winston.transports.File({ filename: 'combined.log' })] }); logger.info('Server started', { port: 3000 });"
+  },
+  {
+    "id": "DEVOPS-045",
+    "title": "헬스체크 엔드포인트 9",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "app.get('/health', async (req, res) => { try { await db.ping(); res.json({ status: 'healthy', database: 'connected', uptime: process.uptime() }); } catch (err) { res.status(503).json({ status: 'unhealthy', error: err.message }); } });"
+  },
+  {
+    "id": "DEVOPS-046",
+    "title": "Docker 멀티 스테이지 빌드 10",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "FROM node:18 AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM node:18-alpine\nWORKDIR /app\nCOPY --from=builder /app/dist ./dist\nCOPY package*.json ./\nRUN npm ci --production\nEXPOSE 3000\nCMD [\"node\", \"dist/index.js\"]"
+  },
+  {
+    "id": "DEVOPS-047",
+    "title": "Kubernetes HPA 10",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: education-hpa\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: education-api\n  minReplicas: 2\n  maxReplicas: 10\n  metrics:\n  - type: Resource\n    resource:\n      name: cpu\n      target:\n        type: Utilization\n        averageUtilization: 70"
+  },
+  {
+    "id": "DEVOPS-048",
+    "title": "CI/CD 파이프라인 10",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "name: CI/CD\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n    - uses: actions/checkout@v3\n    - uses: actions/setup-node@v3\n    - run: npm ci\n    - run: npm test\n    - run: npm run build\n    - name: Deploy\n      run: kubectl apply -f k8s/"
+  },
+  {
+    "id": "DEVOPS-049",
+    "title": "로그 집계 10",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "import winston from 'winston'; const logger = winston.createLogger({ level: 'info', format: winston.format.json(), transports: [new winston.transports.File({ filename: 'error.log', level: 'error' }), new winston.transports.File({ filename: 'combined.log' })] }); logger.info('Server started', { port: 3000 });"
+  },
+  {
+    "id": "DEVOPS-050",
+    "title": "헬스체크 엔드포인트 10",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "app.get('/health', async (req, res) => { try { await db.ping(); res.json({ status: 'healthy', database: 'connected', uptime: process.uptime() }); } catch (err) { res.status(503).json({ status: 'unhealthy', error: err.message }); } });"
+  },
+  {
+    "id": "DEVOPS-051",
+    "title": "Docker 멀티 스테이지 빌드 11",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "FROM node:18 AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM node:18-alpine\nWORKDIR /app\nCOPY --from=builder /app/dist ./dist\nCOPY package*.json ./\nRUN npm ci --production\nEXPOSE 3000\nCMD [\"node\", \"dist/index.js\"]"
+  },
+  {
+    "id": "DEVOPS-052",
+    "title": "Kubernetes HPA 11",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: education-hpa\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: education-api\n  minReplicas: 2\n  maxReplicas: 10\n  metrics:\n  - type: Resource\n    resource:\n      name: cpu\n      target:\n        type: Utilization\n        averageUtilization: 70"
+  },
+  {
+    "id": "DEVOPS-053",
+    "title": "CI/CD 파이프라인 11",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "name: CI/CD\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n    - uses: actions/checkout@v3\n    - uses: actions/setup-node@v3\n    - run: npm ci\n    - run: npm test\n    - run: npm run build\n    - name: Deploy\n      run: kubectl apply -f k8s/"
+  },
+  {
+    "id": "DEVOPS-054",
+    "title": "로그 집계 11",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "import winston from 'winston'; const logger = winston.createLogger({ level: 'info', format: winston.format.json(), transports: [new winston.transports.File({ filename: 'error.log', level: 'error' }), new winston.transports.File({ filename: 'combined.log' })] }); logger.info('Server started', { port: 3000 });"
+  },
+  {
+    "id": "DEVOPS-055",
+    "title": "헬스체크 엔드포인트 11",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "app.get('/health', async (req, res) => { try { await db.ping(); res.json({ status: 'healthy', database: 'connected', uptime: process.uptime() }); } catch (err) { res.status(503).json({ status: 'unhealthy', error: err.message }); } });"
+  },
+  {
+    "id": "DEVOPS-056",
+    "title": "Docker 멀티 스테이지 빌드 12",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "FROM node:18 AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM node:18-alpine\nWORKDIR /app\nCOPY --from=builder /app/dist ./dist\nCOPY package*.json ./\nRUN npm ci --production\nEXPOSE 3000\nCMD [\"node\", \"dist/index.js\"]"
+  },
+  {
+    "id": "DEVOPS-057",
+    "title": "Kubernetes HPA 12",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: education-hpa\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: education-api\n  minReplicas: 2\n  maxReplicas: 10\n  metrics:\n  - type: Resource\n    resource:\n      name: cpu\n      target:\n        type: Utilization\n        averageUtilization: 70"
+  },
+  {
+    "id": "DEVOPS-058",
+    "title": "CI/CD 파이프라인 12",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "name: CI/CD\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n    - uses: actions/checkout@v3\n    - uses: actions/setup-node@v3\n    - run: npm ci\n    - run: npm test\n    - run: npm run build\n    - name: Deploy\n      run: kubectl apply -f k8s/"
+  },
+  {
+    "id": "DEVOPS-059",
+    "title": "로그 집계 12",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "import winston from 'winston'; const logger = winston.createLogger({ level: 'info', format: winston.format.json(), transports: [new winston.transports.File({ filename: 'error.log', level: 'error' }), new winston.transports.File({ filename: 'combined.log' })] }); logger.info('Server started', { port: 3000 });"
+  },
+  {
+    "id": "DEVOPS-060",
+    "title": "헬스체크 엔드포인트 12",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "app.get('/health', async (req, res) => { try { await db.ping(); res.json({ status: 'healthy', database: 'connected', uptime: process.uptime() }); } catch (err) { res.status(503).json({ status: 'unhealthy', error: err.message }); } });"
+  },
+  {
+    "id": "DEVOPS-061",
+    "title": "Docker 멀티 스테이지 빌드 13",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "FROM node:18 AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM node:18-alpine\nWORKDIR /app\nCOPY --from=builder /app/dist ./dist\nCOPY package*.json ./\nRUN npm ci --production\nEXPOSE 3000\nCMD [\"node\", \"dist/index.js\"]"
+  },
+  {
+    "id": "DEVOPS-062",
+    "title": "Kubernetes HPA 13",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: education-hpa\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: education-api\n  minReplicas: 2\n  maxReplicas: 10\n  metrics:\n  - type: Resource\n    resource:\n      name: cpu\n      target:\n        type: Utilization\n        averageUtilization: 70"
+  },
+  {
+    "id": "DEVOPS-063",
+    "title": "CI/CD 파이프라인 13",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "name: CI/CD\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n    - uses: actions/checkout@v3\n    - uses: actions/setup-node@v3\n    - run: npm ci\n    - run: npm test\n    - run: npm run build\n    - name: Deploy\n      run: kubectl apply -f k8s/"
+  },
+  {
+    "id": "DEVOPS-064",
+    "title": "로그 집계 13",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "import winston from 'winston'; const logger = winston.createLogger({ level: 'info', format: winston.format.json(), transports: [new winston.transports.File({ filename: 'error.log', level: 'error' }), new winston.transports.File({ filename: 'combined.log' })] }); logger.info('Server started', { port: 3000 });"
+  },
+  {
+    "id": "DEVOPS-065",
+    "title": "헬스체크 엔드포인트 13",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "app.get('/health', async (req, res) => { try { await db.ping(); res.json({ status: 'healthy', database: 'connected', uptime: process.uptime() }); } catch (err) { res.status(503).json({ status: 'unhealthy', error: err.message }); } });"
+  },
+  {
+    "id": "DEVOPS-066",
+    "title": "Docker 멀티 스테이지 빌드 14",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "FROM node:18 AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM node:18-alpine\nWORKDIR /app\nCOPY --from=builder /app/dist ./dist\nCOPY package*.json ./\nRUN npm ci --production\nEXPOSE 3000\nCMD [\"node\", \"dist/index.js\"]"
+  },
+  {
+    "id": "DEVOPS-067",
+    "title": "Kubernetes HPA 14",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: education-hpa\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: education-api\n  minReplicas: 2\n  maxReplicas: 10\n  metrics:\n  - type: Resource\n    resource:\n      name: cpu\n      target:\n        type: Utilization\n        averageUtilization: 70"
+  },
+  {
+    "id": "DEVOPS-068",
+    "title": "CI/CD 파이프라인 14",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "name: CI/CD\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n    - uses: actions/checkout@v3\n    - uses: actions/setup-node@v3\n    - run: npm ci\n    - run: npm test\n    - run: npm run build\n    - name: Deploy\n      run: kubectl apply -f k8s/"
+  },
+  {
+    "id": "DEVOPS-069",
+    "title": "로그 집계 14",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "import winston from 'winston'; const logger = winston.createLogger({ level: 'info', format: winston.format.json(), transports: [new winston.transports.File({ filename: 'error.log', level: 'error' }), new winston.transports.File({ filename: 'combined.log' })] }); logger.info('Server started', { port: 3000 });"
+  },
+  {
+    "id": "DEVOPS-070",
+    "title": "헬스체크 엔드포인트 14",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "app.get('/health', async (req, res) => { try { await db.ping(); res.json({ status: 'healthy', database: 'connected', uptime: process.uptime() }); } catch (err) { res.status(503).json({ status: 'unhealthy', error: err.message }); } });"
+  },
+  {
+    "id": "DEVOPS-071",
+    "title": "Docker 멀티 스테이지 빌드 15",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "FROM node:18 AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM node:18-alpine\nWORKDIR /app\nCOPY --from=builder /app/dist ./dist\nCOPY package*.json ./\nRUN npm ci --production\nEXPOSE 3000\nCMD [\"node\", \"dist/index.js\"]"
+  },
+  {
+    "id": "DEVOPS-072",
+    "title": "Kubernetes HPA 15",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: education-hpa\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: education-api\n  minReplicas: 2\n  maxReplicas: 10\n  metrics:\n  - type: Resource\n    resource:\n      name: cpu\n      target:\n        type: Utilization\n        averageUtilization: 70"
+  },
+  {
+    "id": "DEVOPS-073",
+    "title": "CI/CD 파이프라인 15",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "name: CI/CD\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n    - uses: actions/checkout@v3\n    - uses: actions/setup-node@v3\n    - run: npm ci\n    - run: npm test\n    - run: npm run build\n    - name: Deploy\n      run: kubectl apply -f k8s/"
+  },
+  {
+    "id": "DEVOPS-074",
+    "title": "로그 집계 15",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "import winston from 'winston'; const logger = winston.createLogger({ level: 'info', format: winston.format.json(), transports: [new winston.transports.File({ filename: 'error.log', level: 'error' }), new winston.transports.File({ filename: 'combined.log' })] }); logger.info('Server started', { port: 3000 });"
+  },
+  {
+    "id": "DEVOPS-075",
+    "title": "헬스체크 엔드포인트 15",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "app.get('/health', async (req, res) => { try { await db.ping(); res.json({ status: 'healthy', database: 'connected', uptime: process.uptime() }); } catch (err) { res.status(503).json({ status: 'unhealthy', error: err.message }); } });"
+  },
+  {
+    "id": "DEVOPS-076",
+    "title": "Docker 멀티 스테이지 빌드 16",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "FROM node:18 AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM node:18-alpine\nWORKDIR /app\nCOPY --from=builder /app/dist ./dist\nCOPY package*.json ./\nRUN npm ci --production\nEXPOSE 3000\nCMD [\"node\", \"dist/index.js\"]"
+  },
+  {
+    "id": "DEVOPS-077",
+    "title": "Kubernetes HPA 16",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: education-hpa\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: education-api\n  minReplicas: 2\n  maxReplicas: 10\n  metrics:\n  - type: Resource\n    resource:\n      name: cpu\n      target:\n        type: Utilization\n        averageUtilization: 70"
+  },
+  {
+    "id": "DEVOPS-078",
+    "title": "CI/CD 파이프라인 16",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "name: CI/CD\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n    - uses: actions/checkout@v3\n    - uses: actions/setup-node@v3\n    - run: npm ci\n    - run: npm test\n    - run: npm run build\n    - name: Deploy\n      run: kubectl apply -f k8s/"
+  },
+  {
+    "id": "DEVOPS-079",
+    "title": "로그 집계 16",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "import winston from 'winston'; const logger = winston.createLogger({ level: 'info', format: winston.format.json(), transports: [new winston.transports.File({ filename: 'error.log', level: 'error' }), new winston.transports.File({ filename: 'combined.log' })] }); logger.info('Server started', { port: 3000 });"
+  },
+  {
+    "id": "DEVOPS-080",
+    "title": "헬스체크 엔드포인트 16",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "app.get('/health', async (req, res) => { try { await db.ping(); res.json({ status: 'healthy', database: 'connected', uptime: process.uptime() }); } catch (err) { res.status(503).json({ status: 'unhealthy', error: err.message }); } });"
+  },
+  {
+    "id": "DEVOPS-081",
+    "title": "Docker 멀티 스테이지 빌드 17",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "FROM node:18 AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM node:18-alpine\nWORKDIR /app\nCOPY --from=builder /app/dist ./dist\nCOPY package*.json ./\nRUN npm ci --production\nEXPOSE 3000\nCMD [\"node\", \"dist/index.js\"]"
+  },
+  {
+    "id": "DEVOPS-082",
+    "title": "Kubernetes HPA 17",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: education-hpa\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: education-api\n  minReplicas: 2\n  maxReplicas: 10\n  metrics:\n  - type: Resource\n    resource:\n      name: cpu\n      target:\n        type: Utilization\n        averageUtilization: 70"
+  },
+  {
+    "id": "DEVOPS-083",
+    "title": "CI/CD 파이프라인 17",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "name: CI/CD\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n    - uses: actions/checkout@v3\n    - uses: actions/setup-node@v3\n    - run: npm ci\n    - run: npm test\n    - run: npm run build\n    - name: Deploy\n      run: kubectl apply -f k8s/"
+  },
+  {
+    "id": "DEVOPS-084",
+    "title": "로그 집계 17",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "import winston from 'winston'; const logger = winston.createLogger({ level: 'info', format: winston.format.json(), transports: [new winston.transports.File({ filename: 'error.log', level: 'error' }), new winston.transports.File({ filename: 'combined.log' })] }); logger.info('Server started', { port: 3000 });"
+  },
+  {
+    "id": "DEVOPS-085",
+    "title": "헬스체크 엔드포인트 17",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "app.get('/health', async (req, res) => { try { await db.ping(); res.json({ status: 'healthy', database: 'connected', uptime: process.uptime() }); } catch (err) { res.status(503).json({ status: 'unhealthy', error: err.message }); } });"
+  },
+  {
+    "id": "DEVOPS-086",
+    "title": "Docker 멀티 스테이지 빌드 18",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "FROM node:18 AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM node:18-alpine\nWORKDIR /app\nCOPY --from=builder /app/dist ./dist\nCOPY package*.json ./\nRUN npm ci --production\nEXPOSE 3000\nCMD [\"node\", \"dist/index.js\"]"
+  },
+  {
+    "id": "DEVOPS-087",
+    "title": "Kubernetes HPA 18",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: education-hpa\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: education-api\n  minReplicas: 2\n  maxReplicas: 10\n  metrics:\n  - type: Resource\n    resource:\n      name: cpu\n      target:\n        type: Utilization\n        averageUtilization: 70"
+  },
+  {
+    "id": "DEVOPS-088",
+    "title": "CI/CD 파이프라인 18",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "name: CI/CD\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n    - uses: actions/checkout@v3\n    - uses: actions/setup-node@v3\n    - run: npm ci\n    - run: npm test\n    - run: npm run build\n    - name: Deploy\n      run: kubectl apply -f k8s/"
+  },
+  {
+    "id": "DEVOPS-089",
+    "title": "로그 집계 18",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "import winston from 'winston'; const logger = winston.createLogger({ level: 'info', format: winston.format.json(), transports: [new winston.transports.File({ filename: 'error.log', level: 'error' }), new winston.transports.File({ filename: 'combined.log' })] }); logger.info('Server started', { port: 3000 });"
+  },
+  {
+    "id": "DEVOPS-090",
+    "title": "헬스체크 엔드포인트 18",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "app.get('/health', async (req, res) => { try { await db.ping(); res.json({ status: 'healthy', database: 'connected', uptime: process.uptime() }); } catch (err) { res.status(503).json({ status: 'unhealthy', error: err.message }); } });"
+  },
+  {
+    "id": "DEVOPS-091",
+    "title": "Docker 멀티 스테이지 빌드 19",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "FROM node:18 AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM node:18-alpine\nWORKDIR /app\nCOPY --from=builder /app/dist ./dist\nCOPY package*.json ./\nRUN npm ci --production\nEXPOSE 3000\nCMD [\"node\", \"dist/index.js\"]"
+  },
+  {
+    "id": "DEVOPS-092",
+    "title": "Kubernetes HPA 19",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: education-hpa\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: education-api\n  minReplicas: 2\n  maxReplicas: 10\n  metrics:\n  - type: Resource\n    resource:\n      name: cpu\n      target:\n        type: Utilization\n        averageUtilization: 70"
+  },
+  {
+    "id": "DEVOPS-093",
+    "title": "CI/CD 파이프라인 19",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "name: CI/CD\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n    - uses: actions/checkout@v3\n    - uses: actions/setup-node@v3\n    - run: npm ci\n    - run: npm test\n    - run: npm run build\n    - name: Deploy\n      run: kubectl apply -f k8s/"
+  },
+  {
+    "id": "DEVOPS-094",
+    "title": "로그 집계 19",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "import winston from 'winston'; const logger = winston.createLogger({ level: 'info', format: winston.format.json(), transports: [new winston.transports.File({ filename: 'error.log', level: 'error' }), new winston.transports.File({ filename: 'combined.log' })] }); logger.info('Server started', { port: 3000 });"
+  },
+  {
+    "id": "DEVOPS-095",
+    "title": "헬스체크 엔드포인트 19",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "app.get('/health', async (req, res) => { try { await db.ping(); res.json({ status: 'healthy', database: 'connected', uptime: process.uptime() }); } catch (err) { res.status(503).json({ status: 'unhealthy', error: err.message }); } });"
+  },
+  {
+    "id": "DEVOPS-096",
+    "title": "Docker 멀티 스테이지 빌드 20",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "FROM node:18 AS builder\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM node:18-alpine\nWORKDIR /app\nCOPY --from=builder /app/dist ./dist\nCOPY package*.json ./\nRUN npm ci --production\nEXPOSE 3000\nCMD [\"node\", \"dist/index.js\"]"
+  },
+  {
+    "id": "DEVOPS-097",
+    "title": "Kubernetes HPA 20",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "apiVersion: autoscaling/v2\nkind: HorizontalPodAutoscaler\nmetadata:\n  name: education-hpa\nspec:\n  scaleTargetRef:\n    apiVersion: apps/v1\n    kind: Deployment\n    name: education-api\n  minReplicas: 2\n  maxReplicas: 10\n  metrics:\n  - type: Resource\n    resource:\n      name: cpu\n      target:\n        type: Utilization\n        averageUtilization: 70"
+  },
+  {
+    "id": "DEVOPS-098",
+    "title": "CI/CD 파이프라인 20",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Kubernetes",
+    "code": "name: CI/CD\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n    - uses: actions/checkout@v3\n    - uses: actions/setup-node@v3\n    - run: npm ci\n    - run: npm test\n    - run: npm run build\n    - name: Deploy\n      run: kubectl apply -f k8s/"
+  },
+  {
+    "id": "DEVOPS-099",
+    "title": "로그 집계 20",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "GitHub Actions",
+    "code": "import winston from 'winston'; const logger = winston.createLogger({ level: 'info', format: winston.format.json(), transports: [new winston.transports.File({ filename: 'error.log', level: 'error' }), new winston.transports.File({ filename: 'combined.log' })] }); logger.info('Server started', { port: 3000 });"
+  },
+  {
+    "id": "DEVOPS-100",
+    "title": "헬스체크 엔드포인트 20",
+    "category": "DevOps",
+    "language": "typescript",
+    "framework": "Docker",
+    "code": "app.get('/health', async (req, res) => { try { await db.ping(); res.json({ status: 'healthy', database: 'connected', uptime: process.uptime() }); } catch (err) { res.status(503).json({ status: 'unhealthy', error: err.message }); } });"
+  }
 ]

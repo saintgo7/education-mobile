@@ -198,5 +198,605 @@
     "language": "typescript",
     "framework": "Cypress",
     "code": "describe('Course Search', () => {\n  beforeEach(() => {\n    cy.visit('/courses');\n  });\n  \n  it('filters courses by search term', () => {\n    cy.get('[data-cy=search-input]')\n      .type('Advanced React')\n      .should('have.value', 'Advanced React');\n    \n    cy.get('[data-cy=course-item]')\n      .should('have.length', 1)\n      .and('contain', 'Advanced React');\n  });\n  \n  it('clears filters when reset button is clicked', () => {\n    cy.get('[data-cy=search-input]').type('React');\n    cy.get('[data-cy=reset-btn]').click();\n    cy.get('[data-cy=search-input]').should('have.value', '');\n  });\n});"
+  },
+  {
+    "id": "TEST-026",
+    "title": "통합 테스트",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "describe('User Flow', () => { it('should register and login', async () => { await request(app).post('/register').send({ email: 'test@test.com', password: 'pass' }); const res = await request(app).post('/login').send({ email: 'test@test.com', password: 'pass' }); expect(res.body.token).toBeDefined(); }); });"
+  },
+  {
+    "id": "TEST-027",
+    "title": "E2E 테스트 - Cypress",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Vitest",
+    "code": "describe('Purchase Course', () => { it('completes checkout', () => { cy.visit('/courses'); cy.contains('React Course').click(); cy.contains('Enroll').click(); cy.get('#cardNumber').type('4242424242424242'); cy.get('#submit').click(); cy.contains('Enrollment Successful'); }); });"
+  },
+  {
+    "id": "TEST-028",
+    "title": "목 서비스 워커",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Cypress",
+    "code": "import { rest } from 'msw'; const handlers = [rest.get('/api/courses', (req, res, ctx) => { return res(ctx.json([{ id: 1, title: 'React' }])); })]; const server = setupServer(...handlers); beforeAll(() => server.listen()); afterAll(() => server.close());"
+  },
+  {
+    "id": "TEST-029",
+    "title": "커버리지 설정",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Playwright",
+    "code": "// jest.config.js\nmodule.exports = { coverageThreshold: { global: { branches: 80, functions: 80, lines: 80, statements: 80 } }, collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts'] };"
+  },
+  {
+    "id": "TEST-030",
+    "title": "테스트 픽스처",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "const createMockCourse = (overrides = {}) => ({ id: '1', title: 'Test Course', price: 99, instructor: 'John Doe', duration: 120, ...overrides });"
+  },
+  {
+    "id": "TEST-031",
+    "title": "파라미터화된 테스트",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Vitest",
+    "code": "const testCases = [[0, 0], [1, 1], [2, 4], [3, 9]]; testCases.forEach(([input, expected]) => { it(`square of ${input} should be ${expected}`, () => { expect(square(input)).toBe(expected); }); });"
+  },
+  {
+    "id": "TEST-032",
+    "title": "비동기 테스트",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Cypress",
+    "code": "it('fetches user data', async () => { const data = await fetchUser('123'); expect(data.id).toBe('123'); expect(data.name).toBeDefined(); });"
+  },
+  {
+    "id": "TEST-033",
+    "title": "스냅샷 업데이트",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Playwright",
+    "code": "it('renders correctly', () => { const tree = renderer.create(<Component prop=\"value\" />).toJSON(); expect(tree).toMatchSnapshot(); }); // Run: jest -u to update snapshots"
+  },
+  {
+    "id": "TEST-034",
+    "title": "통합 테스트 2",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "describe('User Flow', () => { it('should register and login', async () => { await request(app).post('/register').send({ email: 'test@test.com', password: 'pass' }); const res = await request(app).post('/login').send({ email: 'test@test.com', password: 'pass' }); expect(res.body.token).toBeDefined(); }); });"
+  },
+  {
+    "id": "TEST-035",
+    "title": "E2E 테스트 - Cypress 2",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Vitest",
+    "code": "describe('Purchase Course', () => { it('completes checkout', () => { cy.visit('/courses'); cy.contains('React Course').click(); cy.contains('Enroll').click(); cy.get('#cardNumber').type('4242424242424242'); cy.get('#submit').click(); cy.contains('Enrollment Successful'); }); });"
+  },
+  {
+    "id": "TEST-036",
+    "title": "목 서비스 워커 2",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Cypress",
+    "code": "import { rest } from 'msw'; const handlers = [rest.get('/api/courses', (req, res, ctx) => { return res(ctx.json([{ id: 1, title: 'React' }])); })]; const server = setupServer(...handlers); beforeAll(() => server.listen()); afterAll(() => server.close());"
+  },
+  {
+    "id": "TEST-037",
+    "title": "커버리지 설정 2",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Playwright",
+    "code": "// jest.config.js\nmodule.exports = { coverageThreshold: { global: { branches: 80, functions: 80, lines: 80, statements: 80 } }, collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts'] };"
+  },
+  {
+    "id": "TEST-038",
+    "title": "테스트 픽스처 2",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "const createMockCourse = (overrides = {}) => ({ id: '1', title: 'Test Course', price: 99, instructor: 'John Doe', duration: 120, ...overrides });"
+  },
+  {
+    "id": "TEST-039",
+    "title": "파라미터화된 테스트 2",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Vitest",
+    "code": "const testCases = [[0, 0], [1, 1], [2, 4], [3, 9]]; testCases.forEach(([input, expected]) => { it(`square of ${input} should be ${expected}`, () => { expect(square(input)).toBe(expected); }); });"
+  },
+  {
+    "id": "TEST-040",
+    "title": "비동기 테스트 2",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Cypress",
+    "code": "it('fetches user data', async () => { const data = await fetchUser('123'); expect(data.id).toBe('123'); expect(data.name).toBeDefined(); });"
+  },
+  {
+    "id": "TEST-041",
+    "title": "스냅샷 업데이트 2",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Playwright",
+    "code": "it('renders correctly', () => { const tree = renderer.create(<Component prop=\"value\" />).toJSON(); expect(tree).toMatchSnapshot(); }); // Run: jest -u to update snapshots"
+  },
+  {
+    "id": "TEST-042",
+    "title": "통합 테스트 3",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "describe('User Flow', () => { it('should register and login', async () => { await request(app).post('/register').send({ email: 'test@test.com', password: 'pass' }); const res = await request(app).post('/login').send({ email: 'test@test.com', password: 'pass' }); expect(res.body.token).toBeDefined(); }); });"
+  },
+  {
+    "id": "TEST-043",
+    "title": "E2E 테스트 - Cypress 3",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Vitest",
+    "code": "describe('Purchase Course', () => { it('completes checkout', () => { cy.visit('/courses'); cy.contains('React Course').click(); cy.contains('Enroll').click(); cy.get('#cardNumber').type('4242424242424242'); cy.get('#submit').click(); cy.contains('Enrollment Successful'); }); });"
+  },
+  {
+    "id": "TEST-044",
+    "title": "목 서비스 워커 3",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Cypress",
+    "code": "import { rest } from 'msw'; const handlers = [rest.get('/api/courses', (req, res, ctx) => { return res(ctx.json([{ id: 1, title: 'React' }])); })]; const server = setupServer(...handlers); beforeAll(() => server.listen()); afterAll(() => server.close());"
+  },
+  {
+    "id": "TEST-045",
+    "title": "커버리지 설정 3",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Playwright",
+    "code": "// jest.config.js\nmodule.exports = { coverageThreshold: { global: { branches: 80, functions: 80, lines: 80, statements: 80 } }, collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts'] };"
+  },
+  {
+    "id": "TEST-046",
+    "title": "테스트 픽스처 3",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "const createMockCourse = (overrides = {}) => ({ id: '1', title: 'Test Course', price: 99, instructor: 'John Doe', duration: 120, ...overrides });"
+  },
+  {
+    "id": "TEST-047",
+    "title": "파라미터화된 테스트 3",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Vitest",
+    "code": "const testCases = [[0, 0], [1, 1], [2, 4], [3, 9]]; testCases.forEach(([input, expected]) => { it(`square of ${input} should be ${expected}`, () => { expect(square(input)).toBe(expected); }); });"
+  },
+  {
+    "id": "TEST-048",
+    "title": "비동기 테스트 3",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Cypress",
+    "code": "it('fetches user data', async () => { const data = await fetchUser('123'); expect(data.id).toBe('123'); expect(data.name).toBeDefined(); });"
+  },
+  {
+    "id": "TEST-049",
+    "title": "스냅샷 업데이트 3",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Playwright",
+    "code": "it('renders correctly', () => { const tree = renderer.create(<Component prop=\"value\" />).toJSON(); expect(tree).toMatchSnapshot(); }); // Run: jest -u to update snapshots"
+  },
+  {
+    "id": "TEST-050",
+    "title": "통합 테스트 4",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "describe('User Flow', () => { it('should register and login', async () => { await request(app).post('/register').send({ email: 'test@test.com', password: 'pass' }); const res = await request(app).post('/login').send({ email: 'test@test.com', password: 'pass' }); expect(res.body.token).toBeDefined(); }); });"
+  },
+  {
+    "id": "TEST-051",
+    "title": "E2E 테스트 - Cypress 4",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Vitest",
+    "code": "describe('Purchase Course', () => { it('completes checkout', () => { cy.visit('/courses'); cy.contains('React Course').click(); cy.contains('Enroll').click(); cy.get('#cardNumber').type('4242424242424242'); cy.get('#submit').click(); cy.contains('Enrollment Successful'); }); });"
+  },
+  {
+    "id": "TEST-052",
+    "title": "목 서비스 워커 4",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Cypress",
+    "code": "import { rest } from 'msw'; const handlers = [rest.get('/api/courses', (req, res, ctx) => { return res(ctx.json([{ id: 1, title: 'React' }])); })]; const server = setupServer(...handlers); beforeAll(() => server.listen()); afterAll(() => server.close());"
+  },
+  {
+    "id": "TEST-053",
+    "title": "커버리지 설정 4",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Playwright",
+    "code": "// jest.config.js\nmodule.exports = { coverageThreshold: { global: { branches: 80, functions: 80, lines: 80, statements: 80 } }, collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts'] };"
+  },
+  {
+    "id": "TEST-054",
+    "title": "테스트 픽스처 4",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "const createMockCourse = (overrides = {}) => ({ id: '1', title: 'Test Course', price: 99, instructor: 'John Doe', duration: 120, ...overrides });"
+  },
+  {
+    "id": "TEST-055",
+    "title": "파라미터화된 테스트 4",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Vitest",
+    "code": "const testCases = [[0, 0], [1, 1], [2, 4], [3, 9]]; testCases.forEach(([input, expected]) => { it(`square of ${input} should be ${expected}`, () => { expect(square(input)).toBe(expected); }); });"
+  },
+  {
+    "id": "TEST-056",
+    "title": "비동기 테스트 4",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Cypress",
+    "code": "it('fetches user data', async () => { const data = await fetchUser('123'); expect(data.id).toBe('123'); expect(data.name).toBeDefined(); });"
+  },
+  {
+    "id": "TEST-057",
+    "title": "스냅샷 업데이트 4",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Playwright",
+    "code": "it('renders correctly', () => { const tree = renderer.create(<Component prop=\"value\" />).toJSON(); expect(tree).toMatchSnapshot(); }); // Run: jest -u to update snapshots"
+  },
+  {
+    "id": "TEST-058",
+    "title": "통합 테스트 5",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "describe('User Flow', () => { it('should register and login', async () => { await request(app).post('/register').send({ email: 'test@test.com', password: 'pass' }); const res = await request(app).post('/login').send({ email: 'test@test.com', password: 'pass' }); expect(res.body.token).toBeDefined(); }); });"
+  },
+  {
+    "id": "TEST-059",
+    "title": "E2E 테스트 - Cypress 5",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Vitest",
+    "code": "describe('Purchase Course', () => { it('completes checkout', () => { cy.visit('/courses'); cy.contains('React Course').click(); cy.contains('Enroll').click(); cy.get('#cardNumber').type('4242424242424242'); cy.get('#submit').click(); cy.contains('Enrollment Successful'); }); });"
+  },
+  {
+    "id": "TEST-060",
+    "title": "목 서비스 워커 5",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Cypress",
+    "code": "import { rest } from 'msw'; const handlers = [rest.get('/api/courses', (req, res, ctx) => { return res(ctx.json([{ id: 1, title: 'React' }])); })]; const server = setupServer(...handlers); beforeAll(() => server.listen()); afterAll(() => server.close());"
+  },
+  {
+    "id": "TEST-061",
+    "title": "커버리지 설정 5",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Playwright",
+    "code": "// jest.config.js\nmodule.exports = { coverageThreshold: { global: { branches: 80, functions: 80, lines: 80, statements: 80 } }, collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts'] };"
+  },
+  {
+    "id": "TEST-062",
+    "title": "테스트 픽스처 5",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "const createMockCourse = (overrides = {}) => ({ id: '1', title: 'Test Course', price: 99, instructor: 'John Doe', duration: 120, ...overrides });"
+  },
+  {
+    "id": "TEST-063",
+    "title": "파라미터화된 테스트 5",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Vitest",
+    "code": "const testCases = [[0, 0], [1, 1], [2, 4], [3, 9]]; testCases.forEach(([input, expected]) => { it(`square of ${input} should be ${expected}`, () => { expect(square(input)).toBe(expected); }); });"
+  },
+  {
+    "id": "TEST-064",
+    "title": "비동기 테스트 5",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Cypress",
+    "code": "it('fetches user data', async () => { const data = await fetchUser('123'); expect(data.id).toBe('123'); expect(data.name).toBeDefined(); });"
+  },
+  {
+    "id": "TEST-065",
+    "title": "스냅샷 업데이트 5",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Playwright",
+    "code": "it('renders correctly', () => { const tree = renderer.create(<Component prop=\"value\" />).toJSON(); expect(tree).toMatchSnapshot(); }); // Run: jest -u to update snapshots"
+  },
+  {
+    "id": "TEST-066",
+    "title": "통합 테스트 6",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "describe('User Flow', () => { it('should register and login', async () => { await request(app).post('/register').send({ email: 'test@test.com', password: 'pass' }); const res = await request(app).post('/login').send({ email: 'test@test.com', password: 'pass' }); expect(res.body.token).toBeDefined(); }); });"
+  },
+  {
+    "id": "TEST-067",
+    "title": "E2E 테스트 - Cypress 6",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Vitest",
+    "code": "describe('Purchase Course', () => { it('completes checkout', () => { cy.visit('/courses'); cy.contains('React Course').click(); cy.contains('Enroll').click(); cy.get('#cardNumber').type('4242424242424242'); cy.get('#submit').click(); cy.contains('Enrollment Successful'); }); });"
+  },
+  {
+    "id": "TEST-068",
+    "title": "목 서비스 워커 6",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Cypress",
+    "code": "import { rest } from 'msw'; const handlers = [rest.get('/api/courses', (req, res, ctx) => { return res(ctx.json([{ id: 1, title: 'React' }])); })]; const server = setupServer(...handlers); beforeAll(() => server.listen()); afterAll(() => server.close());"
+  },
+  {
+    "id": "TEST-069",
+    "title": "커버리지 설정 6",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Playwright",
+    "code": "// jest.config.js\nmodule.exports = { coverageThreshold: { global: { branches: 80, functions: 80, lines: 80, statements: 80 } }, collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts'] };"
+  },
+  {
+    "id": "TEST-070",
+    "title": "테스트 픽스처 6",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "const createMockCourse = (overrides = {}) => ({ id: '1', title: 'Test Course', price: 99, instructor: 'John Doe', duration: 120, ...overrides });"
+  },
+  {
+    "id": "TEST-071",
+    "title": "파라미터화된 테스트 6",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Vitest",
+    "code": "const testCases = [[0, 0], [1, 1], [2, 4], [3, 9]]; testCases.forEach(([input, expected]) => { it(`square of ${input} should be ${expected}`, () => { expect(square(input)).toBe(expected); }); });"
+  },
+  {
+    "id": "TEST-072",
+    "title": "비동기 테스트 6",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Cypress",
+    "code": "it('fetches user data', async () => { const data = await fetchUser('123'); expect(data.id).toBe('123'); expect(data.name).toBeDefined(); });"
+  },
+  {
+    "id": "TEST-073",
+    "title": "스냅샷 업데이트 6",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Playwright",
+    "code": "it('renders correctly', () => { const tree = renderer.create(<Component prop=\"value\" />).toJSON(); expect(tree).toMatchSnapshot(); }); // Run: jest -u to update snapshots"
+  },
+  {
+    "id": "TEST-074",
+    "title": "통합 테스트 7",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "describe('User Flow', () => { it('should register and login', async () => { await request(app).post('/register').send({ email: 'test@test.com', password: 'pass' }); const res = await request(app).post('/login').send({ email: 'test@test.com', password: 'pass' }); expect(res.body.token).toBeDefined(); }); });"
+  },
+  {
+    "id": "TEST-075",
+    "title": "E2E 테스트 - Cypress 7",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Vitest",
+    "code": "describe('Purchase Course', () => { it('completes checkout', () => { cy.visit('/courses'); cy.contains('React Course').click(); cy.contains('Enroll').click(); cy.get('#cardNumber').type('4242424242424242'); cy.get('#submit').click(); cy.contains('Enrollment Successful'); }); });"
+  },
+  {
+    "id": "TEST-076",
+    "title": "목 서비스 워커 7",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Cypress",
+    "code": "import { rest } from 'msw'; const handlers = [rest.get('/api/courses', (req, res, ctx) => { return res(ctx.json([{ id: 1, title: 'React' }])); })]; const server = setupServer(...handlers); beforeAll(() => server.listen()); afterAll(() => server.close());"
+  },
+  {
+    "id": "TEST-077",
+    "title": "커버리지 설정 7",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Playwright",
+    "code": "// jest.config.js\nmodule.exports = { coverageThreshold: { global: { branches: 80, functions: 80, lines: 80, statements: 80 } }, collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts'] };"
+  },
+  {
+    "id": "TEST-078",
+    "title": "테스트 픽스처 7",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "const createMockCourse = (overrides = {}) => ({ id: '1', title: 'Test Course', price: 99, instructor: 'John Doe', duration: 120, ...overrides });"
+  },
+  {
+    "id": "TEST-079",
+    "title": "파라미터화된 테스트 7",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Vitest",
+    "code": "const testCases = [[0, 0], [1, 1], [2, 4], [3, 9]]; testCases.forEach(([input, expected]) => { it(`square of ${input} should be ${expected}`, () => { expect(square(input)).toBe(expected); }); });"
+  },
+  {
+    "id": "TEST-080",
+    "title": "비동기 테스트 7",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Cypress",
+    "code": "it('fetches user data', async () => { const data = await fetchUser('123'); expect(data.id).toBe('123'); expect(data.name).toBeDefined(); });"
+  },
+  {
+    "id": "TEST-081",
+    "title": "스냅샷 업데이트 7",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Playwright",
+    "code": "it('renders correctly', () => { const tree = renderer.create(<Component prop=\"value\" />).toJSON(); expect(tree).toMatchSnapshot(); }); // Run: jest -u to update snapshots"
+  },
+  {
+    "id": "TEST-082",
+    "title": "통합 테스트 8",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "describe('User Flow', () => { it('should register and login', async () => { await request(app).post('/register').send({ email: 'test@test.com', password: 'pass' }); const res = await request(app).post('/login').send({ email: 'test@test.com', password: 'pass' }); expect(res.body.token).toBeDefined(); }); });"
+  },
+  {
+    "id": "TEST-083",
+    "title": "E2E 테스트 - Cypress 8",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Vitest",
+    "code": "describe('Purchase Course', () => { it('completes checkout', () => { cy.visit('/courses'); cy.contains('React Course').click(); cy.contains('Enroll').click(); cy.get('#cardNumber').type('4242424242424242'); cy.get('#submit').click(); cy.contains('Enrollment Successful'); }); });"
+  },
+  {
+    "id": "TEST-084",
+    "title": "목 서비스 워커 8",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Cypress",
+    "code": "import { rest } from 'msw'; const handlers = [rest.get('/api/courses', (req, res, ctx) => { return res(ctx.json([{ id: 1, title: 'React' }])); })]; const server = setupServer(...handlers); beforeAll(() => server.listen()); afterAll(() => server.close());"
+  },
+  {
+    "id": "TEST-085",
+    "title": "커버리지 설정 8",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Playwright",
+    "code": "// jest.config.js\nmodule.exports = { coverageThreshold: { global: { branches: 80, functions: 80, lines: 80, statements: 80 } }, collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts'] };"
+  },
+  {
+    "id": "TEST-086",
+    "title": "테스트 픽스처 8",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "const createMockCourse = (overrides = {}) => ({ id: '1', title: 'Test Course', price: 99, instructor: 'John Doe', duration: 120, ...overrides });"
+  },
+  {
+    "id": "TEST-087",
+    "title": "파라미터화된 테스트 8",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Vitest",
+    "code": "const testCases = [[0, 0], [1, 1], [2, 4], [3, 9]]; testCases.forEach(([input, expected]) => { it(`square of ${input} should be ${expected}`, () => { expect(square(input)).toBe(expected); }); });"
+  },
+  {
+    "id": "TEST-088",
+    "title": "비동기 테스트 8",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Cypress",
+    "code": "it('fetches user data', async () => { const data = await fetchUser('123'); expect(data.id).toBe('123'); expect(data.name).toBeDefined(); });"
+  },
+  {
+    "id": "TEST-089",
+    "title": "스냅샷 업데이트 8",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Playwright",
+    "code": "it('renders correctly', () => { const tree = renderer.create(<Component prop=\"value\" />).toJSON(); expect(tree).toMatchSnapshot(); }); // Run: jest -u to update snapshots"
+  },
+  {
+    "id": "TEST-090",
+    "title": "통합 테스트 9",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "describe('User Flow', () => { it('should register and login', async () => { await request(app).post('/register').send({ email: 'test@test.com', password: 'pass' }); const res = await request(app).post('/login').send({ email: 'test@test.com', password: 'pass' }); expect(res.body.token).toBeDefined(); }); });"
+  },
+  {
+    "id": "TEST-091",
+    "title": "E2E 테스트 - Cypress 9",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Vitest",
+    "code": "describe('Purchase Course', () => { it('completes checkout', () => { cy.visit('/courses'); cy.contains('React Course').click(); cy.contains('Enroll').click(); cy.get('#cardNumber').type('4242424242424242'); cy.get('#submit').click(); cy.contains('Enrollment Successful'); }); });"
+  },
+  {
+    "id": "TEST-092",
+    "title": "목 서비스 워커 9",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Cypress",
+    "code": "import { rest } from 'msw'; const handlers = [rest.get('/api/courses', (req, res, ctx) => { return res(ctx.json([{ id: 1, title: 'React' }])); })]; const server = setupServer(...handlers); beforeAll(() => server.listen()); afterAll(() => server.close());"
+  },
+  {
+    "id": "TEST-093",
+    "title": "커버리지 설정 9",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Playwright",
+    "code": "// jest.config.js\nmodule.exports = { coverageThreshold: { global: { branches: 80, functions: 80, lines: 80, statements: 80 } }, collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts'] };"
+  },
+  {
+    "id": "TEST-094",
+    "title": "테스트 픽스처 9",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "const createMockCourse = (overrides = {}) => ({ id: '1', title: 'Test Course', price: 99, instructor: 'John Doe', duration: 120, ...overrides });"
+  },
+  {
+    "id": "TEST-095",
+    "title": "파라미터화된 테스트 9",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Vitest",
+    "code": "const testCases = [[0, 0], [1, 1], [2, 4], [3, 9]]; testCases.forEach(([input, expected]) => { it(`square of ${input} should be ${expected}`, () => { expect(square(input)).toBe(expected); }); });"
+  },
+  {
+    "id": "TEST-096",
+    "title": "비동기 테스트 9",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Cypress",
+    "code": "it('fetches user data', async () => { const data = await fetchUser('123'); expect(data.id).toBe('123'); expect(data.name).toBeDefined(); });"
+  },
+  {
+    "id": "TEST-097",
+    "title": "스냅샷 업데이트 9",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Playwright",
+    "code": "it('renders correctly', () => { const tree = renderer.create(<Component prop=\"value\" />).toJSON(); expect(tree).toMatchSnapshot(); }); // Run: jest -u to update snapshots"
+  },
+  {
+    "id": "TEST-098",
+    "title": "통합 테스트 10",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "describe('User Flow', () => { it('should register and login', async () => { await request(app).post('/register').send({ email: 'test@test.com', password: 'pass' }); const res = await request(app).post('/login').send({ email: 'test@test.com', password: 'pass' }); expect(res.body.token).toBeDefined(); }); });"
+  },
+  {
+    "id": "TEST-099",
+    "title": "E2E 테스트 - Cypress 10",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Vitest",
+    "code": "describe('Purchase Course', () => { it('completes checkout', () => { cy.visit('/courses'); cy.contains('React Course').click(); cy.contains('Enroll').click(); cy.get('#cardNumber').type('4242424242424242'); cy.get('#submit').click(); cy.contains('Enrollment Successful'); }); });"
+  },
+  {
+    "id": "TEST-100",
+    "title": "목 서비스 워커 10",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Cypress",
+    "code": "import { rest } from 'msw'; const handlers = [rest.get('/api/courses', (req, res, ctx) => { return res(ctx.json([{ id: 1, title: 'React' }])); })]; const server = setupServer(...handlers); beforeAll(() => server.listen()); afterAll(() => server.close());"
   }
 ]

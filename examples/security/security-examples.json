@@ -238,5 +238,565 @@
     "language": "markdown",
     "framework": "Documentation",
     "code": "# Security Checklist\n\n## Authentication & Authorization\n- [ ] Implement strong password requirements\n- [ ] Use JWT or OAuth 2.0 for authentication\n- [ ] Implement 2FA for sensitive accounts\n- [ ] Role-based access control (RBAC)\n- [ ] Session timeout configuration\n\n## Data Protection\n- [ ] Encrypt data at rest\n- [ ] Use HTTPS/TLS for all communication\n- [ ] Hash passwords with bcrypt\n- [ ] // 안전함 database connections\n- [ ] Regular backups with encryption\n\n## API Security\n- [ ] Input validation and sanitization\n- [ ] Rate limiting on all endpoints\n- [ ] CORS configuration\n- [ ] CSRF token protection\n- [ ] SQL injection prevention\n\n## Infrastructure\n- [ ] Use environment variables for secrets\n- [ ] Implement WAF (Web Application Firewall)\n- [ ] Regular security updates\n- [ ] Dependency vulnerability scanning\n- [ ] DDoS protection\n\n## Monitoring & Logging\n- [ ] Security event logging\n- [ ] Intrusion detection system\n- [ ] Real-time alerts\n- [ ] Access audit logs\n- [ ] Performance monitoring"
+  },
+  {
+    "id": "SEC-031",
+    "title": "SQL 인젝션 방어",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "const getUserById = async (id: string) => { return db.query('SELECT * FROM users WHERE id = $1', [id]); }; // Always use parameterized queries"
+  },
+  {
+    "id": "SEC-032",
+    "title": "XSS 방어",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Express",
+    "code": "import DOMPurify from 'dompurify'; const sanitizeHTML = (dirty: string) => DOMPurify.sanitize(dirty, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong'] });"
+  },
+  {
+    "id": "SEC-033",
+    "title": "CSRF 토큰",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "OAuth",
+    "code": "app.use(csrf()); app.get('/form', (req, res) => { res.render('form', { csrfToken: req.csrfToken() }); }); app.post('/submit', (req, res) => { /* CSRF protection automatic */ });"
+  },
+  {
+    "id": "SEC-034",
+    "title": "비밀번호 강도 검사",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "const isStrongPassword = (pwd: string) => { const hasUpper = /[A-Z]/.test(pwd); const hasLower = /[a-z]/.test(pwd); const hasNumber = /\\d/.test(pwd); const hasSpecial = /[!@#$%^&*]/.test(pwd); return pwd.length >= 8 && hasUpper && hasLower && hasNumber && hasSpecial; };"
+  },
+  {
+    "id": "SEC-035",
+    "title": "보안 헤더 설정",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Express",
+    "code": "import helmet from 'helmet'; app.use(helmet()); app.use(helmet.contentSecurityPolicy({ directives: { defaultSrc: [\"'self'\"], scriptSrc: [\"'self'\", \"'unsafe-inline'\"], styleSrc: [\"'self'\", \"'unsafe-inline'\"] } }));"
+  },
+  {
+    "id": "SEC-036",
+    "title": "API 속도 제한",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "OAuth",
+    "code": "import rateLimit from 'express-rate-limit'; const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100, message: 'Too many requests' }); app.use('/api/', limiter);"
+  },
+  {
+    "id": "SEC-037",
+    "title": "파일 업로드 검증",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "const validateFile = (file: Express.Multer.File) => { const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf']; const maxSize = 5 * 1024 * 1024; // 5MB\n  if (!allowedTypes.includes(file.mimetype)) throw new Error('Invalid file type'); if (file.size > maxSize) throw new Error('File too large'); };"
+  },
+  {
+    "id": "SEC-038",
+    "title": "세션 관리",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Express",
+    "code": "import session from 'express-session'; app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: false, cookie: { secure: true, httpOnly: true, maxAge: 24 * 60 * 60 * 1000 } }));"
+  },
+  {
+    "id": "SEC-039",
+    "title": "입력 검증",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "OAuth",
+    "code": "import Joi from 'joi'; const schema = Joi.object({ email: Joi.string().email().required(), password: Joi.string().min(8).required(), age: Joi.number().min(18).max(120) }); const { error, value } = schema.validate(req.body);"
+  },
+  {
+    "id": "SEC-040",
+    "title": "2단계 인증",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import speakeasy from 'speakeasy'; const secret = speakeasy.generateSecret({ name: 'MyApp' }); const token = speakeasy.totp({ secret: secret.base32, encoding: 'base32' }); const verified = speakeasy.totp.verify({ secret: secret.base32, encoding: 'base32', token: userToken });"
+  },
+  {
+    "id": "SEC-041",
+    "title": "SQL 인젝션 방어 2",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Express",
+    "code": "const getUserById = async (id: string) => { return db.query('SELECT * FROM users WHERE id = $1', [id]); }; // Always use parameterized queries"
+  },
+  {
+    "id": "SEC-042",
+    "title": "XSS 방어 2",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "OAuth",
+    "code": "import DOMPurify from 'dompurify'; const sanitizeHTML = (dirty: string) => DOMPurify.sanitize(dirty, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong'] });"
+  },
+  {
+    "id": "SEC-043",
+    "title": "CSRF 토큰 2",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "app.use(csrf()); app.get('/form', (req, res) => { res.render('form', { csrfToken: req.csrfToken() }); }); app.post('/submit', (req, res) => { /* CSRF protection automatic */ });"
+  },
+  {
+    "id": "SEC-044",
+    "title": "비밀번호 강도 검사 2",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Express",
+    "code": "const isStrongPassword = (pwd: string) => { const hasUpper = /[A-Z]/.test(pwd); const hasLower = /[a-z]/.test(pwd); const hasNumber = /\\d/.test(pwd); const hasSpecial = /[!@#$%^&*]/.test(pwd); return pwd.length >= 8 && hasUpper && hasLower && hasNumber && hasSpecial; };"
+  },
+  {
+    "id": "SEC-045",
+    "title": "보안 헤더 설정 2",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "OAuth",
+    "code": "import helmet from 'helmet'; app.use(helmet()); app.use(helmet.contentSecurityPolicy({ directives: { defaultSrc: [\"'self'\"], scriptSrc: [\"'self'\", \"'unsafe-inline'\"], styleSrc: [\"'self'\", \"'unsafe-inline'\"] } }));"
+  },
+  {
+    "id": "SEC-046",
+    "title": "API 속도 제한 2",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import rateLimit from 'express-rate-limit'; const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100, message: 'Too many requests' }); app.use('/api/', limiter);"
+  },
+  {
+    "id": "SEC-047",
+    "title": "파일 업로드 검증 2",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Express",
+    "code": "const validateFile = (file: Express.Multer.File) => { const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf']; const maxSize = 5 * 1024 * 1024; // 5MB\n  if (!allowedTypes.includes(file.mimetype)) throw new Error('Invalid file type'); if (file.size > maxSize) throw new Error('File too large'); };"
+  },
+  {
+    "id": "SEC-048",
+    "title": "세션 관리 2",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "OAuth",
+    "code": "import session from 'express-session'; app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: false, cookie: { secure: true, httpOnly: true, maxAge: 24 * 60 * 60 * 1000 } }));"
+  },
+  {
+    "id": "SEC-049",
+    "title": "입력 검증 2",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import Joi from 'joi'; const schema = Joi.object({ email: Joi.string().email().required(), password: Joi.string().min(8).required(), age: Joi.number().min(18).max(120) }); const { error, value } = schema.validate(req.body);"
+  },
+  {
+    "id": "SEC-050",
+    "title": "2단계 인증 2",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Express",
+    "code": "import speakeasy from 'speakeasy'; const secret = speakeasy.generateSecret({ name: 'MyApp' }); const token = speakeasy.totp({ secret: secret.base32, encoding: 'base32' }); const verified = speakeasy.totp.verify({ secret: secret.base32, encoding: 'base32', token: userToken });"
+  },
+  {
+    "id": "SEC-051",
+    "title": "SQL 인젝션 방어 3",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "OAuth",
+    "code": "const getUserById = async (id: string) => { return db.query('SELECT * FROM users WHERE id = $1', [id]); }; // Always use parameterized queries"
+  },
+  {
+    "id": "SEC-052",
+    "title": "XSS 방어 3",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import DOMPurify from 'dompurify'; const sanitizeHTML = (dirty: string) => DOMPurify.sanitize(dirty, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong'] });"
+  },
+  {
+    "id": "SEC-053",
+    "title": "CSRF 토큰 3",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Express",
+    "code": "app.use(csrf()); app.get('/form', (req, res) => { res.render('form', { csrfToken: req.csrfToken() }); }); app.post('/submit', (req, res) => { /* CSRF protection automatic */ });"
+  },
+  {
+    "id": "SEC-054",
+    "title": "비밀번호 강도 검사 3",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "OAuth",
+    "code": "const isStrongPassword = (pwd: string) => { const hasUpper = /[A-Z]/.test(pwd); const hasLower = /[a-z]/.test(pwd); const hasNumber = /\\d/.test(pwd); const hasSpecial = /[!@#$%^&*]/.test(pwd); return pwd.length >= 8 && hasUpper && hasLower && hasNumber && hasSpecial; };"
+  },
+  {
+    "id": "SEC-055",
+    "title": "보안 헤더 설정 3",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import helmet from 'helmet'; app.use(helmet()); app.use(helmet.contentSecurityPolicy({ directives: { defaultSrc: [\"'self'\"], scriptSrc: [\"'self'\", \"'unsafe-inline'\"], styleSrc: [\"'self'\", \"'unsafe-inline'\"] } }));"
+  },
+  {
+    "id": "SEC-056",
+    "title": "API 속도 제한 3",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Express",
+    "code": "import rateLimit from 'express-rate-limit'; const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100, message: 'Too many requests' }); app.use('/api/', limiter);"
+  },
+  {
+    "id": "SEC-057",
+    "title": "파일 업로드 검증 3",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "OAuth",
+    "code": "const validateFile = (file: Express.Multer.File) => { const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf']; const maxSize = 5 * 1024 * 1024; // 5MB\n  if (!allowedTypes.includes(file.mimetype)) throw new Error('Invalid file type'); if (file.size > maxSize) throw new Error('File too large'); };"
+  },
+  {
+    "id": "SEC-058",
+    "title": "세션 관리 3",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import session from 'express-session'; app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: false, cookie: { secure: true, httpOnly: true, maxAge: 24 * 60 * 60 * 1000 } }));"
+  },
+  {
+    "id": "SEC-059",
+    "title": "입력 검증 3",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Express",
+    "code": "import Joi from 'joi'; const schema = Joi.object({ email: Joi.string().email().required(), password: Joi.string().min(8).required(), age: Joi.number().min(18).max(120) }); const { error, value } = schema.validate(req.body);"
+  },
+  {
+    "id": "SEC-060",
+    "title": "2단계 인증 3",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "OAuth",
+    "code": "import speakeasy from 'speakeasy'; const secret = speakeasy.generateSecret({ name: 'MyApp' }); const token = speakeasy.totp({ secret: secret.base32, encoding: 'base32' }); const verified = speakeasy.totp.verify({ secret: secret.base32, encoding: 'base32', token: userToken });"
+  },
+  {
+    "id": "SEC-061",
+    "title": "SQL 인젝션 방어 4",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "const getUserById = async (id: string) => { return db.query('SELECT * FROM users WHERE id = $1', [id]); }; // Always use parameterized queries"
+  },
+  {
+    "id": "SEC-062",
+    "title": "XSS 방어 4",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Express",
+    "code": "import DOMPurify from 'dompurify'; const sanitizeHTML = (dirty: string) => DOMPurify.sanitize(dirty, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong'] });"
+  },
+  {
+    "id": "SEC-063",
+    "title": "CSRF 토큰 4",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "OAuth",
+    "code": "app.use(csrf()); app.get('/form', (req, res) => { res.render('form', { csrfToken: req.csrfToken() }); }); app.post('/submit', (req, res) => { /* CSRF protection automatic */ });"
+  },
+  {
+    "id": "SEC-064",
+    "title": "비밀번호 강도 검사 4",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "const isStrongPassword = (pwd: string) => { const hasUpper = /[A-Z]/.test(pwd); const hasLower = /[a-z]/.test(pwd); const hasNumber = /\\d/.test(pwd); const hasSpecial = /[!@#$%^&*]/.test(pwd); return pwd.length >= 8 && hasUpper && hasLower && hasNumber && hasSpecial; };"
+  },
+  {
+    "id": "SEC-065",
+    "title": "보안 헤더 설정 4",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Express",
+    "code": "import helmet from 'helmet'; app.use(helmet()); app.use(helmet.contentSecurityPolicy({ directives: { defaultSrc: [\"'self'\"], scriptSrc: [\"'self'\", \"'unsafe-inline'\"], styleSrc: [\"'self'\", \"'unsafe-inline'\"] } }));"
+  },
+  {
+    "id": "SEC-066",
+    "title": "API 속도 제한 4",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "OAuth",
+    "code": "import rateLimit from 'express-rate-limit'; const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100, message: 'Too many requests' }); app.use('/api/', limiter);"
+  },
+  {
+    "id": "SEC-067",
+    "title": "파일 업로드 검증 4",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "const validateFile = (file: Express.Multer.File) => { const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf']; const maxSize = 5 * 1024 * 1024; // 5MB\n  if (!allowedTypes.includes(file.mimetype)) throw new Error('Invalid file type'); if (file.size > maxSize) throw new Error('File too large'); };"
+  },
+  {
+    "id": "SEC-068",
+    "title": "세션 관리 4",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Express",
+    "code": "import session from 'express-session'; app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: false, cookie: { secure: true, httpOnly: true, maxAge: 24 * 60 * 60 * 1000 } }));"
+  },
+  {
+    "id": "SEC-069",
+    "title": "입력 검증 4",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "OAuth",
+    "code": "import Joi from 'joi'; const schema = Joi.object({ email: Joi.string().email().required(), password: Joi.string().min(8).required(), age: Joi.number().min(18).max(120) }); const { error, value } = schema.validate(req.body);"
+  },
+  {
+    "id": "SEC-070",
+    "title": "2단계 인증 4",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import speakeasy from 'speakeasy'; const secret = speakeasy.generateSecret({ name: 'MyApp' }); const token = speakeasy.totp({ secret: secret.base32, encoding: 'base32' }); const verified = speakeasy.totp.verify({ secret: secret.base32, encoding: 'base32', token: userToken });"
+  },
+  {
+    "id": "SEC-071",
+    "title": "SQL 인젝션 방어 5",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Express",
+    "code": "const getUserById = async (id: string) => { return db.query('SELECT * FROM users WHERE id = $1', [id]); }; // Always use parameterized queries"
+  },
+  {
+    "id": "SEC-072",
+    "title": "XSS 방어 5",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "OAuth",
+    "code": "import DOMPurify from 'dompurify'; const sanitizeHTML = (dirty: string) => DOMPurify.sanitize(dirty, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong'] });"
+  },
+  {
+    "id": "SEC-073",
+    "title": "CSRF 토큰 5",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "app.use(csrf()); app.get('/form', (req, res) => { res.render('form', { csrfToken: req.csrfToken() }); }); app.post('/submit', (req, res) => { /* CSRF protection automatic */ });"
+  },
+  {
+    "id": "SEC-074",
+    "title": "비밀번호 강도 검사 5",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Express",
+    "code": "const isStrongPassword = (pwd: string) => { const hasUpper = /[A-Z]/.test(pwd); const hasLower = /[a-z]/.test(pwd); const hasNumber = /\\d/.test(pwd); const hasSpecial = /[!@#$%^&*]/.test(pwd); return pwd.length >= 8 && hasUpper && hasLower && hasNumber && hasSpecial; };"
+  },
+  {
+    "id": "SEC-075",
+    "title": "보안 헤더 설정 5",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "OAuth",
+    "code": "import helmet from 'helmet'; app.use(helmet()); app.use(helmet.contentSecurityPolicy({ directives: { defaultSrc: [\"'self'\"], scriptSrc: [\"'self'\", \"'unsafe-inline'\"], styleSrc: [\"'self'\", \"'unsafe-inline'\"] } }));"
+  },
+  {
+    "id": "SEC-076",
+    "title": "API 속도 제한 5",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import rateLimit from 'express-rate-limit'; const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100, message: 'Too many requests' }); app.use('/api/', limiter);"
+  },
+  {
+    "id": "SEC-077",
+    "title": "파일 업로드 검증 5",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Express",
+    "code": "const validateFile = (file: Express.Multer.File) => { const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf']; const maxSize = 5 * 1024 * 1024; // 5MB\n  if (!allowedTypes.includes(file.mimetype)) throw new Error('Invalid file type'); if (file.size > maxSize) throw new Error('File too large'); };"
+  },
+  {
+    "id": "SEC-078",
+    "title": "세션 관리 5",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "OAuth",
+    "code": "import session from 'express-session'; app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: false, cookie: { secure: true, httpOnly: true, maxAge: 24 * 60 * 60 * 1000 } }));"
+  },
+  {
+    "id": "SEC-079",
+    "title": "입력 검증 5",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import Joi from 'joi'; const schema = Joi.object({ email: Joi.string().email().required(), password: Joi.string().min(8).required(), age: Joi.number().min(18).max(120) }); const { error, value } = schema.validate(req.body);"
+  },
+  {
+    "id": "SEC-080",
+    "title": "2단계 인증 5",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Express",
+    "code": "import speakeasy from 'speakeasy'; const secret = speakeasy.generateSecret({ name: 'MyApp' }); const token = speakeasy.totp({ secret: secret.base32, encoding: 'base32' }); const verified = speakeasy.totp.verify({ secret: secret.base32, encoding: 'base32', token: userToken });"
+  },
+  {
+    "id": "SEC-081",
+    "title": "SQL 인젝션 방어 6",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "OAuth",
+    "code": "const getUserById = async (id: string) => { return db.query('SELECT * FROM users WHERE id = $1', [id]); }; // Always use parameterized queries"
+  },
+  {
+    "id": "SEC-082",
+    "title": "XSS 방어 6",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import DOMPurify from 'dompurify'; const sanitizeHTML = (dirty: string) => DOMPurify.sanitize(dirty, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong'] });"
+  },
+  {
+    "id": "SEC-083",
+    "title": "CSRF 토큰 6",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Express",
+    "code": "app.use(csrf()); app.get('/form', (req, res) => { res.render('form', { csrfToken: req.csrfToken() }); }); app.post('/submit', (req, res) => { /* CSRF protection automatic */ });"
+  },
+  {
+    "id": "SEC-084",
+    "title": "비밀번호 강도 검사 6",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "OAuth",
+    "code": "const isStrongPassword = (pwd: string) => { const hasUpper = /[A-Z]/.test(pwd); const hasLower = /[a-z]/.test(pwd); const hasNumber = /\\d/.test(pwd); const hasSpecial = /[!@#$%^&*]/.test(pwd); return pwd.length >= 8 && hasUpper && hasLower && hasNumber && hasSpecial; };"
+  },
+  {
+    "id": "SEC-085",
+    "title": "보안 헤더 설정 6",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import helmet from 'helmet'; app.use(helmet()); app.use(helmet.contentSecurityPolicy({ directives: { defaultSrc: [\"'self'\"], scriptSrc: [\"'self'\", \"'unsafe-inline'\"], styleSrc: [\"'self'\", \"'unsafe-inline'\"] } }));"
+  },
+  {
+    "id": "SEC-086",
+    "title": "API 속도 제한 6",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Express",
+    "code": "import rateLimit from 'express-rate-limit'; const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100, message: 'Too many requests' }); app.use('/api/', limiter);"
+  },
+  {
+    "id": "SEC-087",
+    "title": "파일 업로드 검증 6",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "OAuth",
+    "code": "const validateFile = (file: Express.Multer.File) => { const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf']; const maxSize = 5 * 1024 * 1024; // 5MB\n  if (!allowedTypes.includes(file.mimetype)) throw new Error('Invalid file type'); if (file.size > maxSize) throw new Error('File too large'); };"
+  },
+  {
+    "id": "SEC-088",
+    "title": "세션 관리 6",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import session from 'express-session'; app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: false, cookie: { secure: true, httpOnly: true, maxAge: 24 * 60 * 60 * 1000 } }));"
+  },
+  {
+    "id": "SEC-089",
+    "title": "입력 검증 6",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Express",
+    "code": "import Joi from 'joi'; const schema = Joi.object({ email: Joi.string().email().required(), password: Joi.string().min(8).required(), age: Joi.number().min(18).max(120) }); const { error, value } = schema.validate(req.body);"
+  },
+  {
+    "id": "SEC-090",
+    "title": "2단계 인증 6",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "OAuth",
+    "code": "import speakeasy from 'speakeasy'; const secret = speakeasy.generateSecret({ name: 'MyApp' }); const token = speakeasy.totp({ secret: secret.base32, encoding: 'base32' }); const verified = speakeasy.totp.verify({ secret: secret.base32, encoding: 'base32', token: userToken });"
+  },
+  {
+    "id": "SEC-091",
+    "title": "SQL 인젝션 방어 7",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "const getUserById = async (id: string) => { return db.query('SELECT * FROM users WHERE id = $1', [id]); }; // Always use parameterized queries"
+  },
+  {
+    "id": "SEC-092",
+    "title": "XSS 방어 7",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Express",
+    "code": "import DOMPurify from 'dompurify'; const sanitizeHTML = (dirty: string) => DOMPurify.sanitize(dirty, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong'] });"
+  },
+  {
+    "id": "SEC-093",
+    "title": "CSRF 토큰 7",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "OAuth",
+    "code": "app.use(csrf()); app.get('/form', (req, res) => { res.render('form', { csrfToken: req.csrfToken() }); }); app.post('/submit', (req, res) => { /* CSRF protection automatic */ });"
+  },
+  {
+    "id": "SEC-094",
+    "title": "비밀번호 강도 검사 7",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "const isStrongPassword = (pwd: string) => { const hasUpper = /[A-Z]/.test(pwd); const hasLower = /[a-z]/.test(pwd); const hasNumber = /\\d/.test(pwd); const hasSpecial = /[!@#$%^&*]/.test(pwd); return pwd.length >= 8 && hasUpper && hasLower && hasNumber && hasSpecial; };"
+  },
+  {
+    "id": "SEC-095",
+    "title": "보안 헤더 설정 7",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Express",
+    "code": "import helmet from 'helmet'; app.use(helmet()); app.use(helmet.contentSecurityPolicy({ directives: { defaultSrc: [\"'self'\"], scriptSrc: [\"'self'\", \"'unsafe-inline'\"], styleSrc: [\"'self'\", \"'unsafe-inline'\"] } }));"
+  },
+  {
+    "id": "SEC-096",
+    "title": "API 속도 제한 7",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "OAuth",
+    "code": "import rateLimit from 'express-rate-limit'; const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100, message: 'Too many requests' }); app.use('/api/', limiter);"
+  },
+  {
+    "id": "SEC-097",
+    "title": "파일 업로드 검증 7",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "const validateFile = (file: Express.Multer.File) => { const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf']; const maxSize = 5 * 1024 * 1024; // 5MB\n  if (!allowedTypes.includes(file.mimetype)) throw new Error('Invalid file type'); if (file.size > maxSize) throw new Error('File too large'); };"
+  },
+  {
+    "id": "SEC-098",
+    "title": "세션 관리 7",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Express",
+    "code": "import session from 'express-session'; app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: false, cookie: { secure: true, httpOnly: true, maxAge: 24 * 60 * 60 * 1000 } }));"
+  },
+  {
+    "id": "SEC-099",
+    "title": "입력 검증 7",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "OAuth",
+    "code": "import Joi from 'joi'; const schema = Joi.object({ email: Joi.string().email().required(), password: Joi.string().min(8).required(), age: Joi.number().min(18).max(120) }); const { error, value } = schema.validate(req.body);"
+  },
+  {
+    "id": "SEC-100",
+    "title": "2단계 인증 7",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import speakeasy from 'speakeasy'; const secret = speakeasy.generateSecret({ name: 'MyApp' }); const token = speakeasy.totp({ secret: secret.base32, encoding: 'base32' }); const verified = speakeasy.totp.verify({ secret: secret.base32, encoding: 'base32', token: userToken });"
   }
 ]

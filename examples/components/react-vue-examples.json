@@ -222,5 +222,581 @@
     "language": "typescript",
     "category": "optimization",
     "code": "function InfiniteScroll({ onLoadMore }) {\n  const [items, setItems] = useState([]);\n  const [page, setPage] = useState(1);\n  const observerTarget = useRef(null);\n  \n  useEffect(() => {\n    const observer = new IntersectionObserver(entries => {\n      if (entries[0].isIntersecting) {\n        setPage(p => p + 1);\n      }\n    });\n    observer.observe(observerTarget.current);\n    return () => observer.disconnect();\n  }, []);\n  \n  useEffect(() => {\n    onLoadMore(page).then(newItems => setItems(prev => [...prev, ...newItems]));\n  }, [page]);\n  \n  return (\n    <div>\n      {items.map(item => <div key={item.id}>{item.title}</div>)}\n      <div ref={observerTarget} />\n    </div>\n  );\n}"
+  },
+  {
+    "id": "COMP-021",
+    "title": "커스텀 훅 - useLocalStorage",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React",
+    "code": "const useLocalStorage = <T>(key: string, initialValue: T) => { const [value, setValue] = useState<T>(() => { const item = localStorage.getItem(key); return item ? JSON.parse(item) : initialValue; }); useEffect(() => { localStorage.setItem(key, JSON.stringify(value)); }, [key, value]); return [value, setValue] as const; };"
+  },
+  {
+    "id": "COMP-022",
+    "title": "고차 컴포넌트 - withAuth",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "Vue.js",
+    "code": "const withAuth = <P extends object>(Component: React.ComponentType<P>) => (props: P) => { const { user } = useAuth(); if (!user) return <Redirect to=\"/login\" />; return <Component {...props} />; };"
+  },
+  {
+    "id": "COMP-023",
+    "title": "포털 컴포넌트",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React Native",
+    "code": "const Portal = ({ children }: { children: React.ReactNode }) => { const el = useRef(document.createElement('div')); useEffect(() => { document.body.appendChild(el.current); return () => { document.body.removeChild(el.current); }; }, []); return ReactDOM.createPortal(children, el.current); };"
+  },
+  {
+    "id": "COMP-024",
+    "title": "에러 바운더리",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React",
+    "code": "class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> { state = { hasError: false }; static getDerivedStateFromError() { return { hasError: true }; } componentDidCatch(error, info) { console.error(error, info); } render() { if (this.state.hasError) return <h1>Something went wrong.</h1>; return this.props.children; } }"
+  },
+  {
+    "id": "COMP-025",
+    "title": "컴포지트 컴포넌트",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "Vue.js",
+    "code": "const Tabs = ({ children }) => { const [activeIndex, setActiveIndex] = useState(0); return <TabsContext.Provider value={{ activeIndex, setActiveIndex }}>{children}</TabsContext.Provider>; }; Tabs.Tab = ({ children, index }) => { const { activeIndex, setActiveIndex } = useContext(TabsContext); return <div onClick={() => setActiveIndex(index)}>{children}</div>; };"
+  },
+  {
+    "id": "COMP-026",
+    "title": "렌더 프롭 패턴",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React Native",
+    "code": "const DataFetcher = ({ url, render }) => { const [data, setData] = useState(null); useEffect(() => { fetch(url).then(r => r.json()).then(setData); }, [url]); return render(data); }; // Usage: <DataFetcher url=\"/api\" render={(data) => <div>{data}</div>} />"
+  },
+  {
+    "id": "COMP-027",
+    "title": "제어 컴포넌트",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React",
+    "code": "const Input = ({ value, onChange }) => { return <input value={value} onChange={(e) => onChange(e.target.value)} />; }; // Usage: const [text, setText] = useState(''); <Input value={text} onChange={setText} />"
+  },
+  {
+    "id": "COMP-028",
+    "title": "비제어 컴포넌트",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "Vue.js",
+    "code": "const FileInput = () => { const fileRef = useRef<HTMLInputElement>(null); const handleSubmit = () => { const file = fileRef.current?.files?.[0]; }; return <><input type=\"file\" ref={fileRef} /><button onClick={handleSubmit}>Upload</button></>; };"
+  },
+  {
+    "id": "COMP-029",
+    "title": "커스텀 훅 - useLocalStorage 2",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React Native",
+    "code": "const useLocalStorage = <T>(key: string, initialValue: T) => { const [value, setValue] = useState<T>(() => { const item = localStorage.getItem(key); return item ? JSON.parse(item) : initialValue; }); useEffect(() => { localStorage.setItem(key, JSON.stringify(value)); }, [key, value]); return [value, setValue] as const; };"
+  },
+  {
+    "id": "COMP-030",
+    "title": "고차 컴포넌트 - withAuth 2",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React",
+    "code": "const withAuth = <P extends object>(Component: React.ComponentType<P>) => (props: P) => { const { user } = useAuth(); if (!user) return <Redirect to=\"/login\" />; return <Component {...props} />; };"
+  },
+  {
+    "id": "COMP-031",
+    "title": "포털 컴포넌트 2",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "Vue.js",
+    "code": "const Portal = ({ children }: { children: React.ReactNode }) => { const el = useRef(document.createElement('div')); useEffect(() => { document.body.appendChild(el.current); return () => { document.body.removeChild(el.current); }; }, []); return ReactDOM.createPortal(children, el.current); };"
+  },
+  {
+    "id": "COMP-032",
+    "title": "에러 바운더리 2",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React Native",
+    "code": "class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> { state = { hasError: false }; static getDerivedStateFromError() { return { hasError: true }; } componentDidCatch(error, info) { console.error(error, info); } render() { if (this.state.hasError) return <h1>Something went wrong.</h1>; return this.props.children; } }"
+  },
+  {
+    "id": "COMP-033",
+    "title": "컴포지트 컴포넌트 2",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React",
+    "code": "const Tabs = ({ children }) => { const [activeIndex, setActiveIndex] = useState(0); return <TabsContext.Provider value={{ activeIndex, setActiveIndex }}>{children}</TabsContext.Provider>; }; Tabs.Tab = ({ children, index }) => { const { activeIndex, setActiveIndex } = useContext(TabsContext); return <div onClick={() => setActiveIndex(index)}>{children}</div>; };"
+  },
+  {
+    "id": "COMP-034",
+    "title": "렌더 프롭 패턴 2",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "Vue.js",
+    "code": "const DataFetcher = ({ url, render }) => { const [data, setData] = useState(null); useEffect(() => { fetch(url).then(r => r.json()).then(setData); }, [url]); return render(data); }; // Usage: <DataFetcher url=\"/api\" render={(data) => <div>{data}</div>} />"
+  },
+  {
+    "id": "COMP-035",
+    "title": "제어 컴포넌트 2",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React Native",
+    "code": "const Input = ({ value, onChange }) => { return <input value={value} onChange={(e) => onChange(e.target.value)} />; }; // Usage: const [text, setText] = useState(''); <Input value={text} onChange={setText} />"
+  },
+  {
+    "id": "COMP-036",
+    "title": "비제어 컴포넌트 2",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React",
+    "code": "const FileInput = () => { const fileRef = useRef<HTMLInputElement>(null); const handleSubmit = () => { const file = fileRef.current?.files?.[0]; }; return <><input type=\"file\" ref={fileRef} /><button onClick={handleSubmit}>Upload</button></>; };"
+  },
+  {
+    "id": "COMP-037",
+    "title": "커스텀 훅 - useLocalStorage 3",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "Vue.js",
+    "code": "const useLocalStorage = <T>(key: string, initialValue: T) => { const [value, setValue] = useState<T>(() => { const item = localStorage.getItem(key); return item ? JSON.parse(item) : initialValue; }); useEffect(() => { localStorage.setItem(key, JSON.stringify(value)); }, [key, value]); return [value, setValue] as const; };"
+  },
+  {
+    "id": "COMP-038",
+    "title": "고차 컴포넌트 - withAuth 3",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React Native",
+    "code": "const withAuth = <P extends object>(Component: React.ComponentType<P>) => (props: P) => { const { user } = useAuth(); if (!user) return <Redirect to=\"/login\" />; return <Component {...props} />; };"
+  },
+  {
+    "id": "COMP-039",
+    "title": "포털 컴포넌트 3",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React",
+    "code": "const Portal = ({ children }: { children: React.ReactNode }) => { const el = useRef(document.createElement('div')); useEffect(() => { document.body.appendChild(el.current); return () => { document.body.removeChild(el.current); }; }, []); return ReactDOM.createPortal(children, el.current); };"
+  },
+  {
+    "id": "COMP-040",
+    "title": "에러 바운더리 3",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "Vue.js",
+    "code": "class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> { state = { hasError: false }; static getDerivedStateFromError() { return { hasError: true }; } componentDidCatch(error, info) { console.error(error, info); } render() { if (this.state.hasError) return <h1>Something went wrong.</h1>; return this.props.children; } }"
+  },
+  {
+    "id": "COMP-041",
+    "title": "컴포지트 컴포넌트 3",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React Native",
+    "code": "const Tabs = ({ children }) => { const [activeIndex, setActiveIndex] = useState(0); return <TabsContext.Provider value={{ activeIndex, setActiveIndex }}>{children}</TabsContext.Provider>; }; Tabs.Tab = ({ children, index }) => { const { activeIndex, setActiveIndex } = useContext(TabsContext); return <div onClick={() => setActiveIndex(index)}>{children}</div>; };"
+  },
+  {
+    "id": "COMP-042",
+    "title": "렌더 프롭 패턴 3",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React",
+    "code": "const DataFetcher = ({ url, render }) => { const [data, setData] = useState(null); useEffect(() => { fetch(url).then(r => r.json()).then(setData); }, [url]); return render(data); }; // Usage: <DataFetcher url=\"/api\" render={(data) => <div>{data}</div>} />"
+  },
+  {
+    "id": "COMP-043",
+    "title": "제어 컴포넌트 3",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "Vue.js",
+    "code": "const Input = ({ value, onChange }) => { return <input value={value} onChange={(e) => onChange(e.target.value)} />; }; // Usage: const [text, setText] = useState(''); <Input value={text} onChange={setText} />"
+  },
+  {
+    "id": "COMP-044",
+    "title": "비제어 컴포넌트 3",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React Native",
+    "code": "const FileInput = () => { const fileRef = useRef<HTMLInputElement>(null); const handleSubmit = () => { const file = fileRef.current?.files?.[0]; }; return <><input type=\"file\" ref={fileRef} /><button onClick={handleSubmit}>Upload</button></>; };"
+  },
+  {
+    "id": "COMP-045",
+    "title": "커스텀 훅 - useLocalStorage 4",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React",
+    "code": "const useLocalStorage = <T>(key: string, initialValue: T) => { const [value, setValue] = useState<T>(() => { const item = localStorage.getItem(key); return item ? JSON.parse(item) : initialValue; }); useEffect(() => { localStorage.setItem(key, JSON.stringify(value)); }, [key, value]); return [value, setValue] as const; };"
+  },
+  {
+    "id": "COMP-046",
+    "title": "고차 컴포넌트 - withAuth 4",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "Vue.js",
+    "code": "const withAuth = <P extends object>(Component: React.ComponentType<P>) => (props: P) => { const { user } = useAuth(); if (!user) return <Redirect to=\"/login\" />; return <Component {...props} />; };"
+  },
+  {
+    "id": "COMP-047",
+    "title": "포털 컴포넌트 4",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React Native",
+    "code": "const Portal = ({ children }: { children: React.ReactNode }) => { const el = useRef(document.createElement('div')); useEffect(() => { document.body.appendChild(el.current); return () => { document.body.removeChild(el.current); }; }, []); return ReactDOM.createPortal(children, el.current); };"
+  },
+  {
+    "id": "COMP-048",
+    "title": "에러 바운더리 4",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React",
+    "code": "class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> { state = { hasError: false }; static getDerivedStateFromError() { return { hasError: true }; } componentDidCatch(error, info) { console.error(error, info); } render() { if (this.state.hasError) return <h1>Something went wrong.</h1>; return this.props.children; } }"
+  },
+  {
+    "id": "COMP-049",
+    "title": "컴포지트 컴포넌트 4",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "Vue.js",
+    "code": "const Tabs = ({ children }) => { const [activeIndex, setActiveIndex] = useState(0); return <TabsContext.Provider value={{ activeIndex, setActiveIndex }}>{children}</TabsContext.Provider>; }; Tabs.Tab = ({ children, index }) => { const { activeIndex, setActiveIndex } = useContext(TabsContext); return <div onClick={() => setActiveIndex(index)}>{children}</div>; };"
+  },
+  {
+    "id": "COMP-050",
+    "title": "렌더 프롭 패턴 4",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React Native",
+    "code": "const DataFetcher = ({ url, render }) => { const [data, setData] = useState(null); useEffect(() => { fetch(url).then(r => r.json()).then(setData); }, [url]); return render(data); }; // Usage: <DataFetcher url=\"/api\" render={(data) => <div>{data}</div>} />"
+  },
+  {
+    "id": "COMP-051",
+    "title": "제어 컴포넌트 4",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React",
+    "code": "const Input = ({ value, onChange }) => { return <input value={value} onChange={(e) => onChange(e.target.value)} />; }; // Usage: const [text, setText] = useState(''); <Input value={text} onChange={setText} />"
+  },
+  {
+    "id": "COMP-052",
+    "title": "비제어 컴포넌트 4",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "Vue.js",
+    "code": "const FileInput = () => { const fileRef = useRef<HTMLInputElement>(null); const handleSubmit = () => { const file = fileRef.current?.files?.[0]; }; return <><input type=\"file\" ref={fileRef} /><button onClick={handleSubmit}>Upload</button></>; };"
+  },
+  {
+    "id": "COMP-053",
+    "title": "커스텀 훅 - useLocalStorage 5",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React Native",
+    "code": "const useLocalStorage = <T>(key: string, initialValue: T) => { const [value, setValue] = useState<T>(() => { const item = localStorage.getItem(key); return item ? JSON.parse(item) : initialValue; }); useEffect(() => { localStorage.setItem(key, JSON.stringify(value)); }, [key, value]); return [value, setValue] as const; };"
+  },
+  {
+    "id": "COMP-054",
+    "title": "고차 컴포넌트 - withAuth 5",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React",
+    "code": "const withAuth = <P extends object>(Component: React.ComponentType<P>) => (props: P) => { const { user } = useAuth(); if (!user) return <Redirect to=\"/login\" />; return <Component {...props} />; };"
+  },
+  {
+    "id": "COMP-055",
+    "title": "포털 컴포넌트 5",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "Vue.js",
+    "code": "const Portal = ({ children }: { children: React.ReactNode }) => { const el = useRef(document.createElement('div')); useEffect(() => { document.body.appendChild(el.current); return () => { document.body.removeChild(el.current); }; }, []); return ReactDOM.createPortal(children, el.current); };"
+  },
+  {
+    "id": "COMP-056",
+    "title": "에러 바운더리 5",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React Native",
+    "code": "class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> { state = { hasError: false }; static getDerivedStateFromError() { return { hasError: true }; } componentDidCatch(error, info) { console.error(error, info); } render() { if (this.state.hasError) return <h1>Something went wrong.</h1>; return this.props.children; } }"
+  },
+  {
+    "id": "COMP-057",
+    "title": "컴포지트 컴포넌트 5",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React",
+    "code": "const Tabs = ({ children }) => { const [activeIndex, setActiveIndex] = useState(0); return <TabsContext.Provider value={{ activeIndex, setActiveIndex }}>{children}</TabsContext.Provider>; }; Tabs.Tab = ({ children, index }) => { const { activeIndex, setActiveIndex } = useContext(TabsContext); return <div onClick={() => setActiveIndex(index)}>{children}</div>; };"
+  },
+  {
+    "id": "COMP-058",
+    "title": "렌더 프롭 패턴 5",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "Vue.js",
+    "code": "const DataFetcher = ({ url, render }) => { const [data, setData] = useState(null); useEffect(() => { fetch(url).then(r => r.json()).then(setData); }, [url]); return render(data); }; // Usage: <DataFetcher url=\"/api\" render={(data) => <div>{data}</div>} />"
+  },
+  {
+    "id": "COMP-059",
+    "title": "제어 컴포넌트 5",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React Native",
+    "code": "const Input = ({ value, onChange }) => { return <input value={value} onChange={(e) => onChange(e.target.value)} />; }; // Usage: const [text, setText] = useState(''); <Input value={text} onChange={setText} />"
+  },
+  {
+    "id": "COMP-060",
+    "title": "비제어 컴포넌트 5",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React",
+    "code": "const FileInput = () => { const fileRef = useRef<HTMLInputElement>(null); const handleSubmit = () => { const file = fileRef.current?.files?.[0]; }; return <><input type=\"file\" ref={fileRef} /><button onClick={handleSubmit}>Upload</button></>; };"
+  },
+  {
+    "id": "COMP-061",
+    "title": "커스텀 훅 - useLocalStorage 6",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "Vue.js",
+    "code": "const useLocalStorage = <T>(key: string, initialValue: T) => { const [value, setValue] = useState<T>(() => { const item = localStorage.getItem(key); return item ? JSON.parse(item) : initialValue; }); useEffect(() => { localStorage.setItem(key, JSON.stringify(value)); }, [key, value]); return [value, setValue] as const; };"
+  },
+  {
+    "id": "COMP-062",
+    "title": "고차 컴포넌트 - withAuth 6",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React Native",
+    "code": "const withAuth = <P extends object>(Component: React.ComponentType<P>) => (props: P) => { const { user } = useAuth(); if (!user) return <Redirect to=\"/login\" />; return <Component {...props} />; };"
+  },
+  {
+    "id": "COMP-063",
+    "title": "포털 컴포넌트 6",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React",
+    "code": "const Portal = ({ children }: { children: React.ReactNode }) => { const el = useRef(document.createElement('div')); useEffect(() => { document.body.appendChild(el.current); return () => { document.body.removeChild(el.current); }; }, []); return ReactDOM.createPortal(children, el.current); };"
+  },
+  {
+    "id": "COMP-064",
+    "title": "에러 바운더리 6",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "Vue.js",
+    "code": "class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> { state = { hasError: false }; static getDerivedStateFromError() { return { hasError: true }; } componentDidCatch(error, info) { console.error(error, info); } render() { if (this.state.hasError) return <h1>Something went wrong.</h1>; return this.props.children; } }"
+  },
+  {
+    "id": "COMP-065",
+    "title": "컴포지트 컴포넌트 6",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React Native",
+    "code": "const Tabs = ({ children }) => { const [activeIndex, setActiveIndex] = useState(0); return <TabsContext.Provider value={{ activeIndex, setActiveIndex }}>{children}</TabsContext.Provider>; }; Tabs.Tab = ({ children, index }) => { const { activeIndex, setActiveIndex } = useContext(TabsContext); return <div onClick={() => setActiveIndex(index)}>{children}</div>; };"
+  },
+  {
+    "id": "COMP-066",
+    "title": "렌더 프롭 패턴 6",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React",
+    "code": "const DataFetcher = ({ url, render }) => { const [data, setData] = useState(null); useEffect(() => { fetch(url).then(r => r.json()).then(setData); }, [url]); return render(data); }; // Usage: <DataFetcher url=\"/api\" render={(data) => <div>{data}</div>} />"
+  },
+  {
+    "id": "COMP-067",
+    "title": "제어 컴포넌트 6",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "Vue.js",
+    "code": "const Input = ({ value, onChange }) => { return <input value={value} onChange={(e) => onChange(e.target.value)} />; }; // Usage: const [text, setText] = useState(''); <Input value={text} onChange={setText} />"
+  },
+  {
+    "id": "COMP-068",
+    "title": "비제어 컴포넌트 6",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React Native",
+    "code": "const FileInput = () => { const fileRef = useRef<HTMLInputElement>(null); const handleSubmit = () => { const file = fileRef.current?.files?.[0]; }; return <><input type=\"file\" ref={fileRef} /><button onClick={handleSubmit}>Upload</button></>; };"
+  },
+  {
+    "id": "COMP-069",
+    "title": "커스텀 훅 - useLocalStorage 7",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React",
+    "code": "const useLocalStorage = <T>(key: string, initialValue: T) => { const [value, setValue] = useState<T>(() => { const item = localStorage.getItem(key); return item ? JSON.parse(item) : initialValue; }); useEffect(() => { localStorage.setItem(key, JSON.stringify(value)); }, [key, value]); return [value, setValue] as const; };"
+  },
+  {
+    "id": "COMP-070",
+    "title": "고차 컴포넌트 - withAuth 7",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "Vue.js",
+    "code": "const withAuth = <P extends object>(Component: React.ComponentType<P>) => (props: P) => { const { user } = useAuth(); if (!user) return <Redirect to=\"/login\" />; return <Component {...props} />; };"
+  },
+  {
+    "id": "COMP-071",
+    "title": "포털 컴포넌트 7",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React Native",
+    "code": "const Portal = ({ children }: { children: React.ReactNode }) => { const el = useRef(document.createElement('div')); useEffect(() => { document.body.appendChild(el.current); return () => { document.body.removeChild(el.current); }; }, []); return ReactDOM.createPortal(children, el.current); };"
+  },
+  {
+    "id": "COMP-072",
+    "title": "에러 바운더리 7",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React",
+    "code": "class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> { state = { hasError: false }; static getDerivedStateFromError() { return { hasError: true }; } componentDidCatch(error, info) { console.error(error, info); } render() { if (this.state.hasError) return <h1>Something went wrong.</h1>; return this.props.children; } }"
+  },
+  {
+    "id": "COMP-073",
+    "title": "컴포지트 컴포넌트 7",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "Vue.js",
+    "code": "const Tabs = ({ children }) => { const [activeIndex, setActiveIndex] = useState(0); return <TabsContext.Provider value={{ activeIndex, setActiveIndex }}>{children}</TabsContext.Provider>; }; Tabs.Tab = ({ children, index }) => { const { activeIndex, setActiveIndex } = useContext(TabsContext); return <div onClick={() => setActiveIndex(index)}>{children}</div>; };"
+  },
+  {
+    "id": "COMP-074",
+    "title": "렌더 프롭 패턴 7",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React Native",
+    "code": "const DataFetcher = ({ url, render }) => { const [data, setData] = useState(null); useEffect(() => { fetch(url).then(r => r.json()).then(setData); }, [url]); return render(data); }; // Usage: <DataFetcher url=\"/api\" render={(data) => <div>{data}</div>} />"
+  },
+  {
+    "id": "COMP-075",
+    "title": "제어 컴포넌트 7",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React",
+    "code": "const Input = ({ value, onChange }) => { return <input value={value} onChange={(e) => onChange(e.target.value)} />; }; // Usage: const [text, setText] = useState(''); <Input value={text} onChange={setText} />"
+  },
+  {
+    "id": "COMP-076",
+    "title": "비제어 컴포넌트 7",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "Vue.js",
+    "code": "const FileInput = () => { const fileRef = useRef<HTMLInputElement>(null); const handleSubmit = () => { const file = fileRef.current?.files?.[0]; }; return <><input type=\"file\" ref={fileRef} /><button onClick={handleSubmit}>Upload</button></>; };"
+  },
+  {
+    "id": "COMP-077",
+    "title": "커스텀 훅 - useLocalStorage 8",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React Native",
+    "code": "const useLocalStorage = <T>(key: string, initialValue: T) => { const [value, setValue] = useState<T>(() => { const item = localStorage.getItem(key); return item ? JSON.parse(item) : initialValue; }); useEffect(() => { localStorage.setItem(key, JSON.stringify(value)); }, [key, value]); return [value, setValue] as const; };"
+  },
+  {
+    "id": "COMP-078",
+    "title": "고차 컴포넌트 - withAuth 8",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React",
+    "code": "const withAuth = <P extends object>(Component: React.ComponentType<P>) => (props: P) => { const { user } = useAuth(); if (!user) return <Redirect to=\"/login\" />; return <Component {...props} />; };"
+  },
+  {
+    "id": "COMP-079",
+    "title": "포털 컴포넌트 8",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "Vue.js",
+    "code": "const Portal = ({ children }: { children: React.ReactNode }) => { const el = useRef(document.createElement('div')); useEffect(() => { document.body.appendChild(el.current); return () => { document.body.removeChild(el.current); }; }, []); return ReactDOM.createPortal(children, el.current); };"
+  },
+  {
+    "id": "COMP-080",
+    "title": "에러 바운더리 8",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React Native",
+    "code": "class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> { state = { hasError: false }; static getDerivedStateFromError() { return { hasError: true }; } componentDidCatch(error, info) { console.error(error, info); } render() { if (this.state.hasError) return <h1>Something went wrong.</h1>; return this.props.children; } }"
+  },
+  {
+    "id": "COMP-081",
+    "title": "컴포지트 컴포넌트 8",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React",
+    "code": "const Tabs = ({ children }) => { const [activeIndex, setActiveIndex] = useState(0); return <TabsContext.Provider value={{ activeIndex, setActiveIndex }}>{children}</TabsContext.Provider>; }; Tabs.Tab = ({ children, index }) => { const { activeIndex, setActiveIndex } = useContext(TabsContext); return <div onClick={() => setActiveIndex(index)}>{children}</div>; };"
+  },
+  {
+    "id": "COMP-082",
+    "title": "렌더 프롭 패턴 8",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "Vue.js",
+    "code": "const DataFetcher = ({ url, render }) => { const [data, setData] = useState(null); useEffect(() => { fetch(url).then(r => r.json()).then(setData); }, [url]); return render(data); }; // Usage: <DataFetcher url=\"/api\" render={(data) => <div>{data}</div>} />"
+  },
+  {
+    "id": "COMP-083",
+    "title": "제어 컴포넌트 8",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React Native",
+    "code": "const Input = ({ value, onChange }) => { return <input value={value} onChange={(e) => onChange(e.target.value)} />; }; // Usage: const [text, setText] = useState(''); <Input value={text} onChange={setText} />"
+  },
+  {
+    "id": "COMP-084",
+    "title": "비제어 컴포넌트 8",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React",
+    "code": "const FileInput = () => { const fileRef = useRef<HTMLInputElement>(null); const handleSubmit = () => { const file = fileRef.current?.files?.[0]; }; return <><input type=\"file\" ref={fileRef} /><button onClick={handleSubmit}>Upload</button></>; };"
+  },
+  {
+    "id": "COMP-085",
+    "title": "커스텀 훅 - useLocalStorage 9",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "Vue.js",
+    "code": "const useLocalStorage = <T>(key: string, initialValue: T) => { const [value, setValue] = useState<T>(() => { const item = localStorage.getItem(key); return item ? JSON.parse(item) : initialValue; }); useEffect(() => { localStorage.setItem(key, JSON.stringify(value)); }, [key, value]); return [value, setValue] as const; };"
+  },
+  {
+    "id": "COMP-086",
+    "title": "고차 컴포넌트 - withAuth 9",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React Native",
+    "code": "const withAuth = <P extends object>(Component: React.ComponentType<P>) => (props: P) => { const { user } = useAuth(); if (!user) return <Redirect to=\"/login\" />; return <Component {...props} />; };"
+  },
+  {
+    "id": "COMP-087",
+    "title": "포털 컴포넌트 9",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React",
+    "code": "const Portal = ({ children }: { children: React.ReactNode }) => { const el = useRef(document.createElement('div')); useEffect(() => { document.body.appendChild(el.current); return () => { document.body.removeChild(el.current); }; }, []); return ReactDOM.createPortal(children, el.current); };"
+  },
+  {
+    "id": "COMP-088",
+    "title": "에러 바운더리 9",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "Vue.js",
+    "code": "class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> { state = { hasError: false }; static getDerivedStateFromError() { return { hasError: true }; } componentDidCatch(error, info) { console.error(error, info); } render() { if (this.state.hasError) return <h1>Something went wrong.</h1>; return this.props.children; } }"
+  },
+  {
+    "id": "COMP-089",
+    "title": "컴포지트 컴포넌트 9",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React Native",
+    "code": "const Tabs = ({ children }) => { const [activeIndex, setActiveIndex] = useState(0); return <TabsContext.Provider value={{ activeIndex, setActiveIndex }}>{children}</TabsContext.Provider>; }; Tabs.Tab = ({ children, index }) => { const { activeIndex, setActiveIndex } = useContext(TabsContext); return <div onClick={() => setActiveIndex(index)}>{children}</div>; };"
+  },
+  {
+    "id": "COMP-090",
+    "title": "렌더 프롭 패턴 9",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React",
+    "code": "const DataFetcher = ({ url, render }) => { const [data, setData] = useState(null); useEffect(() => { fetch(url).then(r => r.json()).then(setData); }, [url]); return render(data); }; // Usage: <DataFetcher url=\"/api\" render={(data) => <div>{data}</div>} />"
+  },
+  {
+    "id": "COMP-091",
+    "title": "제어 컴포넌트 9",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "Vue.js",
+    "code": "const Input = ({ value, onChange }) => { return <input value={value} onChange={(e) => onChange(e.target.value)} />; }; // Usage: const [text, setText] = useState(''); <Input value={text} onChange={setText} />"
+  },
+  {
+    "id": "COMP-092",
+    "title": "비제어 컴포넌트 9",
+    "category": "React/Vue",
+    "language": "typescript",
+    "framework": "React Native",
+    "code": "const FileInput = () => { const fileRef = useRef<HTMLInputElement>(null); const handleSubmit = () => { const file = fileRef.current?.files?.[0]; }; return <><input type=\"file\" ref={fileRef} /><button onClick={handleSubmit}>Upload</button></>; };"
   }
 ]
