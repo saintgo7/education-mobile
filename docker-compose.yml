@@ -1,0 +1,356 @@
+version: '3.8'
+
+services:
+  # ============================================
+  # 데이터베이스
+  # ============================================
+
+  mongodb:
+    image: mongo:7.0
+    container_name: education_mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: education_db
+    volumes:
+      - mongodb_data:/data/db
+      - ./init-db.js:/docker-entrypoint-initdb.d/init.js
+    networks:
+      - education_network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: education_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - education_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # 마이크로서비스
+  # ============================================
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: education_api_gateway
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      JWT_SECRET: your-secret-key-change-in-production
+      AUTH_SERVICE_URL: http://auth-service:3001
+      COURSE_SERVICE_URL: http://course-service:3002
+      PAYMENT_SERVICE_URL: http://payment-service:3003
+      VIDEO_SERVICE_URL: http://video-service:3004
+      ANALYTICS_SERVICE_URL: http://analytics-service:3005
+      COLLABORATION_SERVICE_URL: http://collaboration-service:3006
+      EMAIL_SERVICE_URL: http://email-service:3007
+      RECOMMENDATION_SERVICE_URL: http://recommendation-service:3008
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - education_network
+    volumes:
+      - ./api-gateway:/app
+      - /app/node_modules
+
+  auth-service:
+    build:
+      context: ./microservices/auth-service
+      dockerfile: Dockerfile
+    container_name: education_auth_service
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      MONGODB_URI: mongodb://root:password123@mongodb:27017/auth_db?authSource=admin
+      JWT_SECRET: your-secret-key-change-in-production
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - education_network
+    volumes:
+      - ./microservices/auth-service:/app
+      - /app/node_modules
+
+  course-service:
+    build:
+      context: ./microservices/course-service
+      dockerfile: Dockerfile
+    container_name: education_course_service
+    ports:
+      - "3002:3002"
+    environment:
+      NODE_ENV: development
+      PORT: 3002
+      MONGODB_URI: mongodb://root:password123@mongodb:27017/course_db?authSource=admin
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - education_network
+    volumes:
+      - ./microservices/course-service:/app
+      - /app/node_modules
+
+  payment-service:
+    build:
+      context: ./microservices/payment-service
+      dockerfile: Dockerfile
+    container_name: education_payment_service
+    ports:
+      - "3003:3003"
+    environment:
+      NODE_ENV: development
+      PORT: 3003
+      MONGODB_URI: mongodb://root:password123@mongodb:27017/payment_db?authSource=admin
+      STRIPE_SECRET_KEY: sk_test_your_key
+      PAYPAL_CLIENT_ID: your_paypal_client_id
+      PAYPAL_CLIENT_SECRET: your_paypal_client_secret
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - education_network
+    volumes:
+      - ./microservices/payment-service:/app
+      - /app/node_modules
+
+  video-service:
+    build:
+      context: ./microservices/video-streaming-service
+      dockerfile: Dockerfile
+    container_name: education_video_service
+    ports:
+      - "3004:3004"
+    environment:
+      NODE_ENV: development
+      PORT: 3004
+      MONGODB_URI: mongodb://root:password123@mongodb:27017/video_db?authSource=admin
+      AWS_ACCESS_KEY_ID: your_aws_key
+      AWS_SECRET_ACCESS_KEY: your_aws_secret
+      AWS_S3_BUCKET: education-videos
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - education_network
+    volumes:
+      - ./microservices/video-streaming-service:/app
+      - /app/node_modules
+      - ./uploads/videos:/app/uploads
+
+  analytics-service:
+    build:
+      context: ./microservices/analytics-service
+      dockerfile: Dockerfile
+    container_name: education_analytics_service
+    ports:
+      - "3005:3005"
+    environment:
+      NODE_ENV: development
+      PORT: 3005
+      MONGODB_URI: mongodb://root:password123@mongodb:27017/analytics_db?authSource=admin
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - education_network
+    volumes:
+      - ./microservices/analytics-service:/app
+      - /app/node_modules
+
+  collaboration-service:
+    build:
+      context: ./microservices/collaboration-service
+      dockerfile: Dockerfile
+    container_name: education_collaboration_service
+    ports:
+      - "3006:3006"
+    environment:
+      NODE_ENV: development
+      PORT: 3006
+      MONGODB_URI: mongodb://root:password123@mongodb:27017/collaboration_db?authSource=admin
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - education_network
+    volumes:
+      - ./microservices/collaboration-service:/app
+      - /app/node_modules
+
+  email-service:
+    build:
+      context: ./microservices/email-marketing-service
+      dockerfile: Dockerfile
+    container_name: education_email_service
+    ports:
+      - "3007:3007"
+    environment:
+      NODE_ENV: development
+      PORT: 3007
+      MONGODB_URI: mongodb://root:password123@mongodb:27017/email_db?authSource=admin
+      SMTP_HOST: smtp.gmail.com
+      SMTP_PORT: 587
+      SMTP_USER: your_email@gmail.com
+      SMTP_PASSWORD: your_app_password
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - education_network
+    volumes:
+      - ./microservices/email-marketing-service:/app
+      - /app/node_modules
+
+  recommendation-service:
+    build:
+      context: ./microservices/ai-ml-engine
+      dockerfile: Dockerfile
+    container_name: education_recommendation_service
+    ports:
+      - "3008:3008"
+    environment:
+      NODE_ENV: development
+      PORT: 3008
+      MONGODB_URI: mongodb://root:password123@mongodb:27017/recommendation_db?authSource=admin
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - education_network
+    volumes:
+      - ./microservices/ai-ml-engine:/app
+      - /app/node_modules
+
+  # ============================================
+  # 웹 애플리케이션
+  # ============================================
+
+  frontend-web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      args:
+        API_URL: http://api-gateway:3000
+    container_name: education_frontend_web
+    ports:
+      - "3010:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3000
+      NODE_ENV: development
+    depends_on:
+      - api-gateway
+    networks:
+      - education_network
+    volumes:
+      - ./web:/app
+      - /app/node_modules
+      - /app/.next
+
+  admin-dashboard:
+    build:
+      context: ./admin-dashboard
+      dockerfile: Dockerfile
+    container_name: education_admin_dashboard
+    ports:
+      - "3011:3000"
+    environment:
+      REACT_APP_API_URL: http://localhost:3000
+      REACT_APP_ENV: development
+    depends_on:
+      - api-gateway
+    networks:
+      - education_network
+    volumes:
+      - ./admin-dashboard:/app
+      - /app/node_modules
+
+  # ============================================
+  # 모니터링
+  # ============================================
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: education_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - education_network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: education_grafana
+    ports:
+      - "3012:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - education_network
+
+networks:
+  education_network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
