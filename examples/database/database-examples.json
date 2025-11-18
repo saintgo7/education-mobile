@@ -1,52 +1,302 @@
 [
-  {"id": "DB-001", "title": "MongoDB: 모든 코스 조회", "language": "javascript", "code": "db.courses.find({})"},
-  {"id": "DB-002", "title": "MongoDB: ID로 코스 조회", "language": "javascript", "code": "db.courses.findOne({ _id: ObjectId('...') })"},
-  {"id": "DB-003", "title": "MongoDB: 코스 생성", "language": "javascript", "code": "db.courses.insertOne({ title: 'React', description: 'Learn React', rating: 4.8 })"},
-  {"id": "DB-004", "title": "MongoDB: 코스 업데이트", "language": "javascript", "code": "db.courses.updateOne({ _id: ObjectId('...') }, { $set: { rating: 4.9 } })"},
-  {"id": "DB-005", "title": "MongoDB: 코스 삭제", "language": "javascript", "code": "db.courses.deleteOne({ _id: ObjectId('...') })"},
-  {"id": "DB-006", "title": "MongoDB: 필터링", "language": "javascript", "code": "db.courses.find({ category: 'programming', level: 'advanced' })"},
-  {"id": "DB-007", "title": "MongoDB: 정렬", "language": "javascript", "code": "db.courses.find({}).sort({ rating: -1 }).limit(10)"},
-  {"id": "DB-008", "title": "MongoDB: 페이지네이션", "language": "javascript", "code": "db.courses.find({}).skip(10).limit(10)"},
-  {"id": "DB-009", "title": "MongoDB: 집계", "language": "javascript", "code": "db.courses.aggregate([\n  { $match: { category: 'programming' } },\n  { $group: { _id: '$level', count: { $sum: 1 } } }\n])"},
-  {"id": "DB-010", "title": "MongoDB: 텍스트 검색", "language": "javascript", "code": "db.courses.find({ $text: { $search: 'React' } })"},
-  {"id": "DB-011", "title": "PostgreSQL: 모든 코스 조회", "language": "sql", "code": "SELECT * FROM courses;"},
-  {"id": "DB-012", "title": "PostgreSQL: 조건부 조회", "language": "sql", "code": "SELECT * FROM courses WHERE category = 'programming' AND rating > 4.5;"},
-  {"id": "DB-013", "title": "PostgreSQL: 코스 생성", "language": "sql", "code": "INSERT INTO courses (title, description, rating) VALUES ('React', 'Learn React', 4.8);"},
-  {"id": "DB-014", "title": "PostgreSQL: 코스 업데이트", "language": "sql", "code": "UPDATE courses SET rating = 4.9 WHERE id = 1;"},
-  {"id": "DB-015", "title": "PostgreSQL: 코스 삭제", "language": "sql", "code": "DELETE FROM courses WHERE id = 1;"},
-  {"id": "DB-016", "title": "PostgreSQL: 조인", "language": "sql", "code": "SELECT c.title, u.name FROM courses c JOIN users u ON c.instructor_id = u.id;"},
-  {"id": "DB-017", "title": "PostgreSQL: 집계", "language": "sql", "code": "SELECT category, COUNT(*) as count, AVG(rating) as avg_rating FROM courses GROUP BY category;"},
-  {"id": "DB-018", "title": "PostgreSQL: 서브쿼리", "language": "sql", "code": "SELECT * FROM courses WHERE id IN (SELECT course_id FROM enrollments WHERE user_id = 1);"},
-  {"id": "DB-019", "title": "PostgreSQL: 인덱스 생성", "language": "sql", "code": "CREATE INDEX idx_courses_category ON courses(category);"},
-  {"id": "DB-020", "title": "PostgreSQL: 트랜잭션", "language": "sql", "code": "BEGIN; INSERT INTO courses (...) VALUES (...); COMMIT;"},
-  {"id": "DB-021", "title": "MongoDB: 배열 필터링", "language": "javascript", "code": "db.courses.find({ tags: { $in: ['javascript', 'react'] } })"},
-  {"id": "DB-022", "title": "MongoDB: 중첩 도큐먼트", "language": "javascript", "code": "db.users.find({ 'address.city': 'Seoul' })"},
-  {"id": "DB-023", "title": "MongoDB: 벌크 작업", "language": "javascript", "code": "db.courses.insertMany([\n  { title: 'Course 1' },\n  { title: 'Course 2' }\n])"},
-  {"id": "DB-024", "title": "PostgreSQL: CASE 문", "language": "sql", "code": "SELECT title, CASE WHEN rating > 4.5 THEN 'Excellent' ELSE 'Good' END as quality FROM courses;"},
-  {"id": "DB-025", "title": "PostgreSQL: 윈도우 함수", "language": "sql", "code": "SELECT title, rating, ROW_NUMBER() OVER (ORDER BY rating DESC) as rank FROM courses;"},
-  {"id": "DB-026", "title": "MongoDB: $lookup (조인)", "language": "javascript", "code": "db.courses.aggregate([\n  { $lookup: { from: 'instructors', localField: 'instructor_id', foreignField: '_id', as: 'instructor' } }\n])"},
-  {"id": "DB-027", "title": "MongoDB: 업데이트 배열", "language": "javascript", "code": "db.courses.updateOne({ _id: 1 }, { $push: { tags: 'javascript' } })"},
-  {"id": "DB-028", "title": "PostgreSQL: DISTINCT", "language": "sql", "code": "SELECT DISTINCT category FROM courses;"},
-  {"id": "DB-029", "title": "PostgreSQL: 날짜 필터", "language": "sql", "code": "SELECT * FROM courses WHERE created_at > NOW() - INTERVAL '7 days';"},
-  {"id": "DB-030", "title": "MongoDB: 정규표현식 검색", "language": "javascript", "code": "db.courses.find({ title: { $regex: 'React', $options: 'i' } })"},
-  {"id": "DB-031", "title": "PostgreSQL: UPSERT", "language": "sql", "code": "INSERT INTO courses (id, title) VALUES (1, 'React') ON CONFLICT (id) DO UPDATE SET title = 'React';"},
-  {"id": "DB-032", "title": "MongoDB: TTL 인덱스", "language": "javascript", "code": "db.sessions.createIndex({ createdAt: 1 }, { expireAfterSeconds: 3600 })"},
-  {"id": "DB-033", "title": "PostgreSQL: 전체 텍스트 검색", "language": "sql", "code": "SELECT * FROM courses WHERE to_tsvector(title) @@ plainto_tsquery('react');"},
-  {"id": "DB-034", "title": "MongoDB: 조건부 업데이트", "language": "javascript", "code": "db.courses.updateMany({ rating: { $lt: 4 } }, { $set: { featured: false } })"},
-  {"id": "DB-035", "title": "PostgreSQL: CTE", "language": "sql", "code": "WITH top_courses AS (SELECT * FROM courses ORDER BY rating LIMIT 10) SELECT * FROM top_courses;"},
-  {"id": "DB-036", "title": "MongoDB: 배치 삽입", "language": "javascript", "code": "const courses = [{...}, {...}]; db.courses.insertMany(courses);"},
-  {"id": "DB-037", "title": "PostgreSQL: 함수 호출", "language": "sql", "code": "SELECT COUNT(*) as total_courses FROM courses;"},
-  {"id": "DB-038", "title": "MongoDB: 컬렉션 집계", "language": "javascript", "code": "db.courses.aggregate([ { $count: 'total' } ])"},
-  {"id": "DB-039", "title": "PostgreSQL: 외래키", "language": "sql", "code": "ALTER TABLE enrollments ADD CONSTRAINT fk_course FOREIGN KEY (course_id) REFERENCES courses(id);"},
-  {"id": "DB-040", "title": "MongoDB: 트랜잭션", "language": "javascript", "code": "session.startTransaction(); db.courses.insertOne({...}); session.commitTransaction();"},
-  {"id": "DB-041", "title": "PostgreSQL: 뷰 생성", "language": "sql", "code": "CREATE VIEW course_stats AS SELECT category, COUNT(*) as count FROM courses GROUP BY category;"},
-  {"id": "DB-042", "title": "MongoDB: 네스트된 배열 쿼리", "language": "javascript", "code": "db.courses.find({ 'lessons.title': 'Introduction' })"},
-  {"id": "DB-043", "title": "PostgreSQL: JSON 데이터", "language": "sql", "code": "SELECT metadata->>'instructor' as instructor FROM courses WHERE metadata @> '{\"featured\": true}';"},
-  {"id": "DB-044", "title": "MongoDB: 범위 쿼리", "language": "javascript", "code": "db.courses.find({ rating: { $gte: 4, $lte: 5 } })"},
-  {"id": "DB-045", "title": "PostgreSQL: 재귀 CTE", "language": "sql", "code": "WITH RECURSIVE cat AS (SELECT id, name, parent_id FROM categories WHERE parent_id IS NULL UNION ALL SELECT c.id, c.name, c.parent_id FROM categories c JOIN cat ON c.parent_id = cat.id) SELECT * FROM cat;"},
-  {"id": "DB-046", "title": "MongoDB: $facet 집계", "language": "javascript", "code": "db.courses.aggregate([{ $facet: { byCategory: [{ $group: { _id: '$category' } }], byRating: [{ $group: { _id: '$rating' } }] } }])"},
-  {"id": "DB-047", "title": "PostgreSQL: 파티셔닝", "language": "sql", "code": "CREATE TABLE courses_2024 PARTITION OF courses FOR VALUES FROM ('2024-01-01') TO ('2025-01-01');"},
-  {"id": "DB-048", "title": "MongoDB: 단계별 변환", "language": "javascript", "code": "db.courses.aggregate([{ $match: { category: 'programming' } }, { $project: { title: 1, _id: 0 } }])"},
-  {"id": "DB-049", "title": "PostgreSQL: 동적 쿼리", "language": "javascript", "code": "const query = 'SELECT * FROM courses WHERE ' + conditions.join(' AND '); db.query(query);"},
-  {"id": "DB-050", "title": "MongoDB: 원자적 연산", "language": "javascript", "code": "db.users.updateOne({ _id: 1 }, { $inc: { balance: -100 }, $push: { transactions: {...} } })"}
+  {
+    "id": "DB-001",
+    "title": "MongoDB: 모든 코스 조회",
+    "language": "javascript",
+    "code": "db.courses.find({})"
+  },
+  {
+    "id": "DB-002",
+    "title": "MongoDB: ID로 코스 조회",
+    "language": "javascript",
+    "code": "db.courses.findOne({ _id: ObjectId('...') })"
+  },
+  {
+    "id": "DB-003",
+    "title": "MongoDB: 코스 생성",
+    "language": "javascript",
+    "code": "db.courses.insertOne({ title: 'React', description: 'Learn React', rating: 4.8 })"
+  },
+  {
+    "id": "DB-004",
+    "title": "MongoDB: 코스 업데이트",
+    "language": "javascript",
+    "code": "db.courses.updateOne({ _id: ObjectId('...') }, { $set: { rating: 4.9 } })"
+  },
+  {
+    "id": "DB-005",
+    "title": "MongoDB: 코스 삭제",
+    "language": "javascript",
+    "code": "db.courses.deleteOne({ _id: ObjectId('...') })"
+  },
+  {
+    "id": "DB-006",
+    "title": "MongoDB: 필터링",
+    "language": "javascript",
+    "code": "db.courses.find({ category: 'programming', level: 'advanced' })"
+  },
+  {
+    "id": "DB-007",
+    "title": "MongoDB: 정렬",
+    "language": "javascript",
+    "code": "db.courses.find({}).sort({ rating: -1 }).limit(10)"
+  },
+  {
+    "id": "DB-008",
+    "title": "MongoDB: 페이지네이션",
+    "language": "javascript",
+    "code": "db.courses.find({}).skip(10).limit(10)"
+  },
+  {
+    "id": "DB-009",
+    "title": "MongoDB: 집계",
+    "language": "javascript",
+    "code": "db.courses.aggregate([\n  { $match: { category: 'programming' } },\n  { $group: { _id: '$level', count: { $sum: 1 } } }\n])"
+  },
+  {
+    "id": "DB-010",
+    "title": "MongoDB: 텍스트 검색",
+    "language": "javascript",
+    "code": "db.courses.find({ $text: { $search: 'React' } })"
+  },
+  {
+    "id": "DB-011",
+    "title": "PostgreSQL: 모든 코스 조회",
+    "language": "sql",
+    "code": "SELECT * FROM courses;"
+  },
+  {
+    "id": "DB-012",
+    "title": "PostgreSQL: 조건부 조회",
+    "language": "sql",
+    "code": "SELECT * FROM courses WHERE category = 'programming' AND rating > 4.5;"
+  },
+  {
+    "id": "DB-013",
+    "title": "PostgreSQL: 코스 생성",
+    "language": "sql",
+    "code": "INSERT INTO courses (title, description, rating) VALUES ('React', 'Learn React', 4.8);"
+  },
+  {
+    "id": "DB-014",
+    "title": "PostgreSQL: 코스 업데이트",
+    "language": "sql",
+    "code": "UPDATE courses SET rating = 4.9 WHERE id = 1;"
+  },
+  {
+    "id": "DB-015",
+    "title": "PostgreSQL: 코스 삭제",
+    "language": "sql",
+    "code": "DELETE FROM courses WHERE id = 1;"
+  },
+  {
+    "id": "DB-016",
+    "title": "PostgreSQL: 조인",
+    "language": "sql",
+    "code": "SELECT c.title, u.name FROM courses c JOIN users u ON c.instructor_id = u.id;"
+  },
+  {
+    "id": "DB-017",
+    "title": "PostgreSQL: 집계",
+    "language": "sql",
+    "code": "SELECT category, COUNT(*) as count, AVG(rating) as avg_rating FROM courses GROUP BY category;"
+  },
+  {
+    "id": "DB-018",
+    "title": "PostgreSQL: 서브쿼리",
+    "language": "sql",
+    "code": "SELECT * FROM courses WHERE id IN (SELECT course_id FROM enrollments WHERE user_id = 1);"
+  },
+  {
+    "id": "DB-019",
+    "title": "PostgreSQL: 인덱스 생성",
+    "language": "sql",
+    "code": "CREATE INDEX idx_courses_category ON courses(category);"
+  },
+  {
+    "id": "DB-020",
+    "title": "PostgreSQL: 트랜잭션",
+    "language": "sql",
+    "code": "BEGIN; INSERT INTO courses (...) VALUES (...); COMMIT;"
+  },
+  {
+    "id": "DB-021",
+    "title": "MongoDB: 배열 필터링",
+    "language": "javascript",
+    "code": "db.courses.find({ tags: { $in: ['javascript', 'react'] } })"
+  },
+  {
+    "id": "DB-022",
+    "title": "MongoDB: 중첩 도큐먼트",
+    "language": "javascript",
+    "code": "db.users.find({ 'address.city': 'Seoul' })"
+  },
+  {
+    "id": "DB-023",
+    "title": "MongoDB: 벌크 작업",
+    "language": "javascript",
+    "code": "db.courses.insertMany([\n  { title: 'Course 1' },\n  { title: 'Course 2' }\n])"
+  },
+  {
+    "id": "DB-024",
+    "title": "PostgreSQL: CASE 문",
+    "language": "sql",
+    "code": "SELECT title, CASE WHEN rating > 4.5 THEN 'Excellent' ELSE 'Good' END as quality FROM courses;"
+  },
+  {
+    "id": "DB-025",
+    "title": "PostgreSQL: 윈도우 함수",
+    "language": "sql",
+    "code": "SELECT title, rating, ROW_NUMBER() OVER (ORDER BY rating DESC) as rank FROM courses;"
+  },
+  {
+    "id": "DB-026",
+    "title": "MongoDB: $lookup (조인)",
+    "language": "javascript",
+    "code": "db.courses.aggregate([\n  { $lookup: { from: 'instructors', localField: 'instructor_id', foreignField: '_id', as: 'instructor' } }\n])"
+  },
+  {
+    "id": "DB-027",
+    "title": "MongoDB: 업데이트 배열",
+    "language": "javascript",
+    "code": "db.courses.updateOne({ _id: 1 }, { $push: { tags: 'javascript' } })"
+  },
+  {
+    "id": "DB-028",
+    "title": "PostgreSQL: DISTINCT",
+    "language": "sql",
+    "code": "SELECT DISTINCT category FROM courses;"
+  },
+  {
+    "id": "DB-029",
+    "title": "PostgreSQL: 날짜 필터",
+    "language": "sql",
+    "code": "SELECT * FROM courses WHERE created_at > NOW() - INTERVAL '7 days';"
+  },
+  {
+    "id": "DB-030",
+    "title": "MongoDB: 정규표현식 검색",
+    "language": "javascript",
+    "code": "db.courses.find({ title: { $regex: 'React', $options: 'i' } })"
+  },
+  {
+    "id": "DB-031",
+    "title": "PostgreSQL: UPSERT",
+    "language": "sql",
+    "code": "INSERT INTO courses (id, title) VALUES (1, 'React') ON CONFLICT (id) DO UPDATE SET title = 'React';"
+  },
+  {
+    "id": "DB-032",
+    "title": "MongoDB: TTL 인덱스",
+    "language": "javascript",
+    "code": "db.sessions.createIndex({ createdAt: 1 }, { expireAfterSeconds: 3600 })"
+  },
+  {
+    "id": "DB-033",
+    "title": "PostgreSQL: 전체 텍스트 검색",
+    "language": "sql",
+    "code": "SELECT * FROM courses WHERE to_tsvector(title) @@ plainto_tsquery('react');"
+  },
+  {
+    "id": "DB-034",
+    "title": "MongoDB: 조건부 업데이트",
+    "language": "javascript",
+    "code": "db.courses.updateMany({ rating: { $lt: 4 } }, { $set: { featured: false } })"
+  },
+  {
+    "id": "DB-035",
+    "title": "PostgreSQL: CTE",
+    "language": "sql",
+    "code": "WITH top_courses AS (SELECT * FROM courses ORDER BY rating LIMIT 10) SELECT * FROM top_courses;"
+  },
+  {
+    "id": "DB-036",
+    "title": "MongoDB: 배치 삽입",
+    "language": "javascript",
+    "code": "const courses = [{...}, {...}]; db.courses.insertMany(courses);"
+  },
+  {
+    "id": "DB-037",
+    "title": "PostgreSQL: 함수 호출",
+    "language": "sql",
+    "code": "SELECT COUNT(*) as total_courses FROM courses;"
+  },
+  {
+    "id": "DB-038",
+    "title": "MongoDB: 컬렉션 집계",
+    "language": "javascript",
+    "code": "db.courses.aggregate([ { $count: 'total' } ])"
+  },
+  {
+    "id": "DB-039",
+    "title": "PostgreSQL: 외래키",
+    "language": "sql",
+    "code": "ALTER TABLE enrollments ADD CONSTRAINT fk_course FOREIGN KEY (course_id) REFERENCES courses(id);"
+  },
+  {
+    "id": "DB-040",
+    "title": "MongoDB: 트랜잭션",
+    "language": "javascript",
+    "code": "session.startTransaction(); db.courses.insertOne({...}); session.commitTransaction();"
+  },
+  {
+    "id": "DB-041",
+    "title": "PostgreSQL: 뷰 생성",
+    "language": "sql",
+    "code": "CREATE VIEW course_stats AS SELECT category, COUNT(*) as count FROM courses GROUP BY category;"
+  },
+  {
+    "id": "DB-042",
+    "title": "MongoDB: 네스트된 배열 쿼리",
+    "language": "javascript",
+    "code": "db.courses.find({ 'lessons.title': 'Introduction' })"
+  },
+  {
+    "id": "DB-043",
+    "title": "PostgreSQL: JSON 데이터",
+    "language": "sql",
+    "code": "SELECT metadata->>'instructor' as instructor FROM courses WHERE metadata @> '{\"featured\": true}';"
+  },
+  {
+    "id": "DB-044",
+    "title": "MongoDB: 범위 쿼리",
+    "language": "javascript",
+    "code": "db.courses.find({ rating: { $gte: 4, $lte: 5 } })"
+  },
+  {
+    "id": "DB-045",
+    "title": "PostgreSQL: 재귀 CTE",
+    "language": "sql",
+    "code": "WITH RECURSIVE cat AS (SELECT id, name, parent_id FROM categories WHERE parent_id IS NULL UNION ALL SELECT c.id, c.name, c.parent_id FROM categories c JOIN cat ON c.parent_id = cat.id) SELECT * FROM cat;"
+  },
+  {
+    "id": "DB-046",
+    "title": "MongoDB: $facet 집계",
+    "language": "javascript",
+    "code": "db.courses.aggregate([{ $facet: { byCategory: [{ $group: { _id: '$category' } }], byRating: [{ $group: { _id: '$rating' } }] } }])"
+  },
+  {
+    "id": "DB-047",
+    "title": "PostgreSQL: 파티셔닝",
+    "language": "sql",
+    "code": "CREATE TABLE courses_2024 PARTITION OF courses FOR VALUES FROM ('2024-01-01') TO ('2025-01-01');"
+  },
+  {
+    "id": "DB-048",
+    "title": "MongoDB: 단계별 변환",
+    "language": "javascript",
+    "code": "db.courses.aggregate([{ $match: { category: 'programming' } }, { $project: { title: 1, _id: 0 } }])"
+  },
+  {
+    "id": "DB-049",
+    "title": "PostgreSQL: 동적 쿼리",
+    "language": "javascript",
+    "code": "const query = 'SELECT * FROM courses WHERE ' + conditions.join(' AND '); db.query(query);"
+  },
+  {
+    "id": "DB-050",
+    "title": "MongoDB: 원자적 연산",
+    "language": "javascript",
+    "code": "db.users.updateOne({ _id: 1 }, { $inc: { balance: -100 }, $push: { transactions: {...} } })"
+  }
 ]

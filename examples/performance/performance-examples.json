@@ -1,7 +1,7 @@
 [
   {
     "id": "PERF-001",
-    "title": "Code Splitting with React.lazy",
+    "title": "React.lazy를 사용한 코드 분할",
     "category": "Performance",
     "language": "typescript",
     "framework": "React",
@@ -9,7 +9,7 @@
   },
   {
     "id": "PERF-002",
-    "title": "Image Optimization with Next.js",
+    "title": "Next.js를 사용한 이미지 최적화",
     "category": "Performance",
     "language": "typescript",
     "framework": "Next.js",
@@ -17,7 +17,7 @@
   },
   {
     "id": "PERF-003",
-    "title": "Memoization with useMemo",
+    "title": "useMemo를 사용한 메모이제이션",
     "category": "Performance",
     "language": "typescript",
     "framework": "React",
@@ -25,7 +25,7 @@
   },
   {
     "id": "PERF-004",
-    "title": "React.memo for Component Optimization",
+    "title": "컴포넌트 최적화를 위한 React.memo",
     "category": "Performance",
     "language": "typescript",
     "framework": "React",
@@ -33,7 +33,7 @@
   },
   {
     "id": "PERF-005",
-    "title": "Virtual Scrolling for Large Lists",
+    "title": "대용량 리스트를 위한 가상 스크롤링",
     "category": "Performance",
     "language": "typescript",
     "framework": "React",
@@ -41,15 +41,15 @@
   },
   {
     "id": "PERF-006",
-    "title": "API Response Caching",
+    "title": "API 응답 캐싱",
     "category": "Performance",
     "language": "typescript",
     "framework": "Node.js",
-    "code": "import NodeCache from 'node-cache';\nimport express from 'express';\n\nconst cache = new NodeCache({ stdTTL: 600 }); // 10 minutes\nconst app = express();\n\napp.get('/api/courses', (req, res) => {\n  const cacheKey = 'all_courses';\n  \n  // Check cache first\n  const cached = cache.get(cacheKey);\n  if (cached) {\n    return res.json(cached);\n  }\n  \n  // Fetch from database\n  const courses = db.query('SELECT * FROM courses');\n  \n  // Store in cache\n  cache.set(cacheKey, courses);\n  \n  res.json(courses);\n});\n\n// Invalidate cache on update\napp.post('/api/courses', (req, res) => {\n  const newCourse = db.insert('courses', req.body);\n  \n  // Clear cache\n  cache.del('all_courses');\n  \n  res.json(newCourse);\n});"
+    "code": "import NodeCache from 'node-cache';\nimport express from 'express';\n\nconst cache = new NodeCache({ stdTTL: 600 }); // 10 minutes\nconst app = express();\n\napp.get('/api/courses', (req, res) => {\n  const cacheKey = 'all_courses';\n  \n  // // 캐시 먼저 확인\n  const cached = cache.get(cacheKey);\n  if (cached) {\n    return res.json(cached);\n  }\n  \n  // Fetch from database\n  const courses = db.query('SELECT * FROM courses');\n  \n  // Store in cache\n  cache.set(cacheKey, courses);\n  \n  res.json(courses);\n});\n\n// Invalidate cache on update\napp.post('/api/courses', (req, res) => {\n  const newCourse = db.insert('courses', req.body);\n  \n  // Clear cache\n  cache.del('all_courses');\n  \n  res.json(newCourse);\n});"
   },
   {
     "id": "PERF-007",
-    "title": "Database Query Optimization",
+    "title": "데이터베이스 쿼리 최적화",
     "category": "Performance",
     "language": "typescript",
     "framework": "MongoDB",
@@ -57,7 +57,7 @@
   },
   {
     "id": "PERF-008",
-    "title": "CDN Configuration for Static Assets",
+    "title": "정적 자산을 위한 CDN 구성",
     "category": "Performance",
     "language": "typescript",
     "framework": "AWS CloudFront",
@@ -65,7 +65,7 @@
   },
   {
     "id": "PERF-009",
-    "title": "Webpack Bundle Analysis",
+    "title": "Webpack 번들 분석",
     "category": "Performance",
     "language": "json",
     "framework": "Webpack",
@@ -73,7 +73,7 @@
   },
   {
     "id": "PERF-010",
-    "title": "HTTP/2 Server Push",
+    "title": "HTTP/2 서버 푸시",
     "category": "Performance",
     "language": "typescript",
     "framework": "Node.js",
@@ -81,7 +81,7 @@
   },
   {
     "id": "PERF-011",
-    "title": "Service Worker Caching",
+    "title": "서비스 워커 캐싱",
     "category": "Performance",
     "language": "typescript",
     "framework": "PWA",
@@ -89,7 +89,7 @@
   },
   {
     "id": "PERF-012",
-    "title": "WebAssembly for Performance-Critical Code",
+    "title": "성능이 중요한 코드를 위한 WebAssembly",
     "category": "Performance",
     "language": "rust",
     "framework": "Wasm",
@@ -97,7 +97,7 @@
   },
   {
     "id": "PERF-013",
-    "title": "GraphQL Query Complexity Limiting",
+    "title": "GraphQL 쿼리 복잡도 제한",
     "category": "Performance",
     "language": "typescript",
     "framework": "Apollo Server",
@@ -105,7 +105,7 @@
   },
   {
     "id": "PERF-014",
-    "title": "Database Connection Pooling",
+    "title": "데이터베이스 연결 풀링",
     "category": "Performance",
     "language": "typescript",
     "framework": "Node.js",
@@ -113,7 +113,7 @@
   },
   {
     "id": "PERF-015",
-    "title": "Dynamic Import for Route-Based Code Splitting",
+    "title": "경로 기반 코드 분할을 위한 동적 임포트",
     "category": "Performance",
     "language": "typescript",
     "framework": "Next.js",
@@ -121,7 +121,7 @@
   },
   {
     "id": "PERF-016",
-    "title": "Reduce Main Thread Work",
+    "title": "주 스레드 작업 감소",
     "category": "Performance",
     "language": "typescript",
     "framework": "React",
@@ -129,7 +129,7 @@
   },
   {
     "id": "PERF-017",
-    "title": "Critical CSS Extraction",
+    "title": "필수 CSS 추출",
     "category": "Performance",
     "language": "typescript",
     "framework": "Next.js",
@@ -137,7 +137,7 @@
   },
   {
     "id": "PERF-018",
-    "title": "Core Web Vitals Monitoring",
+    "title": "핵심 웹 바이탈 모니터링",
     "category": "Performance",
     "language": "typescript",
     "framework": "React",
@@ -145,7 +145,7 @@
   },
   {
     "id": "PERF-019",
-    "title": "Optimize Images with WebP Format",
+    "title": "WebP 형식을 사용한 이미지 최적화",
     "category": "Performance",
     "language": "html",
     "framework": "HTML",
@@ -153,7 +153,7 @@
   },
   {
     "id": "PERF-020",
-    "title": "Lighthouse Performance Audit",
+    "title": "Lighthouse 성능 감사",
     "category": "Performance",
     "language": "yaml",
     "framework": "CI/CD",

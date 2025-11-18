@@ -1,7 +1,7 @@
 [
   {
     "id": "SEC-001",
-    "title": "JWT Token Generation and Verification",
+    "title": "JWT 토큰 생성 및 검증",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
@@ -9,31 +9,31 @@
   },
   {
     "id": "SEC-002",
-    "title": "Password Hashing with bcrypt",
+    "title": "bcrypt를 사용한 비밀번호 해싱",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
-    "code": "import bcrypt from 'bcrypt';\n\n// Hash password\nexport async function hashPassword(password: string): Promise<string> {\n  const saltRounds = 10;\n  return bcrypt.hash(password, saltRounds);\n}\n\n// Verify password\nexport async function verifyPassword(\n  password: string,\n  hash: string\n): Promise<boolean> {\n  return bcrypt.compare(password, hash);\n}\n\n// Example usage\nconst hashedPassword = await hashPassword('user_password_123');\nconst isValid = await verifyPassword('user_password_123', hashedPassword);"
+    "code": "import bcrypt from 'bcrypt';\n\n// Hash password\nexport async function hashPassword(password: string): Promise<string> {\n  const saltRounds = 10;\n  return bcrypt.hash(password, saltRounds);\n}\n\n// Verify password\nexport async function verifyPassword(\n  password: string,\n  hash: string\n): Promise<boolean> {\n  return bcrypt.compare(password, hash);\n}\n\n// // 사용 예시\nconst hashedPassword = await hashPassword('user_password_123');\nconst isValid = await verifyPassword('user_password_123', hashedPassword);"
   },
   {
     "id": "SEC-003",
-    "title": "SQL Injection Prevention - Parameterized Queries",
+    "title": "SQL 인젝션 방지 - 매개변수화된 쿼리",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
-    "code": "import { Pool } from 'pg';\n\nconst pool = new Pool();\n\n// Vulnerable - DO NOT USE\n// const query = `SELECT * FROM users WHERE email = '${email}'`;\n\n// Secure - Use parameterized queries\nexport async function getUserByEmail(email: string) {\n  const query = 'SELECT * FROM users WHERE email = $1';\n  const result = await pool.query(query, [email]);\n  return result.rows[0];\n}\n\n// Safe even with malicious input\nconst user = await getUserByEmail(\"admin'; DROP TABLE users; --\");\n// This will safely look for a user with that exact email"
+    "code": "import { Pool } from 'pg';\n\nconst pool = new Pool();\n\n// // 취약함 - 사용하지 마세요\n// const query = `SELECT * FROM users WHERE email = '${email}'`;\n\n// // 안전함 - Use parameterized queries\nexport async function getUserByEmail(email: string) {\n  const query = 'SELECT * FROM users WHERE email = $1';\n  const result = await pool.query(query, [email]);\n  return result.rows[0];\n}\n\n// Safe even with malicious input\nconst user = await getUserByEmail(\"admin'; DROP TABLE users; --\");\n// This will safely look for a user with that exact email"
   },
   {
     "id": "SEC-004",
-    "title": "XSS Prevention - Sanitize User Input",
+    "title": "XSS 방지 - 사용자 입력 새니타이제이션",
     "category": "Security",
     "language": "typescript",
     "framework": "React",
-    "code": "import DOMPurify from 'dompurify';\nimport React from 'react';\n\n// Vulnerable - DO NOT USE\n// function Comment({ text }) {\n//   return <div dangerouslySetInnerHTML={{ __html: text }} />;\n// }\n\n// Secure - Sanitize input\nfunction Comment({ text }) {\n  const sanitized = DOMPurify.sanitize(text);\n  return <div dangerouslySetInnerHTML={{ __html: sanitized }} />;\n}\n\n// For regular content, use text content\nfunction SafeComment({ text }) {\n  return <div>{text}</div>; // React escapes by default\n}"
+    "code": "import DOMPurify from 'dompurify';\nimport React from 'react';\n\n// // 취약함 - 사용하지 마세요\n// function Comment({ text }) {\n//   return <div dangerouslySetInnerHTML={{ __html: text }} />;\n// }\n\n// // 안전함 - Sanitize input\nfunction Comment({ text }) {\n  const sanitized = DOMPurify.sanitize(text);\n  return <div dangerouslySetInnerHTML={{ __html: sanitized }} />;\n}\n\n// For regular content, use text content\nfunction SafeComment({ text }) {\n  return <div>{text}</div>; // React escapes by default\n}"
   },
   {
     "id": "SEC-005",
-    "title": "CSRF Token Protection",
+    "title": "CSRF 토큰 보호",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
@@ -41,7 +41,7 @@
   },
   {
     "id": "SEC-006",
-    "title": "CORS Configuration",
+    "title": "CORS 구성",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
@@ -49,7 +49,7 @@
   },
   {
     "id": "SEC-007",
-    "title": "Rate Limiting",
+    "title": "속도 제한",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
@@ -57,7 +57,7 @@
   },
   {
     "id": "SEC-008",
-    "title": "Environment Variables Configuration",
+    "title": "환경 변수 구성",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
@@ -65,7 +65,7 @@
   },
   {
     "id": "SEC-009",
-    "title": "Input Validation with Joi",
+    "title": "Joi를 사용한 입력 유효성 검사",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
@@ -73,7 +73,7 @@
   },
   {
     "id": "SEC-010",
-    "title": "Two-Factor Authentication (2FA)",
+    "title": "2단계 인증(2FA)",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
@@ -81,7 +81,7 @@
   },
   {
     "id": "SEC-011",
-    "title": "Content Security Policy (CSP)",
+    "title": "콘텐츠 보안 정책(CSP)",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
@@ -89,7 +89,7 @@
   },
   {
     "id": "SEC-012",
-    "title": "HTTPS and SSL/TLS",
+    "title": "HTTPS 및 SSL/TLS",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
@@ -97,7 +97,7 @@
   },
   {
     "id": "SEC-013",
-    "title": "Secure Session Management",
+    "title": "안전한 세션 관리",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
@@ -105,7 +105,7 @@
   },
   {
     "id": "SEC-014",
-    "title": "Data Encryption at Rest",
+    "title": "저장 데이터 암호화",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
@@ -113,7 +113,7 @@
   },
   {
     "id": "SEC-015",
-    "title": "OAuth 2.0 Implementation",
+    "title": "OAuth 2.0 구현",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
@@ -121,7 +121,7 @@
   },
   {
     "id": "SEC-016",
-    "title": "API Key Authentication",
+    "title": "API 키 인증",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
@@ -129,7 +129,7 @@
   },
   {
     "id": "SEC-017",
-    "title": "Dependency Vulnerability Scanning",
+    "title": "종속성 취약점 스캔",
     "category": "Security",
     "language": "json",
     "framework": "npm",
@@ -137,7 +137,7 @@
   },
   {
     "id": "SEC-018",
-    "title": "Secure File Upload",
+    "title": "안전한 파일 업로드",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
@@ -145,7 +145,7 @@
   },
   {
     "id": "SEC-019",
-    "title": "Logging and Monitoring",
+    "title": "로깅 및 모니터링",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
@@ -153,7 +153,7 @@
   },
   {
     "id": "SEC-020",
-    "title": "Database Connection Security",
+    "title": "데이터베이스 연결 보안",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
@@ -161,7 +161,7 @@
   },
   {
     "id": "SEC-021",
-    "title": "Request/Response Validation",
+    "title": "요청/응답 검증",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
@@ -169,7 +169,7 @@
   },
   {
     "id": "SEC-022",
-    "title": "Helmet Security Headers",
+    "title": "Helmet 보안 헤더",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
@@ -177,15 +177,15 @@
   },
   {
     "id": "SEC-023",
-    "title": "Audit Logging for Sensitive Actions",
+    "title": "민감한 작업에 대한 감사 로깅",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
-    "code": "import { AuditLog } from './models/AuditLog';\n\nexport async function logAuditEvent(\n  userId: string,\n  action: string,\n  resourceType: string,\n  resourceId: string,\n  changes?: Record<string, any>\n) {\n  await AuditLog.create({\n    userId,\n    action,\n    resourceType,\n    resourceId,\n    changes,\n    timestamp: new Date(),\n    ipAddress: request.ip,\n    userAgent: request.get('user-agent')\n  });\n}\n\n// Usage in sensitive operations\napp.delete('/api/users/:id', async (req, res) => {\n  const user = await User.findByIdAndDelete(req.params.id);\n  \n  await logAuditEvent(\n    req.user.id,\n    'DELETE_USER',\n    'User',\n    req.params.id,\n    { deletedUser: user }\n  );\n  \n  res.json({ success: true });\n});"
+    "code": "import { AuditLog } from './models/AuditLog';\n\nexport async function logAuditEvent(\n  userId: string,\n  action: string,\n  resourceType: string,\n  resourceId: string,\n  changes?: Record<string, any>\n) {\n  await AuditLog.create({\n    userId,\n    action,\n    resourceType,\n    resourceId,\n    changes,\n    timestamp: new Date(),\n    ipAddress: request.ip,\n    userAgent: request.get('user-agent')\n  });\n}\n\n// // 사용법 in sensitive operations\napp.delete('/api/users/:id', async (req, res) => {\n  const user = await User.findByIdAndDelete(req.params.id);\n  \n  await logAuditEvent(\n    req.user.id,\n    'DELETE_USER',\n    'User',\n    req.params.id,\n    { deletedUser: user }\n  );\n  \n  res.json({ success: true });\n});"
   },
   {
     "id": "SEC-024",
-    "title": "Automated Security Testing",
+    "title": "자동화된 보안 테스팅",
     "category": "Security",
     "language": "yaml",
     "framework": "GitHub Actions",
@@ -193,15 +193,15 @@
   },
   {
     "id": "SEC-025",
-    "title": "Role-Based Access Control (RBAC)",
+    "title": "역할 기반 접근 제어(RBAC)",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
-    "code": "export enum Role {\n  ADMIN = 'admin',\n  INSTRUCTOR = 'instructor',\n  STUDENT = 'student',\n  GUEST = 'guest'\n}\n\nconst rolePermissions = {\n  [Role.ADMIN]: ['read', 'write', 'delete', 'manage_users'],\n  [Role.INSTRUCTOR]: ['read', 'write', 'create_course'],\n  [Role.STUDENT]: ['read', 'enroll'],\n  [Role.GUEST]: ['read']\n};\n\nexport function authorize(requiredPermission: string) {\n  return (req, res, next) => {\n    const userRole = req.user?.role || Role.GUEST;\n    const permissions = rolePermissions[userRole] || [];\n    \n    if (!permissions.includes(requiredPermission)) {\n      return res.status(403).json({ \n        error: 'Insufficient permissions' \n      });\n    }\n    \n    next();\n  };\n}\n\n// Usage\napp.delete('/api/courses/:id', authorize('delete'), (req, res) => {\n  // Delete course\n});"
+    "code": "export enum Role {\n  ADMIN = 'admin',\n  INSTRUCTOR = 'instructor',\n  STUDENT = 'student',\n  GUEST = 'guest'\n}\n\nconst rolePermissions = {\n  [Role.ADMIN]: ['read', 'write', 'delete', 'manage_users'],\n  [Role.INSTRUCTOR]: ['read', 'write', 'create_course'],\n  [Role.STUDENT]: ['read', 'enroll'],\n  [Role.GUEST]: ['read']\n};\n\nexport function authorize(requiredPermission: string) {\n  return (req, res, next) => {\n    const userRole = req.user?.role || Role.GUEST;\n    const permissions = rolePermissions[userRole] || [];\n    \n    if (!permissions.includes(requiredPermission)) {\n      return res.status(403).json({ \n        error: 'Insufficient permissions' \n      });\n    }\n    \n    next();\n  };\n}\n\n// // 사용법\napp.delete('/api/courses/:id', authorize('delete'), (req, res) => {\n  // Delete course\n});"
   },
   {
     "id": "SEC-026",
-    "title": "Secure Password Reset Flow",
+    "title": "안전한 비밀번호 재설정 흐름",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
@@ -209,7 +209,7 @@
   },
   {
     "id": "SEC-027",
-    "title": "GraphQL Security Best Practices",
+    "title": "GraphQL 보안 모범 사례",
     "category": "Security",
     "language": "typescript",
     "framework": "Apollo Server",
@@ -217,26 +217,26 @@
   },
   {
     "id": "SEC-028",
-    "title": "Prevent XXE Attacks",
+    "title": "XXE 공격 방지",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
-    "code": "import xml2js from 'xml2js';\n\n// Vulnerable - DO NOT USE\n// const parser = new xml2js.Parser();\n\n// Secure - Disable XXE\nconst parser = new xml2js.Parser({\n  // Disable DOCTYPE processing\n  doctype: null,\n  // Disable entity expansion\n  ignoreAttrs: false,\n  // Strict parsing\n  strict: true\n});\n\nexport async function parseXML(xmlString: string) {\n  try {\n    const result = await parser.parseStringPromise(xmlString);\n    return result;\n  } catch (error) {\n    throw new Error('Invalid XML');\n  }\n}"
+    "code": "import xml2js from 'xml2js';\n\n// // 취약함 - 사용하지 마세요\n// const parser = new xml2js.Parser();\n\n// // 안전함 - Disable XXE\nconst parser = new xml2js.Parser({\n  // Disable DOCTYPE processing\n  doctype: null,\n  // Disable entity expansion\n  ignoreAttrs: false,\n  // Strict parsing\n  strict: true\n});\n\nexport async function parseXML(xmlString: string) {\n  try {\n    const result = await parser.parseStringPromise(xmlString);\n    return result;\n  } catch (error) {\n    throw new Error('Invalid XML');\n  }\n}"
   },
   {
     "id": "SEC-029",
-    "title": "Secure Cookies Configuration",
+    "title": "안전한 쿠키 구성",
     "category": "Security",
     "language": "typescript",
     "framework": "Node.js",
-    "code": "import express from 'express';\n\nconst app = express();\n\n// Secure cookie settings\napp.use((req, res, next) => {\n  res.cookie('sessionId', req.sessionID, {\n    // Only send over HTTPS\n    secure: process.env.NODE_ENV === 'production',\n    // Prevent JavaScript access\n    httpOnly: true,\n    // CSRF protection\n    sameSite: 'strict',\n    // Cookie expiration\n    maxAge: 24 * 60 * 60 * 1000,\n    // Path restriction\n    path: '/api',\n    // Domain specification\n    domain: 'educationmobile.com'\n  });\n  \n  next();\n});\n\n// Prevent subdomain cookie sharing\napp.use((req, res, next) => {\n  // Set additional security headers for cookies\n  res.setHeader('Set-Cookie', [\n    `sessionId=${req.sessionID}; Secure; HttpOnly; SameSite=Strict`\n  ]);\n  next();\n});"
+    "code": "import express from 'express';\n\nconst app = express();\n\n// // 안전함 cookie settings\napp.use((req, res, next) => {\n  res.cookie('sessionId', req.sessionID, {\n    // Only send over HTTPS\n    secure: process.env.NODE_ENV === 'production',\n    // Prevent JavaScript access\n    httpOnly: true,\n    // CSRF protection\n    sameSite: 'strict',\n    // Cookie expiration\n    maxAge: 24 * 60 * 60 * 1000,\n    // Path restriction\n    path: '/api',\n    // Domain specification\n    domain: 'educationmobile.com'\n  });\n  \n  next();\n});\n\n// Prevent subdomain cookie sharing\napp.use((req, res, next) => {\n  // Set additional security headers for cookies\n  res.setHeader('Set-Cookie', [\n    `sessionId=${req.sessionID}; // 안전함; HttpOnly; SameSite=Strict`\n  ]);\n  next();\n});"
   },
   {
     "id": "SEC-030",
-    "title": "Implement Security Checklist",
+    "title": "보안 체크리스트 구현",
     "category": "Security",
     "language": "markdown",
     "framework": "Documentation",
-    "code": "# Security Checklist\n\n## Authentication & Authorization\n- [ ] Implement strong password requirements\n- [ ] Use JWT or OAuth 2.0 for authentication\n- [ ] Implement 2FA for sensitive accounts\n- [ ] Role-based access control (RBAC)\n- [ ] Session timeout configuration\n\n## Data Protection\n- [ ] Encrypt data at rest\n- [ ] Use HTTPS/TLS for all communication\n- [ ] Hash passwords with bcrypt\n- [ ] Secure database connections\n- [ ] Regular backups with encryption\n\n## API Security\n- [ ] Input validation and sanitization\n- [ ] Rate limiting on all endpoints\n- [ ] CORS configuration\n- [ ] CSRF token protection\n- [ ] SQL injection prevention\n\n## Infrastructure\n- [ ] Use environment variables for secrets\n- [ ] Implement WAF (Web Application Firewall)\n- [ ] Regular security updates\n- [ ] Dependency vulnerability scanning\n- [ ] DDoS protection\n\n## Monitoring & Logging\n- [ ] Security event logging\n- [ ] Intrusion detection system\n- [ ] Real-time alerts\n- [ ] Access audit logs\n- [ ] Performance monitoring"
+    "code": "# Security Checklist\n\n## Authentication & Authorization\n- [ ] Implement strong password requirements\n- [ ] Use JWT or OAuth 2.0 for authentication\n- [ ] Implement 2FA for sensitive accounts\n- [ ] Role-based access control (RBAC)\n- [ ] Session timeout configuration\n\n## Data Protection\n- [ ] Encrypt data at rest\n- [ ] Use HTTPS/TLS for all communication\n- [ ] Hash passwords with bcrypt\n- [ ] // 안전함 database connections\n- [ ] Regular backups with encryption\n\n## API Security\n- [ ] Input validation and sanitization\n- [ ] Rate limiting on all endpoints\n- [ ] CORS configuration\n- [ ] CSRF token protection\n- [ ] SQL injection prevention\n\n## Infrastructure\n- [ ] Use environment variables for secrets\n- [ ] Implement WAF (Web Application Firewall)\n- [ ] Regular security updates\n- [ ] Dependency vulnerability scanning\n- [ ] DDoS protection\n\n## Monitoring & Logging\n- [ ] Security event logging\n- [ ] Intrusion detection system\n- [ ] Real-time alerts\n- [ ] Access audit logs\n- [ ] Performance monitoring"
   }
 ]

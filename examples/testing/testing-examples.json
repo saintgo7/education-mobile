@@ -1,7 +1,7 @@
 [
   {
     "id": "TEST-001",
-    "title": "Jest Unit Test - Component Rendering",
+    "title": "Jest 단위 테스트 - 컴포넌트 렌더링",
     "category": "Testing",
     "language": "typescript",
     "framework": "Jest",
@@ -9,7 +9,7 @@
   },
   {
     "id": "TEST-002",
-    "title": "Jest Test - User Interactions",
+    "title": "Jest 테스트 - 사용자 상호작용",
     "category": "Testing",
     "language": "typescript",
     "framework": "Jest",
@@ -17,7 +17,7 @@
   },
   {
     "id": "TEST-003",
-    "title": "Jest Test - Async API Call",
+    "title": "Jest 테스트 - 비동기 API 호출",
     "category": "Testing",
     "language": "typescript",
     "framework": "Jest",
@@ -25,7 +25,7 @@
   },
   {
     "id": "TEST-004",
-    "title": "Jest Test - Form Validation",
+    "title": "Jest 테스트 - 폼 유효성 검사",
     "category": "Testing",
     "language": "typescript",
     "framework": "Jest",
@@ -33,7 +33,7 @@
   },
   {
     "id": "TEST-005",
-    "title": "Jest Test - Snapshot Testing",
+    "title": "Jest 테스트 - 스냅샷 테스팅",
     "category": "Testing",
     "language": "typescript",
     "framework": "Jest",
@@ -41,7 +41,7 @@
   },
   {
     "id": "TEST-006",
-    "title": "Vitest - Unit Test with Hooks",
+    "title": "Vitest - 훅을 사용한 단위 테스트",
     "category": "Testing",
     "language": "typescript",
     "framework": "Vitest",
@@ -49,7 +49,7 @@
   },
   {
     "id": "TEST-007",
-    "title": "Vitest - Mocking Module",
+    "title": "Vitest - 모듈 모킹",
     "category": "Testing",
     "language": "typescript",
     "framework": "Vitest",
@@ -57,7 +57,7 @@
   },
   {
     "id": "TEST-008",
-    "title": "Vitest - Parameterized Tests",
+    "title": "Vitest - 매개변수화된 테스트",
     "category": "Testing",
     "language": "typescript",
     "framework": "Vitest",
@@ -65,7 +65,7 @@
   },
   {
     "id": "TEST-009",
-    "title": "Playwright - E2E Test - Login Flow",
+    "title": "Playwright - E2E 테스트 - 로그인 흐름",
     "category": "Testing",
     "language": "typescript",
     "framework": "Playwright",
@@ -73,7 +73,7 @@
   },
   {
     "id": "TEST-010",
-    "title": "Playwright - E2E Test - Course Enrollment",
+    "title": "Playwright - E2E 테스트 - 코스 등록",
     "category": "Testing",
     "language": "typescript",
     "framework": "Playwright",
@@ -81,7 +81,7 @@
   },
   {
     "id": "TEST-011",
-    "title": "Playwright - E2E Test - Network Interception",
+    "title": "Playwright - E2E 테스트 - 네트워크 인터셉션",
     "category": "Testing",
     "language": "typescript",
     "framework": "Playwright",
@@ -89,7 +89,7 @@
   },
   {
     "id": "TEST-012",
-    "title": "Playwright - Visual Regression Test",
+    "title": "Playwright - 시각 회귀 테스트",
     "category": "Testing",
     "language": "typescript",
     "framework": "Playwright",
@@ -97,7 +97,7 @@
   },
   {
     "id": "TEST-013",
-    "title": "Integration Test - Payment Flow",
+    "title": "통합 테스트 - 결제 흐름",
     "category": "Testing",
     "language": "typescript",
     "framework": "Jest",
@@ -105,7 +105,7 @@
   },
   {
     "id": "TEST-014",
-    "title": "Integration Test - Database Queries",
+    "title": "통합 테스트 - 데이터베이스 쿼리",
     "category": "Testing",
     "language": "typescript",
     "framework": "Jest",
@@ -121,7 +121,7 @@
   },
   {
     "id": "TEST-016",
-    "title": "Unit Test - Reducer Function",
+    "title": "단위 테스트 - 리듀서 함수",
     "category": "Testing",
     "language": "typescript",
     "framework": "Jest",
@@ -129,7 +129,7 @@
   },
   {
     "id": "TEST-017",
-    "title": "Unit Test - Utility Function",
+    "title": "단위 테스트 - 유틸리티 함수",
     "category": "Testing",
     "language": "typescript",
     "framework": "Jest",
@@ -137,7 +137,7 @@
   },
   {
     "id": "TEST-018",
-    "title": "Custom Test Utilities",
+    "title": "커스텀 테스트 유틸리티",
     "category": "Testing",
     "language": "typescript",
     "framework": "Jest",
@@ -145,7 +145,7 @@
   },
   {
     "id": "TEST-019",
-    "title": "Mock API Server Setup",
+    "title": "모의 API 서버 설정",
     "category": "Testing",
     "language": "typescript",
     "framework": "Jest",
@@ -153,7 +153,7 @@
   },
   {
     "id": "TEST-020",
-    "title": "Performance Test - Component Rendering",
+    "title": "성능 테스트 - 컴포넌트 렌더링",
     "category": "Testing",
     "language": "typescript",
     "framework": "Jest",
@@ -161,7 +161,7 @@
   },
   {
     "id": "TEST-021",
-    "title": "Accessibility Test",
+    "title": "접근성 테스트",
     "category": "Testing",
     "language": "typescript",
     "framework": "Jest",
@@ -169,7 +169,7 @@
   },
   {
     "id": "TEST-022",
-    "title": "Error Boundary Test",
+    "title": "에러 바운더리 테스트",
     "category": "Testing",
     "language": "typescript",
     "framework": "Jest",
@@ -177,7 +177,7 @@
   },
   {
     "id": "TEST-023",
-    "title": "Setup Test Environment",
+    "title": "테스트 환경 설정",
     "category": "Testing",
     "language": "typescript",
     "framework": "Jest",
@@ -185,7 +185,7 @@
   },
   {
     "id": "TEST-024",
-    "title": "Cypress Integration Test Setup",
+    "title": "Cypress 통합 테스트 설정",
     "category": "Testing",
     "language": "typescript",
     "framework": "Cypress",
@@ -193,7 +193,7 @@
   },
   {
     "id": "TEST-025",
-    "title": "Cypress E2E Test - Course Search",
+    "title": "Cypress E2E 테스트 - 코스 검색",
     "category": "Testing",
     "language": "typescript",
     "framework": "Cypress",
