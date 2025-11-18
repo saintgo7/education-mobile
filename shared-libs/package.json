@@ -1,0 +1,12 @@
+{
+  "name": "@education-mobile/shared",
+  "version": "1.0.0",
+  "description": "Shared libraries and utilities for education platform",
+  "private": true,
+  "workspaces": [
+    "ui-components",
+    "api-client",
+    "types",
+    "utils"
+  ]
+}
