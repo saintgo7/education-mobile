@@ -1,0 +1,202 @@
+[
+  {
+    "id": "TEST-001",
+    "title": "Jest Unit Test - Component Rendering",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "import React from 'react';\nimport { render, screen } from '@testing-library/react';\nimport CourseCard from './CourseCard';\n\ndescribe('CourseCard', () => {\n  it('renders course title and description', () => {\n    const course = {\n      id: '1',\n      title: 'Advanced React',\n      description: 'Learn React patterns',\n      price: 99\n    };\n    \n    render(<CourseCard course={course} />);\n    \n    expect(screen.getByText('Advanced React')).toBeInTheDocument();\n    expect(screen.getByText('Learn React patterns')).toBeInTheDocument();\n  });\n});"
+  },
+  {
+    "id": "TEST-002",
+    "title": "Jest Test - User Interactions",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "import { render, screen, fireEvent } from '@testing-library/react';\nimport EnrollButton from './EnrollButton';\n\nit('calls onEnroll when button is clicked', () => {\n  const mockOnEnroll = jest.fn();\n  render(<EnrollButton onEnroll={mockOnEnroll} />);\n  \n  fireEvent.click(screen.getByText('Enroll Now'));\n  \n  expect(mockOnEnroll).toHaveBeenCalledTimes(1);\n});"
+  },
+  {
+    "id": "TEST-003",
+    "title": "Jest Test - Async API Call",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "import { render, screen, waitFor } from '@testing-library/react';\nimport CourseList from './CourseList';\n\njest.mock('./api', () => ({\n  fetchCourses: jest.fn(() => \n    Promise.resolve([{ id: '1', title: 'Course 1' }])\n  )\n}));\n\nit('loads and displays courses', async () => {\n  render(<CourseList />);\n  \n  await waitFor(() => {\n    expect(screen.getByText('Course 1')).toBeInTheDocument();\n  });\n});"
+  },
+  {
+    "id": "TEST-004",
+    "title": "Jest Test - Form Validation",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "import { render, screen, fireEvent } from '@testing-library/react';\nimport LoginForm from './LoginForm';\n\nit('shows validation error for invalid email', () => {\n  render(<LoginForm />);\n  \n  const emailInput = screen.getByLabelText('Email');\n  fireEvent.change(emailInput, { target: { value: 'invalid' } });\n  fireEvent.blur(emailInput);\n  \n  expect(screen.getByText('Invalid email')).toBeInTheDocument();\n});"
+  },
+  {
+    "id": "TEST-005",
+    "title": "Jest Test - Snapshot Testing",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "import { render } from '@testing-library/react';\nimport Header from './Header';\n\nit('matches snapshot', () => {\n  const { container } = render(\n    <Header title=\"Education Platform\" />\n  );\n  \n  expect(container).toMatchSnapshot();\n});"
+  },
+  {
+    "id": "TEST-006",
+    "title": "Vitest - Unit Test with Hooks",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Vitest",
+    "code": "import { describe, it, expect, beforeEach, afterEach } from 'vitest';\nimport { renderHook, act } from '@testing-library/react';\nimport { useCounter } from './useCounter';\n\ndescribe('useCounter', () => {\n  it('increments counter', () => {\n    const { result } = renderHook(() => useCounter());\n    \n    act(() => {\n      result.current.increment();\n    });\n    \n    expect(result.current.count).toBe(1);\n  });\n});"
+  },
+  {
+    "id": "TEST-007",
+    "title": "Vitest - Mocking Module",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Vitest",
+    "code": "import { describe, it, expect, vi } from 'vitest';\nimport { getUserProfile } from './userService';\n\nvi.mock('./api', () => ({\n  fetchUser: vi.fn(() => \n    Promise.resolve({ id: '1', name: 'John' })\n  )\n}));\n\nit('fetches user profile', async () => {\n  const user = await getUserProfile('1');\n  expect(user.name).toBe('John');\n});"
+  },
+  {
+    "id": "TEST-008",
+    "title": "Vitest - Parameterized Tests",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Vitest",
+    "code": "import { describe, it, expect } from 'vitest';\nimport { validateEmail } from './validators';\n\ndescribe('validateEmail', () => {\n  it.each([\n    ['user@example.com', true],\n    ['invalid.email', false],\n    ['test@domain.co.uk', true],\n    ['spaces@mail.com', true]\n  ])('validates %s as %s', (email, expected) => {\n    expect(validateEmail(email)).toBe(expected);\n  });\n});"
+  },
+  {
+    "id": "TEST-009",
+    "title": "Playwright - E2E Test - Login Flow",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Playwright",
+    "code": "import { test, expect } from '@playwright/test';\n\ntest('user can login successfully', async ({ page }) => {\n  await page.goto('http://localhost:3000/login');\n  \n  await page.fill('input[name=\"email\"]', 'user@example.com');\n  await page.fill('input[name=\"password\"]', 'password123');\n  await page.click('button:has-text(\"Login\")');\n  \n  await page.waitForNavigation();\n  expect(page.url()).toContain('/dashboard');\n});"
+  },
+  {
+    "id": "TEST-010",
+    "title": "Playwright - E2E Test - Course Enrollment",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Playwright",
+    "code": "import { test, expect } from '@playwright/test';\n\ntest('user can enroll in course', async ({ page }) => {\n  await page.goto('http://localhost:3000/courses/advanced-react');\n  \n  const enrollButton = page.locator('button:has-text(\"Enroll Now\")');\n  await enrollButton.click();\n  \n  const confirmButton = page.locator('button:has-text(\"Confirm Enrollment\")');\n  await confirmButton.click();\n  \n  await expect(page.locator('text=Enrollment Successful')).toBeVisible();\n});"
+  },
+  {
+    "id": "TEST-011",
+    "title": "Playwright - E2E Test - Network Interception",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Playwright",
+    "code": "import { test, expect } from '@playwright/test';\n\ntest('handles API error gracefully', async ({ page }) => {\n  await page.route('**/api/courses', route => {\n    route.abort('failed');\n  });\n  \n  await page.goto('http://localhost:3000/courses');\n  \n  await expect(\n    page.locator('text=Failed to load courses')\n  ).toBeVisible();\n});"
+  },
+  {
+    "id": "TEST-012",
+    "title": "Playwright - Visual Regression Test",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Playwright",
+    "code": "import { test, expect } from '@playwright/test';\n\ntest('course card layout matches design', async ({ page }) => {\n  await page.goto('http://localhost:3000/courses');\n  \n  const courseCard = page.locator('[data-testid=\"course-card\"]').first();\n  \n  await expect(courseCard).toHaveScreenshot('course-card.png');\n});"
+  },
+  {
+    "id": "TEST-013",
+    "title": "Integration Test - Payment Flow",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "import { render, screen, fireEvent, waitFor } from '@testing-library/react';\nimport PaymentForm from './PaymentForm';\nimport * as paymentAPI from './api/paymentAPI';\n\njest.mock('./api/paymentAPI');\n\nit('processes payment successfully', async () => {\n  jest.spyOn(paymentAPI, 'createPaymentIntent')\n    .mockResolvedValue({ clientSecret: 'secret_123' });\n  \n  render(<PaymentForm courseId=\"course_1\" />);\n  \n  fireEvent.change(screen.getByLabelText('Card Number'), \n    { target: { value: '4242424242424242' } }\n  );\n  fireEvent.click(screen.getByText('Pay'));\n  \n  await waitFor(() => {\n    expect(screen.getByText('Payment Successful')).toBeInTheDocument();\n  });\n});"
+  },
+  {
+    "id": "TEST-014",
+    "title": "Integration Test - Database Queries",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "import { MongoMemoryServer } from 'mongodb-memory-server';\nimport mongoose from 'mongoose';\nimport Course from '../models/Course';\n\nlet mongoServer;\n\nbeforeAll(async () => {\n  mongoServer = await MongoMemoryServer.create();\n  await mongoose.connect(mongoServer.getUri());\n});\n\nafterAll(async () => {\n  await mongoose.disconnect();\n  await mongoServer.stop();\n});\n\nit('saves and retrieves course', async () => {\n  const course = new Course({\n    title: 'React Basics',\n    description: 'Learn React'\n  });\n  \n  await course.save();\n  const retrieved = await Course.findById(course._id);\n  \n  expect(retrieved.title).toBe('React Basics');\n});"
+  },
+  {
+    "id": "TEST-015",
+    "title": "Test Coverage Report",
+    "category": "Testing",
+    "language": "json",
+    "framework": "Jest",
+    "code": "{\n  \"jest\": {\n    \"testEnvironment\": \"jsdom\",\n    \"collectCoverage\": true,\n    \"collectCoverageFrom\": [\n      \"src/**/*.{ts,tsx}\",\n      \"!src/index.tsx\",\n      \"!src/**/*.d.ts\"\n    ],\n    \"coverageThreshold\": {\n      \"global\": {\n        \"branches\": 80,\n        \"functions\": 80,\n        \"lines\": 80,\n        \"statements\": 80\n      }\n    }\n  }\n}"
+  },
+  {
+    "id": "TEST-016",
+    "title": "Unit Test - Reducer Function",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "import { enrollmentReducer } from './enrollmentReducer';\n\nit('handles ENROLL_COURSE action', () => {\n  const state = {\n    enrolledCourses: ['course_1'],\n    enrollmentDate: new Date()\n  };\n  \n  const newState = enrollmentReducer(state, {\n    type: 'ENROLL_COURSE',\n    payload: { courseId: 'course_2' }\n  });\n  \n  expect(newState.enrolledCourses).toContain('course_2');\n  expect(newState.enrolledCourses.length).toBe(2);\n});"
+  },
+  {
+    "id": "TEST-017",
+    "title": "Unit Test - Utility Function",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "import { calculateDiscount, formatPrice } from './priceUtils';\n\ndescribe('Price Utils', () => {\n  describe('calculateDiscount', () => {\n    it('applies percentage discount', () => {\n      expect(calculateDiscount(100, 20)).toBe(80);\n    });\n    \n    it('handles zero discount', () => {\n      expect(calculateDiscount(100, 0)).toBe(100);\n    });\n  });\n  \n  describe('formatPrice', () => {\n    it('formats price with currency', () => {\n      expect(formatPrice(99.99, 'USD')).toBe('$99.99');\n    });\n  });\n});"
+  },
+  {
+    "id": "TEST-018",
+    "title": "Custom Test Utilities",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "// test-utils.ts\nimport { render as rtlRender } from '@testing-library/react';\nimport { Provider } from 'react-redux';\nimport { store } from './store';\n\nexport function render(ui, options) {\n  function Wrapper({ children }) {\n    return <Provider store={store}>{children}</Provider>;\n  }\n  \n  return rtlRender(ui, { wrapper: Wrapper, ...options });\n}\n\nexport * from '@testing-library/react';"
+  },
+  {
+    "id": "TEST-019",
+    "title": "Mock API Server Setup",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "import { rest } from 'msw';\nimport { setupServer } from 'msw/node';\n\nexport const server = setupServer(\n  rest.get('/api/courses', (req, res, ctx) => {\n    return res(\n      ctx.status(200),\n      ctx.json([\n        { id: '1', title: 'Course 1' },\n        { id: '2', title: 'Course 2' }\n      ])\n    );\n  }),\n  \n  rest.post('/api/enroll', (req, res, ctx) => {\n    return res(\n      ctx.status(201),\n      ctx.json({ success: true })\n    );\n  })\n);\n\nbeforeAll(() => server.listen());\nafterEach(() => server.resetHandlers());\nafterAll(() => server.close());"
+  },
+  {
+    "id": "TEST-020",
+    "title": "Performance Test - Component Rendering",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "import { render } from '@testing-library/react';\nimport CourseList from './CourseList';\n\nit('renders 1000 courses in < 500ms', () => {\n  const courses = Array.from({ length: 1000 }, (_, i) => ({\n    id: `course_${i}`,\n    title: `Course ${i}`\n  }));\n  \n  const start = performance.now();\n  render(<CourseList courses={courses} />);\n  const end = performance.now();\n  \n  expect(end - start).toBeLessThan(500);\n});"
+  },
+  {
+    "id": "TEST-021",
+    "title": "Accessibility Test",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "import { render } from '@testing-library/react';\nimport { axe, toHaveNoViolations } from 'jest-axe';\nimport CourseCard from './CourseCard';\n\nexpect.extend(toHaveNoViolations);\n\nit('has no accessibility violations', async () => {\n  const { container } = render(\n    <CourseCard course={{ id: '1', title: 'Course' }} />\n  );\n  \n  const results = await axe(container);\n  expect(results).toHaveNoViolations();\n});"
+  },
+  {
+    "id": "TEST-022",
+    "title": "Error Boundary Test",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "import { render, screen } from '@testing-library/react';\nimport ErrorBoundary from './ErrorBoundary';\nimport BuggyComponent from './BuggyComponent';\n\nconst consoleError = jest\n  .spyOn(console, 'error')\n  .mockImplementation(() => {});\n\nit('catches and displays error', () => {\n  render(\n    <ErrorBoundary>\n      <BuggyComponent />\n    </ErrorBoundary>\n  );\n  \n  expect(screen.getByText(/Something went wrong/i)).toBeInTheDocument();\n  consoleError.mockRestore();\n});"
+  },
+  {
+    "id": "TEST-023",
+    "title": "Setup Test Environment",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Jest",
+    "code": "// jest.setup.ts\nimport '@testing-library/jest-dom';\nimport 'whatwg-fetch';\n\n// Mock localStorage\nconst localStorageMock = {\n  getItem: jest.fn(),\n  setItem: jest.fn(),\n  removeItem: jest.fn(),\n  clear: jest.fn(),\n};\n\nglobal.localStorage = localStorageMock as any;\n\n// Suppress console errors in tests\nconst originalError = console.error;\nbeforeAll(() => {\n  console.error = (...args) => {\n    if (\n      typeof args[0] === 'string' &&\n      args[0].includes('Warning')\n    ) {\n      return;\n    }\n    originalError.call(console, ...args);\n  };\n});\n\nafterAll(() => {\n  console.error = originalError;\n});"
+  },
+  {
+    "id": "TEST-024",
+    "title": "Cypress Integration Test Setup",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Cypress",
+    "code": "// cypress.config.ts\nimport { defineConfig } from 'cypress';\n\nexport default defineConfig({\n  e2e: {\n    baseUrl: 'http://localhost:3000',\n    viewportWidth: 1280,\n    viewportHeight: 720,\n    video: false,\n    screenshotOnRunFailure: true,\n    setupNodeEvents(on, config) {\n      on('task', {\n        log(message) {\n          console.log(message);\n          return null;\n        }\n      });\n    }\n  }\n});"
+  },
+  {
+    "id": "TEST-025",
+    "title": "Cypress E2E Test - Course Search",
+    "category": "Testing",
+    "language": "typescript",
+    "framework": "Cypress",
+    "code": "describe('Course Search', () => {\n  beforeEach(() => {\n    cy.visit('/courses');\n  });\n  \n  it('filters courses by search term', () => {\n    cy.get('[data-cy=search-input]')\n      .type('Advanced React')\n      .should('have.value', 'Advanced React');\n    \n    cy.get('[data-cy=course-item]')\n      .should('have.length', 1)\n      .and('contain', 'Advanced React');\n  });\n  \n  it('clears filters when reset button is clicked', () => {\n    cy.get('[data-cy=search-input]').type('React');\n    cy.get('[data-cy=reset-btn]').click();\n    cy.get('[data-cy=search-input]').should('have.value', '');\n  });\n});"
+  }
+]

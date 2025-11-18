@@ -1,0 +1,162 @@
+[
+  {
+    "id": "PERF-001",
+    "title": "Code Splitting with React.lazy",
+    "category": "Performance",
+    "language": "typescript",
+    "framework": "React",
+    "code": "import React, { Suspense, lazy } from 'react';\n\n// Lazy load components\nconst CourseList = lazy(() => import('./pages/CourseList'));\nconst CourseDetail = lazy(() => import('./pages/CourseDetail'));\nconst AdminDashboard = lazy(() => import('./pages/AdminDashboard'));\n\n// Loading fallback\nfunction Loading() {\n  return <div>Loading...</div>;\n}\n\nexport function App() {\n  return (\n    <Suspense fallback={<Loading />}>\n      <Routes>\n        <Route path=\"/courses\" element={<CourseList />} />\n        <Route path=\"/courses/:id\" element={<CourseDetail />} />\n        <Route path=\"/admin\" element={<AdminDashboard />} />\n      </Routes>\n    </Suspense>\n  );\n}"
+  },
+  {
+    "id": "PERF-002",
+    "title": "Image Optimization with Next.js",
+    "category": "Performance",
+    "language": "typescript",
+    "framework": "Next.js",
+    "code": "import Image from 'next/image';\n\nexport function CourseCard({ course }) {\n  return (\n    <div>\n      <Image\n        src={course.thumbnail}\n        alt={course.title}\n        width={300}\n        height={200}\n        quality={75}\n        placeholder=\"blur\"\n        blurDataURL=\"data:image/svg+xml,...\"\n        sizes=\"(max-width: 768px) 100vw, 300px\"\n      />\n      <h3>{course.title}</h3>\n    </div>\n  );\n}"
+  },
+  {
+    "id": "PERF-003",
+    "title": "Memoization with useMemo",
+    "category": "Performance",
+    "language": "typescript",
+    "framework": "React",
+    "code": "import React, { useMemo } from 'react';\n\nfunction CourseList({ courses, searchTerm }) {\n  // Memoize expensive filtering operation\n  const filteredCourses = useMemo(() => {\n    console.log('Filtering courses...');\n    return courses.filter(course =>\n      course.title.toLowerCase().includes(searchTerm.toLowerCase())\n    );\n  }, [courses, searchTerm]);\n  \n  // Memoize expensive calculation\n  const totalPrice = useMemo(() => {\n    return filteredCourses.reduce((sum, course) => sum + course.price, 0);\n  }, [filteredCourses]);\n  \n  return (\n    <div>\n      <p>Total: ${totalPrice}</p>\n      {filteredCourses.map(course => (\n        <div key={course.id}>{course.title}</div>\n      ))}\n    </div>\n  );\n}"
+  },
+  {
+    "id": "PERF-004",
+    "title": "React.memo for Component Optimization",
+    "category": "Performance",
+    "language": "typescript",
+    "framework": "React",
+    "code": "import React, { memo } from 'react';\n\n// Without optimization - re-renders on every parent render\nfunction CourseCardNaive({ course, onEnroll }) {\n  return (\n    <div>\n      <h3>{course.title}</h3>\n      <button onClick={() => onEnroll(course.id)}>Enroll</button>\n    </div>\n  );\n}\n\n// With memo - only re-renders if props change\nconst CourseCard = memo(\n  function CourseCard({ course, onEnroll }) {\n    return (\n      <div>\n        <h3>{course.title}</h3>\n        <button onClick={() => onEnroll(course.id)}>Enroll</button>\n      </div>\n    );\n  },\n  (prevProps, nextProps) => {\n    return prevProps.course.id === nextProps.course.id &&\n           prevProps.onEnroll === nextProps.onEnroll;\n  }\n);"
+  },
+  {
+    "id": "PERF-005",
+    "title": "Virtual Scrolling for Large Lists",
+    "category": "Performance",
+    "language": "typescript",
+    "framework": "React",
+    "code": "import React from 'react';\nimport { FixedSizeList as List } from 'react-window';\n\nconst CourseList = ({ courses }) => {\n  const Row = ({ index, style }) => (\n    <div style={style}>\n      <div className=\"course-item\">\n        <h4>{courses[index].title}</h4>\n        <p>Price: ${courses[index].price}</p>\n      </div>\n    </div>\n  );\n  \n  return (\n    <List\n      height={600}\n      itemCount={courses.length}\n      itemSize={100}\n      width=\"100%\"\n    >\n      {Row}\n    </List>\n  );\n};\n\n// Instead of rendering 10,000 items,\n// only visible items are rendered (~6-8 items)"
+  },
+  {
+    "id": "PERF-006",
+    "title": "API Response Caching",
+    "category": "Performance",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import NodeCache from 'node-cache';\nimport express from 'express';\n\nconst cache = new NodeCache({ stdTTL: 600 }); // 10 minutes\nconst app = express();\n\napp.get('/api/courses', (req, res) => {\n  const cacheKey = 'all_courses';\n  \n  // Check cache first\n  const cached = cache.get(cacheKey);\n  if (cached) {\n    return res.json(cached);\n  }\n  \n  // Fetch from database\n  const courses = db.query('SELECT * FROM courses');\n  \n  // Store in cache\n  cache.set(cacheKey, courses);\n  \n  res.json(courses);\n});\n\n// Invalidate cache on update\napp.post('/api/courses', (req, res) => {\n  const newCourse = db.insert('courses', req.body);\n  \n  // Clear cache\n  cache.del('all_courses');\n  \n  res.json(newCourse);\n});"
+  },
+  {
+    "id": "PERF-007",
+    "title": "Database Query Optimization",
+    "category": "Performance",
+    "language": "typescript",
+    "framework": "MongoDB",
+    "code": "import mongoose from 'mongoose';\n\n// Unoptimized - N+1 query problem\nasync function getCourseDetails(courseId) {\n  const course = await Course.findById(courseId);\n  const instructor = await User.findById(course.instructorId); // Extra query\n  const reviews = await Review.find({ courseId }); // Extra query\n  \n  return { course, instructor, reviews };\n}\n\n// Optimized - Populate references\nasync function getCourseDetailsOptimized(courseId) {\n  const course = await Course.findById(courseId)\n    .populate('instructorId')\n    .populate('reviews');\n  \n  return course;\n}\n\n// Index optimization\nCourse.collection.createIndex({ title: 1, category: 1 });\n\n// Query optimization\nasync function searchCourses(query) {\n  const courses = await Course.find({\n    $or: [\n      { title: { $regex: query, $options: 'i' } },\n      { description: { $regex: query, $options: 'i' } }\n    ]\n  })\n  .select('title price rating') // Only fetch needed fields\n  .limit(20)\n  .lean(); // Returns plain JS objects (faster)\n  \n  return courses;\n}"
+  },
+  {
+    "id": "PERF-008",
+    "title": "CDN Configuration for Static Assets",
+    "category": "Performance",
+    "language": "typescript",
+    "framework": "AWS CloudFront",
+    "code": "// cloudfront.tf (Terraform)\nresource \"aws_cloudfront_distribution\" \"education_cdn\" {\n  origin {\n    domain_name = aws_s3_bucket.assets.bucket_regional_domain_name\n    origin_id   = \"education-assets\"\n  }\n  \n  enabled = true\n  \n  # Cache behavior\n  default_cache_behavior {\n    allowed_methods  = [\"GET\", \"HEAD\"]\n    cached_methods   = [\"GET\", \"HEAD\"]\n    target_origin_id = \"education-assets\"\n    \n    forwarded_values {\n      query_string = false\n      cookies { forward = \"none\" }\n    }\n    \n    viewer_protocol_policy = \"redirect-to-https\"\n    min_ttl                = 0\n    default_ttl            = 3600\n    max_ttl                = 86400\n  }\n  \n  # Compression\n  default_root_object = \"index.html\"\n  \n  viewer_certificate {\n    cloudfront_default_certificate = true\n  }\n  \n  restrictions {\n    geo_restriction { restriction_type = \"none\" }\n  }\n}"
+  },
+  {
+    "id": "PERF-009",
+    "title": "Webpack Bundle Analysis",
+    "category": "Performance",
+    "language": "json",
+    "framework": "Webpack",
+    "code": "{\n  \"scripts\": {\n    \"build\": \"webpack --mode production\",\n    \"analyze\": \"webpack-bundle-analyzer dist/stats.json\"\n  },\n  \"devDependencies\": {\n    \"webpack-bundle-analyzer\": \"^latest\",\n    \"speed-measure-webpack-plugin\": \"^latest\"\n  },\n  \"webpack_config\": {\n    \"plugins\": [\n      \"new BundleAnalyzerPlugin({\n        analyzerMode: 'static',\n        reportFilename: 'bundle-report.html',\n        openAnalyzer: false,\n        generateStatsFile: true,\n        statsFilename: 'stats.json'\n      })\"\n    ]\n  }\n}"
+  },
+  {
+    "id": "PERF-010",
+    "title": "HTTP/2 Server Push",
+    "category": "Performance",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import spdy from 'spdy';\nimport fs from 'fs';\nimport path from 'path';\n\nconst options = {\n  key: fs.readFileSync('./server.key'),\n  cert: fs.readFileSync('./server.crt')\n};\n\nconst app = express();\n\napp.get('/', (req, res) => {\n  // Push CSS and JavaScript resources\n  if (!req.push) {\n    return res.sendFile('index.html');\n  }\n  \n  // Push critical CSS\n  const cssPush = req.push('/css/critical.css', {\n    status: 200,\n    method: 'GET',\n    request: {\n      accept: '*/*'\n    },\n    response: {\n      'content-type': 'text/css',\n      'cache-control': 'public, max-age=31536000'\n    }\n  });\n  cssPush.on('error', () => {});\n  cssPush.end(fs.readFileSync('./public/css/critical.css'));\n  \n  res.sendFile('index.html');\n});\n\nspdy.createServer(options, app).listen(443);"
+  },
+  {
+    "id": "PERF-011",
+    "title": "Service Worker Caching",
+    "category": "Performance",
+    "language": "typescript",
+    "framework": "PWA",
+    "code": "// service-worker.ts\nconst CACHE_NAME = 'education-v1';\nconst urls = [\n  '/',\n  '/index.html',\n  '/css/main.css',\n  '/js/main.js',\n  '/manifest.json'\n];\n\nself.addEventListener('install', (event) => {\n  event.waitUntil(\n    caches.open(CACHE_NAME).then((cache) => {\n      return cache.addAll(urls);\n    })\n  );\n});\n\nself.addEventListener('fetch', (event) => {\n  // Network first, fallback to cache\n  event.respondWith(\n    fetch(event.request)\n      .then((response) => {\n        if (response.ok) {\n          const cache = caches.open(CACHE_NAME);\n          cache.then((c) => c.put(event.request, response.clone()));\n        }\n        return response;\n      })\n      .catch(() => {\n        return caches.match(event.request);\n      })\n  );\n});"
+  },
+  {
+    "id": "PERF-012",
+    "title": "WebAssembly for Performance-Critical Code",
+    "category": "Performance",
+    "language": "rust",
+    "framework": "Wasm",
+    "code": "// lib.rs - Rust code for WebAssembly\nuse wasm_bindgen::prelude::*;\n\n// Expensive computation in Rust (compiled to WASM)\n#[wasm_bindgen]\npub fn calculate_course_recommendation(user_data: &[f32]) -> Vec<u32> {\n  let mut scores = vec![];\n  \n  // Complex ML algorithm\n  for i in 0..user_data.len() {\n    let score = user_data[i] * 100.0 + (i as f32).sqrt();\n    scores.push(score as u32);\n  }\n  \n  // Sort by score\n  scores.sort_by(|a, b| b.cmp(a));\n  scores\n}\n\n// JavaScript usage\n// const wasm = await import('./calculate.wasm');\n// const recommendations = wasm.calculate_course_recommendation(userData);"
+  },
+  {
+    "id": "PERF-013",
+    "title": "GraphQL Query Complexity Limiting",
+    "category": "Performance",
+    "language": "typescript",
+    "framework": "Apollo Server",
+    "code": "import { ApolloServer } from 'apollo-server-express';\nimport depthLimit from 'graphql-depth-limit';\nimport { createComplexityLimitRule } from 'graphql-query-complexity';\n\nconst server = new ApolloServer({\n  typeDefs,\n  resolvers,\n  validationRules: [\n    // Limit query depth\n    depthLimit(5),\n    \n    // Limit query complexity\n    createComplexityLimitRule({\n      maxQueryComplexity: 1000,\n      variables: {},\n      onComplete: (complexity) => {\n        console.log(`Query complexity: ${complexity}`);\n      }\n    })\n  ]\n});\n\n// Complexity estimation\nconst typeDefs = gql`\n  type Course @cost(complexity: 2) {\n    id: ID!\n    title: String! @cost(complexity: 1)\n    reviews: [Review] @cost(complexity: 5, multipliers: [\"first\"])\n  }\n  \n  type Review @cost(complexity: 1) {\n    id: ID!\n    rating: Int!\n  }\n`;"
+  },
+  {
+    "id": "PERF-014",
+    "title": "Database Connection Pooling",
+    "category": "Performance",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import { Pool } from 'pg';\n\nconst pool = new Pool({\n  user: 'dbuser',\n  password: 'dbpassword',\n  host: 'localhost',\n  port: 5432,\n  database: 'education_db',\n  \n  // Connection pooling\n  max: 20, // Maximum pool size\n  min: 5,  // Minimum pool size\n  idleTimeoutMillis: 30000,\n  connectionTimeoutMillis: 2000,\n  maxUses: 7500 // Recycle connections\n});\n\n// Monitor pool\npool.on('error', (err) => {\n  console.error('Pool error:', err);\n});\n\npool.on('connect', () => {\n  console.log('New connection established');\n});\n\n// Query with pooling\nexport async function getCourses() {\n  const client = await pool.connect();\n  try {\n    const result = await client.query('SELECT * FROM courses');\n    return result.rows;\n  } finally {\n    client.release();\n  }\n}"
+  },
+  {
+    "id": "PERF-015",
+    "title": "Dynamic Import for Route-Based Code Splitting",
+    "category": "Performance",
+    "language": "typescript",
+    "framework": "Next.js",
+    "code": "// next.config.js\nmodule.exports = {\n  webpack: (config, { isServer }) => {\n    return config;\n  }\n};\n\n// pages/courses/[id].tsx\nimport dynamic from 'next/dynamic';\n\nconst CourseDetail = dynamic(\n  () => import('../../components/CourseDetail'),\n  { loading: () => <div>Loading...</div> }\n);\n\nconst ReviewSection = dynamic(\n  () => import('../../components/ReviewSection'),\n  { \n    loading: () => <div>Loading reviews...</div>,\n    ssr: false // Only load on client\n  }\n);\n\nexport default function Course() {\n  return (\n    <div>\n      <CourseDetail />\n      <ReviewSection />\n    </div>\n  );\n}"
+  },
+  {
+    "id": "PERF-016",
+    "title": "Reduce Main Thread Work",
+    "category": "Performance",
+    "language": "typescript",
+    "framework": "React",
+    "code": "import { useTransition } from 'react';\n\nfunction CourseFilter() {\n  const [filter, setFilter] = useState('');\n  const [courses, setCourses] = useState([]);\n  const [isPending, startTransition] = useTransition();\n  \n  const handleFilterChange = (e) => {\n    const value = e.target.value;\n    setFilter(value);\n    \n    // Defer state update to keep input responsive\n    startTransition(() => {\n      const filtered = courses.filter(c =>\n        c.title.includes(value)\n      );\n      setCourses(filtered);\n    });\n  };\n  \n  return (\n    <div>\n      <input \n        value={filter} \n        onChange={handleFilterChange}\n        placeholder=\"Search courses\"\n      />\n      {isPending && <div>Updating results...</div>}\n      {courses.map(course => (\n        <div key={course.id}>{course.title}</div>\n      ))}\n    </div>\n  );\n}"
+  },
+  {
+    "id": "PERF-017",
+    "title": "Critical CSS Extraction",
+    "category": "Performance",
+    "language": "typescript",
+    "framework": "Next.js",
+    "code": "// next.config.js\nconst withCritical = require('next-critical');\n\nmodule.exports = withCritical({\n  webpack: (config, { isServer }) => {\n    return config;\n  }\n});\n\n// pages/_document.tsx\nimport { Html, Head, Main, NextScript } from 'next/document';\n\nexport default function Document() {\n  return (\n    <Html>\n      <Head>\n        {/* Critical CSS inline */}\n        <style dangerouslySetInnerHTML={{ __html: criticalCSS }} />\n        {/* Defer non-critical CSS */}\n        <link rel=\"preload\" as=\"style\" href=\"/styles/non-critical.css\" />\n        <link rel=\"stylesheet\" href=\"/styles/non-critical.css\" />\n      </Head>\n      <body>\n        <Main />\n        <NextScript />\n      </body>\n    </Html>\n  );\n}"
+  },
+  {
+    "id": "PERF-018",
+    "title": "Core Web Vitals Monitoring",
+    "category": "Performance",
+    "language": "typescript",
+    "framework": "React",
+    "code": "import { getCLS, getFID, getFCP, getLCP, getTTFB } from 'web-vitals';\n\n// Send metrics to analytics\nfunction sendToAnalytics(metric) {\n  if (navigator.sendBeacon) {\n    const body = JSON.stringify(metric);\n    navigator.sendBeacon('/api/metrics', body);\n  } else {\n    fetch('/api/metrics', {\n      method: 'POST',\n      body: JSON.stringify(metric),\n      keepalive: true\n    });\n  }\n}\n\n// Monitor all Core Web Vitals\ngetCLS(sendToAnalytics);  // Cumulative Layout Shift\ngetFID(sendToAnalytics);  // First Input Delay\ngetFCP(sendToAnalytics);  // First Contentful Paint\ngetLCP(sendToAnalytics);  // Largest Contentful Paint\ngetTTFB(sendToAnalytics); // Time to First Byte\n\n// Or in React component\nimport { useEffect } from 'react';\n\nexport function PerformanceMonitor() {\n  useEffect(() => {\n    if ('PerformanceObserver' in window) {\n      const observer = new PerformanceObserver((list) => {\n        for (const entry of list.getEntries()) {\n          console.log('Performance entry:', entry);\n          sendToAnalytics(entry);\n        }\n      });\n      \n      observer.observe({ entryTypes: ['navigation', 'resource', 'paint'] });\n    }\n  }, []);\n  \n  return null;\n}"
+  },
+  {
+    "id": "PERF-019",
+    "title": "Optimize Images with WebP Format",
+    "category": "Performance",
+    "language": "html",
+    "framework": "HTML",
+    "code": "<picture>\n  <source \n    srcSet=\"/images/course-hero.webp\" \n    type=\"image/webp\"\n  />\n  <source \n    srcSet=\"/images/course-hero.jpg\" \n    type=\"image/jpeg\"\n  />\n  <img \n    src=\"/images/course-hero.jpg\" \n    alt=\"Course Hero\"\n    width=\"1200\"\n    height=\"400\"\n    loading=\"lazy\"\n  />\n</picture>\n\n<!-- Or with Next.js Image component -->\n<!-- <Image\n  src={courseThumbnail}\n  alt=\"Course\"\n  width={1200}\n  height={400}\n  format={['image/avif', 'image/webp']}\n/> -->"
+  },
+  {
+    "id": "PERF-020",
+    "title": "Lighthouse Performance Audit",
+    "category": "Performance",
+    "language": "yaml",
+    "framework": "CI/CD",
+    "code": "name: Lighthouse Performance Check\n\non:\n  pull_request:\n    branches: [main]\n\njobs:\n  lighthouse:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v3\n      \n      - name: Build application\n        run: npm run build\n      \n      - name: Run Lighthouse\n        uses: treosh/lighthouse-ci-action@v9\n        with:\n          configPath: './lighthouserc.json'\n          uploadArtifacts: true\n          temporaryPublicStorage: true\n      \n      - name: Comment PR with results\n        uses: actions/github-script@v6\n        if: always()\n        with:\n          script: |\n            const fs = require('fs');\n            const results = JSON.parse(fs.readFileSync('./lhr.json'));\n            const scores = results.categories;\n            \n            const comment = `\n            ## Lighthouse Report\n            - Performance: ${scores.performance.score * 100}\n            - Accessibility: ${scores.accessibility.score * 100}\n            - Best Practices: ${scores['best-practices'].score * 100}\n            - SEO: ${scores.seo.score * 100}\n            `;\n            \n            github.rest.issues.createComment({\n              issue_number: context.issue.number,\n              owner: context.repo.owner,\n              repo: context.repo.repo,\n              body: comment\n            });"
+  }
+]

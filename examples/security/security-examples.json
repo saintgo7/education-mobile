@@ -1,0 +1,242 @@
+[
+  {
+    "id": "SEC-001",
+    "title": "JWT Token Generation and Verification",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import jwt from 'jsonwebtoken';\n\nconst SECRET_KEY = process.env.JWT_SECRET;\n\n// Generate token\nexport function generateToken(userId: string) {\n  return jwt.sign(\n    { userId, iat: Math.floor(Date.now() / 1000) },\n    SECRET_KEY,\n    { expiresIn: '24h' }\n  );\n}\n\n// Verify token\nexport function verifyToken(token: string) {\n  try {\n    return jwt.verify(token, SECRET_KEY) as { userId: string };\n  } catch (error) {\n    throw new Error('Invalid token');\n  }\n}"
+  },
+  {
+    "id": "SEC-002",
+    "title": "Password Hashing with bcrypt",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import bcrypt from 'bcrypt';\n\n// Hash password\nexport async function hashPassword(password: string): Promise<string> {\n  const saltRounds = 10;\n  return bcrypt.hash(password, saltRounds);\n}\n\n// Verify password\nexport async function verifyPassword(\n  password: string,\n  hash: string\n): Promise<boolean> {\n  return bcrypt.compare(password, hash);\n}\n\n// Example usage\nconst hashedPassword = await hashPassword('user_password_123');\nconst isValid = await verifyPassword('user_password_123', hashedPassword);"
+  },
+  {
+    "id": "SEC-003",
+    "title": "SQL Injection Prevention - Parameterized Queries",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import { Pool } from 'pg';\n\nconst pool = new Pool();\n\n// Vulnerable - DO NOT USE\n// const query = `SELECT * FROM users WHERE email = '${email}'`;\n\n// Secure - Use parameterized queries\nexport async function getUserByEmail(email: string) {\n  const query = 'SELECT * FROM users WHERE email = $1';\n  const result = await pool.query(query, [email]);\n  return result.rows[0];\n}\n\n// Safe even with malicious input\nconst user = await getUserByEmail(\"admin'; DROP TABLE users; --\");\n// This will safely look for a user with that exact email"
+  },
+  {
+    "id": "SEC-004",
+    "title": "XSS Prevention - Sanitize User Input",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "React",
+    "code": "import DOMPurify from 'dompurify';\nimport React from 'react';\n\n// Vulnerable - DO NOT USE\n// function Comment({ text }) {\n//   return <div dangerouslySetInnerHTML={{ __html: text }} />;\n// }\n\n// Secure - Sanitize input\nfunction Comment({ text }) {\n  const sanitized = DOMPurify.sanitize(text);\n  return <div dangerouslySetInnerHTML={{ __html: sanitized }} />;\n}\n\n// For regular content, use text content\nfunction SafeComment({ text }) {\n  return <div>{text}</div>; // React escapes by default\n}"
+  },
+  {
+    "id": "SEC-005",
+    "title": "CSRF Token Protection",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import csrf from 'csurf';\nimport cookieParser from 'cookie-parser';\nexport const express = require('express');\n\nconst app = express();\napp.use(cookieParser());\n\nconst csrfProtection = csrf({ cookie: true });\n\n// Generate CSRF token\napp.get('/form', csrfProtection, (req, res) => {\n  res.send(`\n    <form action=\"/process\" method=\"post\">\n      <input type=\"hidden\" name=\"_csrf\" value=\"${req.csrfToken()}\">\n      <input type=\"text\" name=\"data\">\n      <button type=\"submit\">Submit</button>\n    </form>\n  `);\n});\n\n// Verify CSRF token\napp.post('/process', csrfProtection, (req, res) => {\n  res.send('Data processed safely');\n});"
+  },
+  {
+    "id": "SEC-006",
+    "title": "CORS Configuration",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import cors from 'cors';\nimport express from 'express';\n\nconst app = express();\n\n// Specific CORS configuration\nconst corsOptions = {\n  origin: ['https://educationmobile.com', 'https://www.educationmobile.com'],\n  credentials: true,\n  methods: ['GET', 'POST', 'PUT', 'DELETE'],\n  allowedHeaders: ['Content-Type', 'Authorization'],\n  maxAge: 86400 // 24 hours\n};\n\napp.use(cors(corsOptions));\n\n// Additional security headers\napp.use((req, res, next) => {\n  res.setHeader('X-Frame-Options', 'DENY');\n  res.setHeader('X-Content-Type-Options', 'nosniff');\n  res.setHeader('Strict-Transport-Security', 'max-age=31536000');\n  next();\n});"
+  },
+  {
+    "id": "SEC-007",
+    "title": "Rate Limiting",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import rateLimit from 'express-rate-limit';\nimport RedisStore from 'rate-limit-redis';\nimport redis from 'redis';\n\nconst redisClient = redis.createClient();\n\nconst limiter = rateLimit({\n  store: new RedisStore({\n    client: redisClient,\n    prefix: 'rl:'\n  }),\n  windowMs: 15 * 60 * 1000, // 15 minutes\n  max: 100, // limit each IP to 100 requests per windowMs\n  message: 'Too many requests'\n});\n\n// Apply rate limiting to login endpoint\napp.post('/api/login', limiter, (req, res) => {\n  // Process login\n});\n\n// Stricter limit for password reset\nconst passwordResetLimiter = rateLimit({\n  windowMs: 60 * 60 * 1000, // 1 hour\n  max: 3\n});\n\napp.post('/api/forgot-password', passwordResetLimiter, (req, res) => {\n  // Process password reset\n});"
+  },
+  {
+    "id": "SEC-008",
+    "title": "Environment Variables Configuration",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "// .env.example (commit this)\nDATABASE_URL=postgres://user:password@localhost/dbname\nJWT_SECRET=your-secret-key\nSTRIPE_SECRET_KEY=sk_test_...\nAPI_KEY=your-api-key\n\n// config.ts\nimport dotenv from 'dotenv';\n\ndotenv.config();\n\nif (!process.env.JWT_SECRET) {\n  throw new Error('JWT_SECRET environment variable is required');\n}\n\nexport const config = {\n  database: {\n    url: process.env.DATABASE_URL\n  },\n  jwt: {\n    secret: process.env.JWT_SECRET,\n    expiresIn: '24h'\n  },\n  stripe: {\n    secretKey: process.env.STRIPE_SECRET_KEY\n  }\n};"
+  },
+  {
+    "id": "SEC-009",
+    "title": "Input Validation with Joi",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import Joi from 'joi';\n\nconst registrationSchema = Joi.object({\n  email: Joi.string()\n    .email()\n    .required(),\n  password: Joi.string()\n    .min(8)\n    .pattern(/[a-z]/, 'lowercase')\n    .pattern(/[A-Z]/, 'uppercase')\n    .pattern(/[0-9]/, 'digits')\n    .required(),\n  username: Joi.string()\n    .alphanum()\n    .min(3)\n    .max(30)\n    .required(),\n  age: Joi.number()\n    .integer()\n    .min(13)\n    .max(120)\n});\n\nexport async function validateRegistration(data) {\n  try {\n    const validated = await registrationSchema.validateAsync(data);\n    return validated;\n  } catch (error) {\n    throw new Error(`Validation failed: ${error.message}`);\n  }\n}"
+  },
+  {
+    "id": "SEC-010",
+    "title": "Two-Factor Authentication (2FA)",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import speakeasy from 'speakeasy';\nimport QRCode from 'qrcode';\n\n// Generate 2FA secret\nexport function generateTwoFASecret(email: string) {\n  const secret = speakeasy.generateSecret({\n    name: `Education Platform (${email})`,\n    issuer: 'Education Platform',\n    length: 32\n  });\n  \n  return {\n    secret: secret.base32,\n    qrCode: QRCode.toDataURL(secret.otpauth_url)\n  };\n}\n\n// Verify 2FA token\nexport function verifyTwoFAToken(secret: string, token: string): boolean {\n  return speakeasy.totp.verify({\n    secret: secret,\n    encoding: 'base32',\n    token: token,\n    window: 2\n  });\n}"
+  },
+  {
+    "id": "SEC-011",
+    "title": "Content Security Policy (CSP)",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import helmet from 'helmet';\nimport express from 'express';\n\nconst app = express();\n\napp.use(helmet.contentSecurityPolicy({\n  directives: {\n    defaultSrc: [\"'self'\"],\n    styleSrc: [\"'self'\", \"'unsafe-inline'\", 'https://fonts.googleapis.com'],\n    scriptSrc: [\"'self'\", 'https://cdn.jsdelivr.net'],\n    imgSrc: [\"'self'\", 'data:', 'https:'],\n    connectSrc: [\"'self'\", 'https://api.stripe.com'],\n    fontSrc: [\"'self'\", 'https://fonts.gstatic.com'],\n    objectSrc: [\"'none'\"],\n    upgradeInsecureRequests: []\n  }\n}));"
+  },
+  {
+    "id": "SEC-012",
+    "title": "HTTPS and SSL/TLS",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import https from 'https';\nimport fs from 'fs';\nimport express from 'express';\n\nconst app = express();\n\nconst options = {\n  key: fs.readFileSync('/etc/ssl/private/server.key'),\n  cert: fs.readFileSync('/etc/ssl/certs/server.crt')\n};\n\n// Redirect HTTP to HTTPS\nconst httpApp = express();\nhttpApp.all('*', (req, res) => {\n  res.redirect(`https://${req.hostname}${req.url}`);\n});\n\nhttpApp.listen(80);\n\n// Start HTTPS server\nhttps.createServer(options, app).listen(443, () => {\n  console.log('HTTPS server running on port 443');\n});"
+  },
+  {
+    "id": "SEC-013",
+    "title": "Secure Session Management",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import session from 'express-session';\nimport RedisStore from 'connect-redis';\nimport redis from 'redis';\n\nconst redisClient = redis.createClient();\n\nconst sessionStore = new RedisStore({ client: redisClient });\n\nconst sessionConfig = {\n  store: sessionStore,\n  secret: process.env.SESSION_SECRET,\n  resave: false,\n  saveUninitialized: false,\n  cookie: {\n    httpOnly: true,\n    secure: process.env.NODE_ENV === 'production',\n    sameSite: 'strict',\n    maxAge: 24 * 60 * 60 * 1000 // 24 hours\n  }\n};\n\napp.use(session(sessionConfig));"
+  },
+  {
+    "id": "SEC-014",
+    "title": "Data Encryption at Rest",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import crypto from 'crypto';\n\nconst algorithm = 'aes-256-gcm';\nconst key = crypto.scryptSync(process.env.ENCRYPTION_KEY, 'salt', 32);\n\n// Encrypt sensitive data\nexport function encryptData(data: string): string {\n  const iv = crypto.randomBytes(16);\n  const cipher = crypto.createCipheriv(algorithm, key, iv);\n  \n  let encrypted = cipher.update(data, 'utf8', 'hex');\n  encrypted += cipher.final('hex');\n  \n  const authTag = cipher.getAuthTag();\n  \n  return `${iv.toString('hex')}:${authTag.toString('hex')}:${encrypted}`;\n}\n\n// Decrypt sensitive data\nexport function decryptData(encryptedData: string): string {\n  const [iv, authTag, encrypted] = encryptedData.split(':');\n  \n  const decipher = crypto.createDecipheriv(\n    algorithm,\n    key,\n    Buffer.from(iv, 'hex')\n  );\n  decipher.setAuthTag(Buffer.from(authTag, 'hex'));\n  \n  let decrypted = decipher.update(encrypted, 'hex', 'utf8');\n  decrypted += decipher.final('utf8');\n  \n  return decrypted;\n}"
+  },
+  {
+    "id": "SEC-015",
+    "title": "OAuth 2.0 Implementation",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import { OAuth2Strategy as GoogleStrategy } from 'passport-google-oauth20';\nimport passport from 'passport';\n\npassport.use(new GoogleStrategy(\n  {\n    clientID: process.env.GOOGLE_CLIENT_ID,\n    clientSecret: process.env.GOOGLE_CLIENT_SECRET,\n    callbackURL: 'https://educationmobile.com/auth/google/callback'\n  },\n  async (accessToken, refreshToken, profile, done) => {\n    try {\n      let user = await User.findOne({ googleId: profile.id });\n      \n      if (!user) {\n        user = await User.create({\n          googleId: profile.id,\n          email: profile.emails[0].value,\n          name: profile.displayName,\n          avatar: profile.photos[0].value\n        });\n      }\n      \n      return done(null, user);\n    } catch (error) {\n      return done(error);\n    }\n  }\n));\n\napp.get('/auth/google', passport.authenticate('google', {\n  scope: ['profile', 'email']\n}));\n\napp.get('/auth/google/callback',\n  passport.authenticate('google', { failureRedirect: '/login' }),\n  (req, res) => {\n    res.redirect('/dashboard');\n  }\n);"
+  },
+  {
+    "id": "SEC-016",
+    "title": "API Key Authentication",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import { v4 as uuidv4 } from 'uuid';\nimport bcrypt from 'bcrypt';\n\n// Generate API key\nexport async function generateApiKey(): Promise<string> {\n  const key = uuidv4();\n  const hashedKey = await bcrypt.hash(key, 10);\n  \n  await ApiKey.create({\n    key: hashedKey,\n    name: 'Integration API Key',\n    rateLimit: 1000\n  });\n  \n  return key; // Return unhashed key to user (shown only once)\n}\n\n// Verify API key middleware\nexport async function verifyApiKey(req, res, next) {\n  const key = req.headers['x-api-key'];\n  \n  if (!key) {\n    return res.status(401).json({ error: 'API key required' });\n  }\n  \n  const apiKey = await ApiKey.findOne({ name: 'Integration API Key' });\n  \n  if (!apiKey || !(await bcrypt.compare(key, apiKey.key))) {\n    return res.status(401).json({ error: 'Invalid API key' });\n  }\n  \n  req.apiKey = apiKey;\n  next();\n}\n\napp.use('/api/v1', verifyApiKey);"
+  },
+  {
+    "id": "SEC-017",
+    "title": "Dependency Vulnerability Scanning",
+    "category": "Security",
+    "language": "json",
+    "framework": "npm",
+    "code": "{\n  \"scripts\": {\n    \"audit\": \"npm audit\",\n    \"audit:fix\": \"npm audit fix\",\n    \"snyk:test\": \"snyk test\",\n    \"snyk:fix\": \"snyk fix\",\n    \"eslint\": \"eslint .\",\n    \"security-check\": \"npm audit && snyk test && eslint .\"\n  },\n  \"devDependencies\": {\n    \"snyk\": \"^latest\",\n    \"npm-audit-helper\": \"^latest\"\n  }\n}"
+  },
+  {
+    "id": "SEC-018",
+    "title": "Secure File Upload",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import multer from 'multer';\nimport path from 'path';\nimport fs from 'fs';\n\nconst ALLOWED_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];\nconst MAX_SIZE = 10 * 1024 * 1024; // 10MB\n\nconst storage = multer.diskStorage({\n  destination: (req, file, cb) => {\n    const uploadDir = './uploads';\n    if (!fs.existsSync(uploadDir)) {\n      fs.mkdirSync(uploadDir);\n    }\n    cb(null, uploadDir);\n  },\n  filename: (req, file, cb) => {\n    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);\n    cb(null, uniqueSuffix + path.extname(file.originalname));\n  }\n});\n\nconst upload = multer({\n  storage: storage,\n  fileFilter: (req, file, cb) => {\n    if (!ALLOWED_TYPES.includes(file.mimetype)) {\n      return cb(new Error('Invalid file type'));\n    }\n    cb(null, true);\n  },\n  limits: { fileSize: MAX_SIZE }\n});\n\napp.post('/upload', upload.single('file'), (req, res) => {\n  res.json({ filename: req.file.filename });\n});"
+  },
+  {
+    "id": "SEC-019",
+    "title": "Logging and Monitoring",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import winston from 'winston';\nimport morgan from 'morgan';\n\nconst logger = winston.createLogger({\n  level: process.env.LOG_LEVEL || 'info',\n  format: winston.format.json(),\n  defaultMeta: { service: 'education-platform' },\n  transports: [\n    new winston.transports.File({ filename: 'error.log', level: 'error' }),\n    new winston.transports.File({ filename: 'combined.log' })\n  ]\n});\n\nif (process.env.NODE_ENV !== 'production') {\n  logger.add(new winston.transports.Console({\n    format: winston.format.simple()\n  }));\n}\n\n// Log HTTP requests\napp.use(morgan(':method :url :status :response-time ms', {\n  stream: {\n    write: (message) => logger.info(message.trim())\n  }\n}));\n\n// Security logging\napp.use((req, res, next) => {\n  if (req.path.includes('/api/')) {\n    logger.info({\n      method: req.method,\n      path: req.path,\n      ip: req.ip,\n      userId: req.user?.id\n    });\n  }\n  next();\n});"
+  },
+  {
+    "id": "SEC-020",
+    "title": "Database Connection Security",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import mongoose from 'mongoose';\n\nconst connectDB = async () => {\n  try {\n    const conn = await mongoose.connect(process.env.MONGODB_URI, {\n      // Enforce TLS/SSL\n      tls: true,\n      tlsCAFile: process.env.MONGODB_CERT_PATH,\n      \n      // Connection pooling\n      maxPoolSize: 10,\n      minPoolSize: 5,\n      \n      // Timeout settings\n      connectTimeoutMS: 30000,\n      socketTimeoutMS: 45000,\n      \n      // Authentication\n      authSource: 'admin',\n      \n      // Server selection\n      serverSelectionTimeoutMS: 5000,\n      retryWrites: true\n    });\n    \n    console.log(`MongoDB connected: ${conn.connection.host}`);\n    return conn;\n  } catch (error) {\n    console.error('Database connection failed:', error);\n    process.exit(1);\n  }\n};\n\nawait connectDB();"
+  },
+  {
+    "id": "SEC-021",
+    "title": "Request/Response Validation",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import { z } from 'zod';\n\nconst courseSchema = z.object({\n  title: z.string().min(5).max(200),\n  description: z.string().min(20).max(5000),\n  price: z.number().positive().max(10000),\n  instructorId: z.string().uuid(),\n  category: z.enum(['web', 'mobile', 'data-science', 'ai'])\n});\n\nexport function validateCourseData(data: unknown) {\n  try {\n    return courseSchema.parse(data);\n  } catch (error) {\n    throw new Error(`Validation error: ${error.message}`);\n  }\n}\n\napp.post('/api/courses', (req, res) => {\n  try {\n    const validData = validateCourseData(req.body);\n    // Process validated data\n  } catch (error) {\n    return res.status(400).json({ error: error.message });\n  }\n});"
+  },
+  {
+    "id": "SEC-022",
+    "title": "Helmet Security Headers",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import helmet from 'helmet';\nimport express from 'express';\n\nconst app = express();\n\n// Apply security headers\napp.use(helmet());\n\n// Fine-tune specific headers\napp.use(helmet.frameguard({ action: 'deny' })); // X-Frame-Options\napp.use(helmet.xssFilter()); // X-XSS-Protection\napp.use(helmet.noSniff()); // X-Content-Type-Options\napp.use(helmet.hidePoweredBy()); // Remove X-Powered-By\napp.use(helmet.hsts({\n  maxAge: 31536000, // 1 year in seconds\n  includeSubDomains: true,\n  preload: true\n}));\n\napp.use(helmet.referrerPolicy({\n  policy: 'strict-origin-when-cross-origin'\n}));\n\napp.use(helmet.permittedCrossDomainPolicies({\n  permittedPolicies: 'none'\n}));"
+  },
+  {
+    "id": "SEC-023",
+    "title": "Audit Logging for Sensitive Actions",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import { AuditLog } from './models/AuditLog';\n\nexport async function logAuditEvent(\n  userId: string,\n  action: string,\n  resourceType: string,\n  resourceId: string,\n  changes?: Record<string, any>\n) {\n  await AuditLog.create({\n    userId,\n    action,\n    resourceType,\n    resourceId,\n    changes,\n    timestamp: new Date(),\n    ipAddress: request.ip,\n    userAgent: request.get('user-agent')\n  });\n}\n\n// Usage in sensitive operations\napp.delete('/api/users/:id', async (req, res) => {\n  const user = await User.findByIdAndDelete(req.params.id);\n  \n  await logAuditEvent(\n    req.user.id,\n    'DELETE_USER',\n    'User',\n    req.params.id,\n    { deletedUser: user }\n  );\n  \n  res.json({ success: true });\n});"
+  },
+  {
+    "id": "SEC-024",
+    "title": "Automated Security Testing",
+    "category": "Security",
+    "language": "yaml",
+    "framework": "GitHub Actions",
+    "code": "name: Security Tests\n\non:\n  push:\n    branches: [main, develop]\n  pull_request:\n    branches: [main]\n\njobs:\n  security:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v3\n      \n      - name: Run npm audit\n        run: npm audit --audit-level=moderate\n      \n      - name: Run Snyk security scan\n        uses: snyk/actions/node@master\n        env:\n          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}\n      \n      - name: OWASP Dependency Check\n        uses: dependency-check/Dependency-Check_Action@main\n        with:\n          project: 'education-platform'\n          path: '.'\n          format: 'JSON'\n      \n      - name: SonarQube Analysis\n        uses: SonarSource/sonarcloud-github-action@master\n        env:\n          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}\n          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}"
+  },
+  {
+    "id": "SEC-025",
+    "title": "Role-Based Access Control (RBAC)",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "export enum Role {\n  ADMIN = 'admin',\n  INSTRUCTOR = 'instructor',\n  STUDENT = 'student',\n  GUEST = 'guest'\n}\n\nconst rolePermissions = {\n  [Role.ADMIN]: ['read', 'write', 'delete', 'manage_users'],\n  [Role.INSTRUCTOR]: ['read', 'write', 'create_course'],\n  [Role.STUDENT]: ['read', 'enroll'],\n  [Role.GUEST]: ['read']\n};\n\nexport function authorize(requiredPermission: string) {\n  return (req, res, next) => {\n    const userRole = req.user?.role || Role.GUEST;\n    const permissions = rolePermissions[userRole] || [];\n    \n    if (!permissions.includes(requiredPermission)) {\n      return res.status(403).json({ \n        error: 'Insufficient permissions' \n      });\n    }\n    \n    next();\n  };\n}\n\n// Usage\napp.delete('/api/courses/:id', authorize('delete'), (req, res) => {\n  // Delete course\n});"
+  },
+  {
+    "id": "SEC-026",
+    "title": "Secure Password Reset Flow",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import crypto from 'crypto';\nimport { sendEmail } from './email';\n\n// Request password reset\nexport async function requestPasswordReset(email: string) {\n  const user = await User.findOne({ email });\n  \n  if (!user) {\n    // Don't reveal if email exists\n    return { success: true };\n  }\n  \n  const resetToken = crypto.randomBytes(32).toString('hex');\n  const resetTokenHash = crypto\n    .createHash('sha256')\n    .update(resetToken)\n    .digest('hex');\n  \n  user.resetToken = resetTokenHash;\n  user.resetTokenExpires = new Date(Date.now() + 3600000); // 1 hour\n  await user.save();\n  \n  const resetUrl = `https://educationmobile.com/reset-password?token=${resetToken}`;\n  \n  await sendEmail({\n    email,\n    subject: 'Password Reset Link',\n    message: `Click here to reset your password: ${resetUrl}`\n  });\n}\n\n// Reset password\nexport async function resetPassword(token: string, newPassword: string) {\n  const resetTokenHash = crypto\n    .createHash('sha256')\n    .update(token)\n    .digest('hex');\n  \n  const user = await User.findOne({\n    resetToken: resetTokenHash,\n    resetTokenExpires: { $gt: new Date() }\n  });\n  \n  if (!user) {\n    throw new Error('Invalid or expired reset token');\n  }\n  \n  user.password = await bcrypt.hash(newPassword, 10);\n  user.resetToken = undefined;\n  user.resetTokenExpires = undefined;\n  await user.save();\n}\n"
+  },
+  {
+    "id": "SEC-027",
+    "title": "GraphQL Security Best Practices",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Apollo Server",
+    "code": "import { ApolloServer } from 'apollo-server-express';\nimport { graphqlUploadExpress } from 'graphql-upload';\nimport rateLimit from 'express-rate-limit';\n\nconst server = new ApolloServer({\n  typeDefs,\n  resolvers,\n  // Enable introspection only in development\n  introspection: process.env.NODE_ENV === 'development',\n  // Disable playground in production\n  playground: process.env.NODE_ENV === 'development',\n  // Add authentication\n  context: async ({ req }) => {\n    const token = req.headers.authorization?.split(' ')[1];\n    const user = token ? verifyToken(token) : null;\n    return { user };\n  },\n  // Add validation rules\n  validationRules: [\n    // Add depth limiting\n    require('graphql-depth-limit')(10),\n    // Add query complexity limiting\n    require('graphql-query-complexity').createComplexityLimitRule({\n      maxQueryComplexity: 1000,\n    })\n  ]\n});\n\n// Rate limiting for GraphQL\nconst graphqlLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 100\n});\n\napp.post('/graphql', graphqlLimiter);"
+  },
+  {
+    "id": "SEC-028",
+    "title": "Prevent XXE Attacks",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import xml2js from 'xml2js';\n\n// Vulnerable - DO NOT USE\n// const parser = new xml2js.Parser();\n\n// Secure - Disable XXE\nconst parser = new xml2js.Parser({\n  // Disable DOCTYPE processing\n  doctype: null,\n  // Disable entity expansion\n  ignoreAttrs: false,\n  // Strict parsing\n  strict: true\n});\n\nexport async function parseXML(xmlString: string) {\n  try {\n    const result = await parser.parseStringPromise(xmlString);\n    return result;\n  } catch (error) {\n    throw new Error('Invalid XML');\n  }\n}"
+  },
+  {
+    "id": "SEC-029",
+    "title": "Secure Cookies Configuration",
+    "category": "Security",
+    "language": "typescript",
+    "framework": "Node.js",
+    "code": "import express from 'express';\n\nconst app = express();\n\n// Secure cookie settings\napp.use((req, res, next) => {\n  res.cookie('sessionId', req.sessionID, {\n    // Only send over HTTPS\n    secure: process.env.NODE_ENV === 'production',\n    // Prevent JavaScript access\n    httpOnly: true,\n    // CSRF protection\n    sameSite: 'strict',\n    // Cookie expiration\n    maxAge: 24 * 60 * 60 * 1000,\n    // Path restriction\n    path: '/api',\n    // Domain specification\n    domain: 'educationmobile.com'\n  });\n  \n  next();\n});\n\n// Prevent subdomain cookie sharing\napp.use((req, res, next) => {\n  // Set additional security headers for cookies\n  res.setHeader('Set-Cookie', [\n    `sessionId=${req.sessionID}; Secure; HttpOnly; SameSite=Strict`\n  ]);\n  next();\n});"
+  },
+  {
+    "id": "SEC-030",
+    "title": "Implement Security Checklist",
+    "category": "Security",
+    "language": "markdown",
+    "framework": "Documentation",
+    "code": "# Security Checklist\n\n## Authentication & Authorization\n- [ ] Implement strong password requirements\n- [ ] Use JWT or OAuth 2.0 for authentication\n- [ ] Implement 2FA for sensitive accounts\n- [ ] Role-based access control (RBAC)\n- [ ] Session timeout configuration\n\n## Data Protection\n- [ ] Encrypt data at rest\n- [ ] Use HTTPS/TLS for all communication\n- [ ] Hash passwords with bcrypt\n- [ ] Secure database connections\n- [ ] Regular backups with encryption\n\n## API Security\n- [ ] Input validation and sanitization\n- [ ] Rate limiting on all endpoints\n- [ ] CORS configuration\n- [ ] CSRF token protection\n- [ ] SQL injection prevention\n\n## Infrastructure\n- [ ] Use environment variables for secrets\n- [ ] Implement WAF (Web Application Firewall)\n- [ ] Regular security updates\n- [ ] Dependency vulnerability scanning\n- [ ] DDoS protection\n\n## Monitoring & Logging\n- [ ] Security event logging\n- [ ] Intrusion detection system\n- [ ] Real-time alerts\n- [ ] Access audit logs\n- [ ] Performance monitoring"
+  }
+]

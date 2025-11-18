@@ -1,0 +1,226 @@
+[
+  {
+    "id": "REACT-001",
+    "title": "Counter 컴포넌트 - useState",
+    "difficulty": "beginner",
+    "language": "typescript",
+    "category": "state management",
+    "code": "import { useState } from 'react';\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n  \n  return (\n    <div>\n      <p>Count: {count}</p>\n      <button onClick={() => setCount(count + 1)}>Increment</button>\n      <button onClick={() => setCount(count - 1)}>Decrement</button>\n    </div>\n  );\n}"
+  },
+  {
+    "id": "REACT-002",
+    "title": "Form 컴포넌트 - useState",
+    "difficulty": "beginner",
+    "language": "typescript",
+    "category": "forms",
+    "code": "import { useState } from 'react';\n\nfunction Form() {\n  const [formData, setFormData] = useState({ name: '', email: '' });\n  \n  const handleChange = (e) => {\n    const { name, value } = e.target;\n    setFormData(prev => ({ ...prev, [name]: value }));\n  };\n  \n  const handleSubmit = (e) => {\n    e.preventDefault();\n    console.log('Submitted:', formData);\n  };\n  \n  return (\n    <form onSubmit={handleSubmit}>\n      <input name=\"name\" value={formData.name} onChange={handleChange} />\n      <input name=\"email\" value={formData.email} onChange={handleChange} />\n      <button type=\"submit\">Submit</button>\n    </form>\n  );\n}"
+  },
+  {
+    "id": "REACT-003",
+    "title": "useEffect로 API 호출",
+    "difficulty": "beginner",
+    "language": "typescript",
+    "category": "api",
+    "code": "import { useState, useEffect } from 'react';\n\nfunction CourseList() {\n  const [courses, setCourses] = useState([]);\n  const [loading, setLoading] = useState(true);\n  \n  useEffect(() => {\n    fetch('/api/courses')\n      .then(res => res.json())\n      .then(data => {\n        setCourses(data);\n        setLoading(false);\n      });\n  }, []);\n  \n  return loading ? <div>Loading...</div> : <div>{courses.map(c => <div key={c.id}>{c.title}</div>)}</div>;\n}"
+  },
+  {
+    "id": "REACT-004",
+    "title": "useReducer로 복잡한 상태 관리",
+    "difficulty": "intermediate",
+    "language": "typescript",
+    "category": "state management",
+    "code": "import { useReducer } from 'react';\n\nfunction reducer(state, action) {\n  switch(action.type) {\n    case 'INCREMENT': return { count: state.count + 1 };\n    case 'DECREMENT': return { count: state.count - 1 };\n    default: return state;\n  }\n}\n\nfunction Counter() {\n  const [state, dispatch] = useReducer(reducer, { count: 0 });\n  return (\n    <div>\n      <p>{state.count}</p>\n      <button onClick={() => dispatch({ type: 'INCREMENT' })}>+</button>\n      <button onClick={() => dispatch({ type: 'DECREMENT' })}>-</button>\n    </div>\n  );\n}"
+  },
+  {
+    "id": "REACT-005",
+    "title": "useContext로 전역 상태",
+    "difficulty": "intermediate",
+    "language": "typescript",
+    "category": "state management",
+    "code": "import { createContext, useContext, useState } from 'react';\n\nconst AuthContext = createContext();\n\nfunction AuthProvider({ children }) {\n  const [user, setUser] = useState(null);\n  return <AuthContext.Provider value={{ user, setUser }}>{children}</AuthContext.Provider>;\n}\n\nfunction useAuth() {\n  return useContext(AuthContext);\n}\n\nfunction Profile() {\n  const { user } = useAuth();\n  return <div>User: {user?.name}</div>;\n}"
+  },
+  {
+    "id": "REACT-006",
+    "title": "List 렌더링 - keys",
+    "difficulty": "beginner",
+    "language": "typescript",
+    "category": "rendering",
+    "code": "function CourseList({ courses }) {\n  return (\n    <ul>\n      {courses.map(course => (\n        <li key={course.id}>\n          <h3>{course.title}</h3>\n          <p>{course.description}</p>\n        </li>\n      ))}\n    </ul>\n  );\n}"
+  },
+  {
+    "id": "REACT-007",
+    "title": "조건부 렌더링",
+    "difficulty": "beginner",
+    "language": "typescript",
+    "category": "rendering",
+    "code": "function LoginButton({ isLoggedIn, user }) {\n  if (isLoggedIn) {\n    return <button>Logout {user.name}</button>;\n  }\n  return <button>Login</button>;\n}\n\nfunction App() {\n  return isLoggedIn ? <Dashboard /> : <LoginForm />;\n}"
+  },
+  {
+    "id": "REACT-008",
+    "title": "Props 검증",
+    "difficulty": "beginner",
+    "language": "typescript",
+    "category": "components",
+    "code": "import PropTypes from 'prop-types';\n\nfunction Course({ id, title, rating }) {\n  return <div>{title} - {rating}/5</div>;\n}\n\nCourse.propTypes = {\n  id: PropTypes.number.isRequired,\n  title: PropTypes.string.isRequired,\n  rating: PropTypes.number\n};"
+  },
+  {
+    "id": "REACT-009",
+    "title": "custom Hook - useInput",
+    "difficulty": "intermediate",
+    "language": "typescript",
+    "category": "hooks",
+    "code": "function useInput(initialValue) {\n  const [value, setValue] = useState(initialValue);\n  return {\n    value,\n    bind: {\n      value,\n      onChange: e => setValue(e.target.value)\n    },\n    clear: () => setValue('')\n  };\n}\n\nfunction LoginForm() {\n  const email = useInput('');\n  const password = useInput('');\n  return (\n    <form>\n      <input {...email.bind} type=\"email\" />\n      <input {...password.bind} type=\"password\" />\n      <button onClick={() => { email.clear(); password.clear(); }}>Clear</button>\n    </form>\n  );\n}"
+  },
+  {
+    "id": "REACT-010",
+    "title": "Error Boundary",
+    "difficulty": "intermediate",
+    "language": "typescript",
+    "category": "error handling",
+    "code": "class ErrorBoundary extends React.Component {\n  constructor(props) {\n    super(props);\n    this.state = { hasError: false };\n  }\n  \n  static getDerivedStateFromError(error) {\n    return { hasError: true };\n  }\n  \n  componentDidCatch(error, errorInfo) {\n    console.log(error, errorInfo);\n  }\n  \n  render() {\n    if (this.state.hasError) {\n      return <h1>Something went wrong</h1>;\n    }\n    return this.props.children;\n  }\n}"
+  },
+  {
+    "id": "VUE-001",
+    "title": "Vue 기본 데이터 바인딩",
+    "difficulty": "beginner",
+    "language": "typescript",
+    "category": "vue",
+    "code": "<template>\n  <div>\n    <input v-model=\"message\" />\n    <p>{{ message }}</p>\n  </div>\n</template>\n\n<script setup>\nimport { ref } from 'vue';\nconst message = ref('');\n</script>"
+  },
+  {
+    "id": "VUE-002",
+    "title": "Vue v-for 렌더링",
+    "difficulty": "beginner",
+    "language": "typescript",
+    "category": "vue",
+    "code": "<template>\n  <ul>\n    <li v-for=\"course in courses\" :key=\"course.id\">\n      {{ course.title }}\n    </li>\n  </ul>\n</template>\n\n<script setup>\nimport { ref } from 'vue';\nconst courses = ref([\n  { id: 1, title: 'React' },\n  { id: 2, title: 'Vue' }\n]);\n</script>"
+  },
+  {
+    "id": "VUE-003",
+    "title": "Vue 조건부 렌더링",
+    "difficulty": "beginner",
+    "language": "typescript",
+    "category": "vue",
+    "code": "<template>\n  <div>\n    <button @click=\"isVisible = !isVisible\">Toggle</button>\n    <p v-if=\"isVisible\">Visible</p>\n    <p v-else>Hidden</p>\n  </div>\n</template>\n\n<script setup>\nimport { ref } from 'vue';\nconst isVisible = ref(true);\n</script>"
+  },
+  {
+    "id": "VUE-004",
+    "title": "Vue 이벤트 처리",
+    "difficulty": "beginner",
+    "language": "typescript",
+    "category": "vue",
+    "code": "<template>\n  <div>\n    <button @click=\"increment\">Increment</button>\n    <p>Count: {{ count }}</p>\n  </div>\n</template>\n\n<script setup>\nimport { ref } from 'vue';\nconst count = ref(0);\nconst increment = () => count.value++;\n</script>"
+  },
+  {
+    "id": "VUE-005",
+    "title": "Vue computed 속성",
+    "difficulty": "intermediate",
+    "language": "typescript",
+    "category": "vue",
+    "code": "<template>\n  <div>\n    <p>Full Name: {{ fullName }}</p>\n  </div>\n</template>\n\n<script setup>\nimport { ref, computed } from 'vue';\nconst firstName = ref('John');\nconst lastName = ref('Doe');\nconst fullName = computed(() => `${firstName.value} ${lastName.value}`);\n</script>"
+  },
+  {
+    "id": "REACT-011",
+    "title": "Redux 통합",
+    "difficulty": "intermediate",
+    "language": "typescript",
+    "category": "state management",
+    "code": "import { useSelector, useDispatch } from 'react-redux';\n\nfunction Counter() {\n  const count = useSelector(state => state.counter.value);\n  const dispatch = useDispatch();\n  \n  return (\n    <div>\n      <p>{count}</p>\n      <button onClick={() => dispatch({ type: 'INCREMENT' })}>+</button>\n    </div>\n  );\n}"
+  },
+  {
+    "id": "REACT-012",
+    "title": "라우팅 - React Router",
+    "difficulty": "intermediate",
+    "language": "typescript",
+    "category": "routing",
+    "code": "import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';\n\nfunction App() {\n  return (\n    <BrowserRouter>\n      <nav>\n        <Link to=\"/\">Home</Link>\n        <Link to=\"/courses\">Courses</Link>\n      </nav>\n      <Routes>\n        <Route path=\"/\" element={<Home />} />\n        <Route path=\"/courses\" element={<Courses />} />\n      </Routes>\n    </BrowserRouter>\n  );\n}"
+  },
+  {
+    "id": "REACT-013",
+    "title": "모달 컴포넌트",
+    "difficulty": "intermediate",
+    "language": "typescript",
+    "category": "components",
+    "code": "function Modal({ isOpen, onClose, children }) {\n  if (!isOpen) return null;\n  return (\n    <div className=\"modal-backdrop\" onClick={onClose}>\n      <div className=\"modal-content\" onClick={e => e.stopPropagation()}>\n        {children}\n        <button onClick={onClose}>Close</button>\n      </div>\n    </div>\n  );\n}\n\nfunction App() {\n  const [isOpen, setIsOpen] = useState(false);\n  return (\n    <>\n      <button onClick={() => setIsOpen(true)}>Open Modal</button>\n      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>\n        <h2>Modal Content</h2>\n      </Modal>\n    </>\n  );\n}"
+  },
+  {
+    "id": "REACT-014",
+    "title": "드래그 앤 드롭",
+    "difficulty": "advanced",
+    "language": "typescript",
+    "category": "interaction",
+    "code": "function DragAndDrop() {\n  const [items, setItems] = useState(['Item 1', 'Item 2']);\n  const [draggedItem, setDraggedItem] = useState(null);\n  \n  const handleDragStart = (e, index) => {\n    setDraggedItem(index);\n  };\n  \n  const handleDragOver = (e) => {\n    e.preventDefault();\n  };\n  \n  const handleDrop = (e, targetIndex) => {\n    e.preventDefault();\n    const newItems = [...items];\n    const [draggedItemValue] = newItems.splice(draggedItem, 1);\n    newItems.splice(targetIndex, 0, draggedItemValue);\n    setItems(newItems);\n  };\n  \n  return (\n    <div>\n      {items.map((item, index) => (\n        <div key={index} draggable onDragStart={(e) => handleDragStart(e, index)} onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, index)}>\n          {item}\n        </div>\n      ))}\n    </div>\n  );\n}"
+  },
+  {
+    "id": "REACT-015",
+    "title": "파일 업로드",
+    "difficulty": "intermediate",
+    "language": "typescript",
+    "category": "forms",
+    "code": "function FileUpload() {\n  const [file, setFile] = useState(null);\n  \n  const handleFileChange = (e) => {\n    setFile(e.target.files[0]);\n  };\n  \n  const handleUpload = async () => {\n    const formData = new FormData();\n    formData.append('file', file);\n    const response = await fetch('/api/upload', {\n      method: 'POST',\n      body: formData\n    });\n    console.log(await response.json());\n  };\n  \n  return (\n    <div>\n      <input type=\"file\" onChange={handleFileChange} />\n      <button onClick={handleUpload}>Upload</button>\n    </div>\n  );\n}"
+  },
+  {
+    "id": "VUE-006",
+    "title": "Vue 양방향 바인딩",
+    "difficulty": "beginner",
+    "language": "typescript",
+    "category": "vue",
+    "code": "<template>\n  <div>\n    <input v-model=\"user.email\" placeholder=\"Email\" />\n    <input v-model=\"user.password\" placeholder=\"Password\" />\n    <p>Email: {{ user.email }}</p>\n  </div>\n</template>\n\n<script setup>\nimport { reactive } from 'vue';\nconst user = reactive({ email: '', password: '' });\n</script>"
+  },
+  {
+    "id": "VUE-007",
+    "title": "Vue lifecycle hooks",
+    "difficulty": "intermediate",
+    "language": "typescript",
+    "category": "vue",
+    "code": "<script setup>\nimport { onMounted, onUnmounted } from 'vue';\n\nonMounted(() => {\n  console.log('Component mounted');\n});\n\nonUnmounted(() => {\n  console.log('Component unmounted');\n});\n</script>\n\n<template>\n  <div>Component</div>\n</template>"
+  },
+  {
+    "id": "VUE-008",
+    "title": "Vue 폼 제출",
+    "difficulty": "beginner",
+    "language": "typescript",
+    "category": "vue",
+    "code": "<template>\n  <form @submit.prevent=\"submitForm\">\n    <input v-model=\"form.email\" type=\"email\" />\n    <button type=\"submit\">Submit</button>\n  </form>\n</template>\n\n<script setup>\nimport { ref } from 'vue';\nconst form = ref({ email: '' });\nconst submitForm = () => {\n  console.log(form.value);\n};\n</script>"
+  },
+  {
+    "id": "REACT-016",
+    "title": "이미지 갤러리",
+    "difficulty": "intermediate",
+    "language": "typescript",
+    "category": "components",
+    "code": "function ImageGallery({ images }) {\n  const [selectedIndex, setSelectedIndex] = useState(0);\n  \n  return (\n    <div>\n      <img src={images[selectedIndex]} style={{ width: '100%' }} />\n      <div>\n        {images.map((img, idx) => (\n          <img key={idx} src={img} style={{ width: '50px', cursor: 'pointer' }} onClick={() => setSelectedIndex(idx)} />\n        ))}\n      </div>\n    </div>\n  );\n}"
+  },
+  {
+    "id": "REACT-017",
+    "title": "검색 기능",
+    "difficulty": "intermediate",
+    "language": "typescript",
+    "category": "features",
+    "code": "function SearchBar({ courses }) {\n  const [query, setQuery] = useState('');\n  const filtered = courses.filter(c => c.title.toLowerCase().includes(query.toLowerCase()));\n  \n  return (\n    <div>\n      <input value={query} onChange={e => setQuery(e.target.value)} placeholder=\"Search...\" />\n      <ul>\n        {filtered.map(c => <li key={c.id}>{c.title}</li>)}\n      </ul>\n    </div>\n  );\n}"
+  },
+  {
+    "id": "REACT-018",
+    "title": "페이지네이션",
+    "difficulty": "intermediate",
+    "language": "typescript",
+    "category": "features",
+    "code": "function Pagination({ items, itemsPerPage }) {\n  const [currentPage, setCurrentPage] = useState(1);\n  const totalPages = Math.ceil(items.length / itemsPerPage);\n  const start = (currentPage - 1) * itemsPerPage;\n  const currentItems = items.slice(start, start + itemsPerPage);\n  \n  return (\n    <div>\n      {currentItems.map(item => <div key={item.id}>{item.title}</div>)}\n      <div>\n        {Array.from({ length: totalPages }).map((_, i) => (\n          <button key={i + 1} onClick={() => setCurrentPage(i + 1)} disabled={currentPage === i + 1}>\n            {i + 1}\n          </button>\n        ))}\n      </div>\n    </div>\n  );\n}"
+  },
+  {
+    "id": "REACT-019",
+    "title": "실시간 검색 - debounce",
+    "difficulty": "advanced",
+    "language": "typescript",
+    "category": "optimization",
+    "code": "function useDebounce(value, delay) {\n  const [debouncedValue, setDebouncedValue] = useState(value);\n  \n  useEffect(() => {\n    const timer = setTimeout(() => setDebouncedValue(value), delay);\n    return () => clearTimeout(timer);\n  }, [value, delay]);\n  \n  return debouncedValue;\n}\n\nfunction SearchUsers() {\n  const [query, setQuery] = useState('');\n  const debouncedQuery = useDebounce(query, 500);\n  const [results, setResults] = useState([]);\n  \n  useEffect(() => {\n    if (debouncedQuery) {\n      fetch(`/api/users?q=${debouncedQuery}`).then(r => r.json()).then(setResults);\n    }\n  }, [debouncedQuery]);\n  \n  return (\n    <div>\n      <input value={query} onChange={e => setQuery(e.target.value)} />\n      <div>{results.map(r => <div key={r.id}>{r.name}</div>)}</div>\n    </div>\n  );\n}"
+  },
+  {
+    "id": "REACT-020",
+    "title": "무한 스크롤",
+    "difficulty": "advanced",
+    "language": "typescript",
+    "category": "optimization",
+    "code": "function InfiniteScroll({ onLoadMore }) {\n  const [items, setItems] = useState([]);\n  const [page, setPage] = useState(1);\n  const observerTarget = useRef(null);\n  \n  useEffect(() => {\n    const observer = new IntersectionObserver(entries => {\n      if (entries[0].isIntersecting) {\n        setPage(p => p + 1);\n      }\n    });\n    observer.observe(observerTarget.current);\n    return () => observer.disconnect();\n  }, []);\n  \n  useEffect(() => {\n    onLoadMore(page).then(newItems => setItems(prev => [...prev, ...newItems]));\n  }, [page]);\n  \n  return (\n    <div>\n      {items.map(item => <div key={item.id}>{item.title}</div>)}\n      <div ref={observerTarget} />\n    </div>\n  );\n}"
+  }
+]

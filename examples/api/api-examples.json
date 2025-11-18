@@ -1,0 +1,178 @@
+[
+  {
+    "id": "API-001",
+    "title": "기본 GET 요청",
+    "difficulty": "beginner",
+    "language": "javascript",
+    "code": "fetch('/api/courses')\n  .then(response => response.json())\n  .then(data => console.log(data))\n  .catch(error => console.error(error));"
+  },
+  {
+    "id": "API-002",
+    "title": "POST 요청 - JSON",
+    "difficulty": "beginner",
+    "language": "javascript",
+    "code": "fetch('/api/courses', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({ title: 'New Course', description: 'Description' })\n}).then(r => r.json()).then(console.log);"
+  },
+  {
+    "id": "API-003",
+    "title": "인증 헤더",
+    "difficulty": "intermediate",
+    "language": "javascript",
+    "code": "const token = localStorage.getItem('token');\nfetch('/api/users/profile', {\n  headers: { 'Authorization': `Bearer ${token}` }\n}).then(r => r.json()).then(console.log);"
+  },
+  {
+    "id": "API-004",
+    "title": "PUT 요청",
+    "difficulty": "beginner",
+    "language": "javascript",
+    "code": "fetch('/api/courses/123', {\n  method: 'PUT',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({ title: 'Updated Title' })\n}).then(r => r.json()).then(console.log);"
+  },
+  {
+    "id": "API-005",
+    "title": "DELETE 요청",
+    "difficulty": "beginner",
+    "language": "javascript",
+    "code": "fetch('/api/courses/123', { method: 'DELETE' })\n  .then(r => r.json())\n  .then(() => console.log('Deleted'));"
+  },
+  {
+    "id": "API-006",
+    "title": "에러 처리",
+    "difficulty": "intermediate",
+    "language": "javascript",
+    "code": "async function getCourse(id) {\n  try {\n    const response = await fetch(`/api/courses/${id}`);\n    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);\n    return await response.json();\n  } catch (error) {\n    console.error('Failed to fetch:', error);\n  }\n}"
+  },
+  {
+    "id": "API-007",
+    "title": "Axios 기본 GET",
+    "difficulty": "beginner",
+    "language": "javascript",
+    "code": "import axios from 'axios';\n\naxios.get('/api/courses')\n  .then(response => console.log(response.data))\n  .catch(error => console.error(error));"
+  },
+  {
+    "id": "API-008",
+    "title": "Axios POST",
+    "difficulty": "beginner",
+    "language": "javascript",
+    "code": "import axios from 'axios';\n\naxios.post('/api/courses', {\n  title: 'New Course',\n  description: 'Description'\n}).then(response => console.log(response.data));"
+  },
+  {
+    "id": "API-009",
+    "title": "Axios interceptors",
+    "difficulty": "intermediate",
+    "language": "javascript",
+    "code": "import axios from 'axios';\n\nconst instance = axios.create();\ninstance.interceptors.request.use(config => {\n  config.headers.Authorization = `Bearer ${localStorage.getItem('token')}`;\n  return config;\n});"
+  },
+  {
+    "id": "API-010",
+    "title": "병렬 요청",
+    "difficulty": "intermediate",
+    "language": "javascript",
+    "code": "Promise.all([\n  fetch('/api/courses').then(r => r.json()),\n  fetch('/api/users').then(r => r.json())\n]).then(([courses, users]) => console.log({ courses, users }));"
+  },
+  {
+    "id": "API-011",
+    "title": "쿼리 파라미터",
+    "difficulty": "beginner",
+    "language": "javascript",
+    "code": "const params = new URLSearchParams({ limit: 10, offset: 0 });\nfetch(`/api/courses?${params}`)\n  .then(r => r.json())\n  .then(console.log);"
+  },
+  {
+    "id": "API-012",
+    "title": "파일 업로드",
+    "difficulty": "intermediate",
+    "language": "javascript",
+    "code": "const formData = new FormData();\nformData.append('file', fileInput.files[0]);\nformData.append('title', 'Video');\n\nfetch('/api/videos/upload', {\n  method: 'POST',\n  body: formData\n}).then(r => r.json()).then(console.log);"
+  },
+  {
+    "id": "API-013",
+    "title": "캐싱 전략",
+    "difficulty": "intermediate",
+    "language": "javascript",
+    "code": "const cache = {};\n\nasync function getCourseWithCache(id) {\n  if (cache[id]) return cache[id];\n  const data = await fetch(`/api/courses/${id}`).then(r => r.json());\n  cache[id] = data;\n  return data;\n}"
+  },
+  {
+    "id": "API-014",
+    "title": "Retry 로직",
+    "difficulty": "advanced",
+    "language": "javascript",
+    "code": "async function fetchWithRetry(url, maxRetries = 3) {\n  for (let i = 0; i < maxRetries; i++) {\n    try {\n      return await fetch(url).then(r => r.json());\n    } catch (error) {\n      if (i === maxRetries - 1) throw error;\n      await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));\n    }\n  }\n}"
+  },
+  {
+    "id": "API-015",
+    "title": "Streaming 응답",
+    "difficulty": "advanced",
+    "language": "javascript",
+    "code": "const response = await fetch('/api/courses');\nconst reader = response.body.getReader();\nwhile (true) {\n  const { done, value } = await reader.read();\n  if (done) break;\n  console.log(new TextDecoder().decode(value));\n}"
+  },
+  {
+    "id": "API-016",
+    "title": "GraphQL 요청",
+    "difficulty": "advanced",
+    "language": "javascript",
+    "code": "const query = `\n  query {\n    courses {\n      id\n      title\n      rating\n    }\n  }\n`;\n\nfetch('/graphql', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({ query })\n}).then(r => r.json()).then(console.log);"
+  },
+  {
+    "id": "API-017",
+    "title": "로그인 및 토큰 저장",
+    "difficulty": "intermediate",
+    "language": "javascript",
+    "code": "async function login(email, password) {\n  const response = await fetch('/api/auth/login', {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({ email, password })\n  });\n  const { token } = await response.json();\n  localStorage.setItem('token', token);\n  return token;\n}"
+  },
+  {
+    "id": "API-018",
+    "title": "토큰 새로고침",
+    "difficulty": "intermediate",
+    "language": "javascript",
+    "code": "async function refreshToken() {\n  const token = localStorage.getItem('refreshToken');\n  const response = await fetch('/api/auth/refresh', {\n    method: 'POST',\n    body: JSON.stringify({ refreshToken: token })\n  });\n  const { accessToken } = await response.json();\n  localStorage.setItem('token', accessToken);\n}"
+  },
+  {
+    "id": "API-019",
+    "title": "페이지네이션",
+    "difficulty": "intermediate",
+    "language": "javascript",
+    "code": "async function getCoursesPaginated(page = 1, limit = 10) {\n  const offset = (page - 1) * limit;\n  const response = await fetch(`/api/courses?limit=${limit}&offset=${offset}`);\n  return response.json();\n}"
+  },
+  {
+    "id": "API-020",
+    "title": "필터링",
+    "difficulty": "intermediate",
+    "language": "javascript",
+    "code": "async function filterCourses(filters) {\n  const params = new URLSearchParams(filters);\n  const response = await fetch(`/api/courses?${params}`);\n  return response.json();\n}\n\nfilterCourses({ category: 'programming', level: 'advanced' });"
+  },
+  {
+    "id": "API-021",
+    "title": "결제 결제 의도 생성",
+    "difficulty": "intermediate",
+    "language": "javascript",
+    "code": "async function createPaymentIntent(courseId, amount) {\n  const response = await fetch('/api/payments/intent', {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },\n    body: JSON.stringify({ courseId, amount })\n  });\n  return response.json();\n}"
+  },
+  {
+    "id": "API-022",
+    "title": "결제 환불",
+    "difficulty": "intermediate",
+    "language": "javascript",
+    "code": "async function refundPayment(paymentId) {\n  const response = await fetch(`/api/payments/${paymentId}/refund`, {\n    method: 'POST',\n    headers: { 'Authorization': `Bearer ${token}` }\n  });\n  return response.json();\n}"
+  },
+  {
+    "id": "API-023",
+    "title": "코스 등록",
+    "difficulty": "beginner",
+    "language": "javascript",
+    "code": "async function enrollCourse(courseId) {\n  const response = await fetch(`/api/courses/${courseId}/enroll`, {\n    method: 'POST',\n    headers: { 'Authorization': `Bearer ${token}` }\n  });\n  return response.json();\n}"
+  },
+  {
+    "id": "API-024",
+    "title": "진행률 업데이트",
+    "difficulty": "intermediate",
+    "language": "javascript",
+    "code": "async function updateProgress(courseId, progress) {\n  const response = await fetch(`/api/progress/${courseId}`, {\n    method: 'PUT',\n    headers: {\n      'Content-Type': 'application/json',\n      'Authorization': `Bearer ${token}`\n    },\n    body: JSON.stringify({ progress })\n  });\n  return response.json();\n}"
+  },
+  {
+    "id": "API-025",
+    "title": "비디오 업로드",
+    "difficulty": "intermediate",\n    "language": "javascript",\n    "code": "async function uploadVideo(file, lessonId) {\n  const formData = new FormData();\n  formData.append('file', file);\n  formData.append('lessonId', lessonId);\n  const response = await fetch('/api/videos/upload', {\n    method: 'POST',\n    headers: { 'Authorization': `Bearer ${token}` },\n    body: formData\n  });\n  return response.json();\n}"\n  },\n  {\n    "id": "API-026",\n    "title": "이메일 구독",\n    "difficulty": "beginner",\n    "language": "javascript",\n    "code": "async function subscribeToNewsletter(email) {\n  const response = await fetch('/api/subscriptions', {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({ email })\n  });\n  return response.json();\n}"\n  },\n  {\n    "id": "API-027",\n    "title": "실시간 메시지",\n    "difficulty": "advanced",\n    "language": "javascript",\n    "code": "const socket = io('http://localhost:3003');\nsocket.emit('join-room', { roomId, userId });\nsocket.on('new-message', (message) => {\n  console.log('New message:', message);\n});\nsocket.emit('send-message', { roomId, content });"
+  },
+  {
+    "id": "API-028",\n    "title": "추천 코스 조회",\n    "difficulty": "intermediate",\n    "language": "javascript",\n    "code": "async function getRecommendations(userId) {\n  const response = await fetch(`/api/recommendations/${userId}`, {\n    headers: { 'Authorization': `Bearer ${token}` }\n  });\n  return response.json();\n}"\n  },\n  {\n    "id": "API-029",\n    "title": "분석 데이터 조회",\n    "difficulty": "intermediate",\n    "language": "javascript",\n    "code": "async function getAnalytics(userId) {\n  const response = await fetch(`/api/analytics/users/${userId}`, {\n    headers: { 'Authorization': `Bearer ${token}` }\n  });\n  return response.json();\n}"\n  },\n  {\n    "id": "API-030",\n    "title": "웹훅 처리",\n    "difficulty": "advanced",\n    "language": "javascript",\n    "code": "app.post('/webhook/payment', (req, res) => {\n  const signature = req.headers['stripe-signature'];\n  const event = stripe.webhooks.constructEvent(req.body, signature, SECRET);\n  \n  if (event.type === 'payment_intent.succeeded') {\n    const { id, metadata } = event.data.object;\n    enrollUserInCourse(metadata.userId, metadata.courseId);\n  }\n  res.json({ received: true });\n});"
+  }
+]
